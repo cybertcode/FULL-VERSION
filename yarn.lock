@@ -2,53 +2,53 @@
 # yarn lockfile v1
 
 
-"@algolia/autocomplete-core@1.19.2":
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-core/-/autocomplete-core-1.19.2.tgz#702df67a08cb3cfe8c33ee1111ef136ec1a9e232"
-  integrity sha512-mKv7RyuAzXvwmq+0XRK8HqZXt9iZ5Kkm2huLjgn5JoCPtDy+oh9yxUMfDDaVCw0oyzZ1isdJBc7l9nuCyyR7Nw==
+"@algolia/autocomplete-core@1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-core/-/autocomplete-core-1.19.1.tgz#70b6bea6f6549be6f9f25a48f4e7001eb3dd67fa"
+  integrity sha512-MeZZN1NSPgfp2zhiaCyAW02jOWMftCJ06qoeEVEQ8v+kMlXL15SUYBpQwj7Gd+nV46KHqDrW+g5EGqhCsX6zWg==
   dependencies:
-    "@algolia/autocomplete-plugin-algolia-insights" "1.19.2"
-    "@algolia/autocomplete-shared" "1.19.2"
+    "@algolia/autocomplete-plugin-algolia-insights" "1.19.1"
+    "@algolia/autocomplete-shared" "1.19.1"
 
-"@algolia/autocomplete-js@1.19.2":
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-js/-/autocomplete-js-1.19.2.tgz#3768a501671b43923aee8c111680d3738c432215"
-  integrity sha512-pUElPLQypSGwewihADgV/g57EWepn/jHoArnbtyJNvn4onJCDwmJGelCm5+dN/3dAYZq7QO2ExFEjGsoiG/nUg==
+"@algolia/autocomplete-js@1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-js/-/autocomplete-js-1.19.1.tgz#14bb7f0cd94f87eeb2e01cbb65eb3d7efb572a23"
+  integrity sha512-4uVK+2GQ3JbnaOtX2eD6mYew62jHY5hJ/0ZPn/0awaVnvlqpvXo4iRo4RNbrZ/7GyMNNlsBeE1p4PZJ+hDB5UQ==
   dependencies:
-    "@algolia/autocomplete-core" "1.19.2"
-    "@algolia/autocomplete-preset-algolia" "1.19.2"
-    "@algolia/autocomplete-shared" "1.19.2"
+    "@algolia/autocomplete-core" "1.19.1"
+    "@algolia/autocomplete-preset-algolia" "1.19.1"
+    "@algolia/autocomplete-shared" "1.19.1"
     htm "^3.1.1"
     preact "^10.13.2"
 
-"@algolia/autocomplete-plugin-algolia-insights@1.18.1", "@algolia/autocomplete-plugin-algolia-insights@1.19.2":
+"@algolia/autocomplete-plugin-algolia-insights@1.18.1", "@algolia/autocomplete-plugin-algolia-insights@1.19.1":
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/@algolia/autocomplete-plugin-algolia-insights/-/autocomplete-plugin-algolia-insights-1.18.1.tgz#3227745d317f1fcf09e75df30606aff8bd275963"
   integrity sha512-zrl5trCnSHXkBRZwo2VPw4fN5zT3DowgFR6O2Qh0gTni8HB+aQltJYVwBrFeTvZHHFKNY9Cua4Y1KNsYiJ9Rdw==
   dependencies:
     "@algolia/autocomplete-shared" "1.18.1"
 
-"@algolia/autocomplete-preset-algolia@1.19.2":
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-preset-algolia/-/autocomplete-preset-algolia-1.19.2.tgz#c6c1e1ff7b011090a70e66b02e6db4ebade4535e"
-  integrity sha512-/Z9tDn84fnyUyjajvWRskOX7p/BDKK5PidEA4Y/aAl0c6VfHu5dMkTDG090CIiskLUgpkHacLbz+A10gMBP++Q==
+"@algolia/autocomplete-preset-algolia@1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-preset-algolia/-/autocomplete-preset-algolia-1.19.1.tgz#800162ad98dc57e8d26242b748702f79ea24279e"
+  integrity sha512-8VTPeE7UwyfvNF44IEkaNOnRoofv0Ejtsqg3tu9T8gj+pbVMj8NBErlbYD88es893EseqJj7oWAhqcq1bgnxcQ==
   dependencies:
-    "@algolia/autocomplete-shared" "1.19.2"
+    "@algolia/autocomplete-shared" "1.19.1"
 
 "@algolia/autocomplete-shared@1.18.1":
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/@algolia/autocomplete-shared/-/autocomplete-shared-1.18.1.tgz#18175fd76fa01b692bc44b8e6dc63bf68623d031"
   integrity sha512-vMKFYX5+SX+kIaJSMXOtj6zcMBhAWNyQJkfMrsuK38iJRTwemR23nzUE8qd3rHfWh6Iqgj89vDkf/CuOXDYllA==
 
-"@algolia/autocomplete-shared@1.19.2":
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-shared/-/autocomplete-shared-1.19.2.tgz#c0b7b8dc30a5c65b70501640e62b009535e4578f"
-  integrity sha512-jEazxZTVD2nLrC+wYlVHQgpBoBB5KPStrJxLzsIFl6Kqd1AlG9sIAGl39V5tECLpIQzB3Qa2T6ZPJ1ChkwMK/w==
+"@algolia/autocomplete-shared@1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-shared/-/autocomplete-shared-1.19.1.tgz#ce15e1fb682a2ea0ddc8e19814d4c5eaf1457355"
+  integrity sha512-/GcOv70emuVdSHBAERW7/r4czMzJROkgLOl45+ugyxK79RzSkXV2esY638qSo6mzC7EVwglSJ8BQ0kAVKVxMjA==
 
-"@algolia/autocomplete-theme-classic@1.19.2":
-  version "1.19.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-theme-classic/-/autocomplete-theme-classic-1.19.2.tgz#7c2a7d8f74988536f0a2f6ae806b18f915523266"
-  integrity sha512-UapO6bGuT5NkRK8VWxSg8AOLRhIcxBZ/OYg7ao//WHBo/yyiDybxy+K/xeY1RcHQVgimqlWfXj8IWAyQxxZP6A==
+"@algolia/autocomplete-theme-classic@1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-theme-classic/-/autocomplete-theme-classic-1.19.1.tgz#900bb530d3844eeea1238acf6056a13eb5cf953a"
+  integrity sha512-cNYN9Zosz+4hS+N8bE3yaKu4N0JD0CiNoNEqtZbemI+2xDSDo2MjRVVwWRz7gBn7wyimfp90apWgRJ3mnuGvDw==
 
 "@algolia/client-abtesting@5.17.1":
   version "5.17.1"
@@ -1913,10 +1913,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/retry/-/retry-0.4.3.tgz#c2b9d2e374ee62c586d3adbea87199b1d7a7a6ba"
   integrity sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==
 
-"@iconify/json@2.2.342":
-  version "2.2.342"
-  resolved "https://registry.yarnpkg.com/@iconify/json/-/json-2.2.342.tgz#cd2cd56f800ab66e37bde287e6c223385631aa82"
-  integrity sha512-ayuQgY+36XtS+y2NQtAozcOPGq4TzqENe3eTScSQ3l7rnF/4nT1W26Nl8JHfl2Ythwt5u1qknnL8cg/OL1xkJw==
+"@iconify/json@2.2.338":
+  version "2.2.338"
+  resolved "https://registry.yarnpkg.com/@iconify/json/-/json-2.2.338.tgz#325a589f0573dc9086d18be97bf8228560502cc3"
+  integrity sha512-wKUTEGEQwkgbY+P84c2njj/D9iEXoKr/Gv6Abwnw+tuElkT57JsGfMFAUpZpaKDL5fTD/+noRRA4L10mFOtIYw==
   dependencies:
     "@iconify/types" "*"
     pathe "^1.1.2"
@@ -2730,15 +2730,14 @@ bootstrap-daterangepicker@3.1.0:
     jquery ">=1.10"
     moment "^2.9.0"
 
-bootstrap-select@1.14.0-beta3:
+bootstrap-select@snapappointments/bootstrap-select#main:
   version "1.14.0-beta3"
-  resolved "https://registry.yarnpkg.com/bootstrap-select/-/bootstrap-select-1.14.0-beta3.tgz#dc15083fe51d0ac7b38a3b99dfd492dcc0a783b0"
-  integrity sha512-wYUDY4NAYBcNydXybE7wh3+ucyf+AcUOhZ+e0TFIoZ38A+k/3BVT1RPl5f0CiPxAexP1IQuqALKMqI8wtZS71A==
+  resolved "https://codeload.github.com/snapappointments/bootstrap-select/tar.gz/939e94b14a34759e193f616b753e0a33081cc0c5"
 
-bootstrap@5.3.6:
-  version "5.3.6"
-  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-5.3.6.tgz#fbd91ebaff093f5b191a1c01a8c866d24f9fa6e1"
-  integrity sha512-jX0GAcRzvdwISuvArXn3m7KZscWWFAf1MKBcnzaN02qWMb3jpMoUX4/qgeiGzqyIb4ojulRzs89UCUmGcFSzTA==
+bootstrap@5.3.5:
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-5.3.5.tgz#be42cfe0d580e97ee1abb7d38ce94f5c393c9bb6"
+  integrity sha512-ct1CHKtiobRimyGzmsSldEtM03E8fcEX4Tb3dGXz1V8faRwM50+vfHwTzOxB3IlKO7m+9vTH3s/3C6T2EAPeTA==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -2902,7 +2901,12 @@ callsites@^3.0.0:
   resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.1.0.tgz#b3630abd8943432f54b3f0519238e33cd7df2f73"
   integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
 
-caniuse-lite@^1.0.30001702, caniuse-lite@^1.0.30001716:
+caniuse-lite@^1.0.30001702:
+  version "1.0.30001799"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001799.tgz#5c909138c27f1a61219d3e092071c1cc7d32dc55"
+  integrity sha512-hG1bReV+OUU+MOqK4t/ZWI0tZOyz3rqS9XuhOUz1cIcbwBKjOyJEJuw9ER5JuNyqxNk8u/JUVbGibBOL1yrjFw==
+
+caniuse-lite@^1.0.30001716:
   version "1.0.30001718"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001718.tgz#dae13a9c80d517c30c6197515a96131c194d8f82"
   integrity sha512-AflseV1ahcSunK53NfEs9gFWgOEmzr0f+kaMFA4xiLZlr9Hzt7HxcSpIFcnNCUkz6R6dWKa54rUz3HUmI3nVcw==
@@ -3309,19 +3313,19 @@ datatables.net-bs5@2.1.8, datatables.net-bs5@^2:
     datatables.net "2.1.8"
     jquery ">=1.7"
 
-datatables.net-buttons-bs5@3.2.3:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/datatables.net-buttons-bs5/-/datatables.net-buttons-bs5-3.2.3.tgz#e6a7d2598d6303cbcdefce350fbc785461136059"
-  integrity sha512-jBwVlK0Iy3Sh3wqeH6STy+xPuGn37cqz+e/MqA0iXx7fDgqVPvWrEoO6Jdp4thejYTBokV7SZR2UirOxTcpOcA==
+datatables.net-buttons-bs5@3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/datatables.net-buttons-bs5/-/datatables.net-buttons-bs5-3.2.2.tgz#b7817b542893e776811d01a19105f558ddc33056"
+  integrity sha512-xjUcbYCBHcUthD1pvo5ghTNjqE6fTMygRrKd0QjBHKQxcqxmHG/m0djD2s6cFBfm8oov132U7U2JCXgQifOoUA==
   dependencies:
     datatables.net-bs5 "^2"
-    datatables.net-buttons "3.2.3"
+    datatables.net-buttons "3.2.2"
     jquery ">=1.7"
 
-datatables.net-buttons@3.2.3:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/datatables.net-buttons/-/datatables.net-buttons-3.2.3.tgz#26eae1f012fd5cfbfcf28dfbfd8a4b644ea8a4ae"
-  integrity sha512-K+WeQWUYVGe5c3Gwb8Gfi7YpUXbJEerik3B2vynnVKpBlYBF5AHTGbrK1Psek2q/mjxeIVNHafQ9eX2otLhJVw==
+datatables.net-buttons@3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/datatables.net-buttons/-/datatables.net-buttons-3.2.2.tgz#296f0edd9e5d860eb2b2b252716e524dfc4f5146"
+  integrity sha512-+aLTbkbksNmyGpK+8KXbpwYKXYOXvZQR2ySA/8oOQeJU53Xw/67cOHowenEr2d43/RLaz+I0zvV/1Yn+jMRiDw==
   dependencies:
     datatables.net "^2"
     jquery ">=1.7"
@@ -3343,19 +3347,19 @@ datatables.net-fixedcolumns@5.0.4:
     datatables.net "^2"
     jquery ">=1.7"
 
-datatables.net-fixedheader-bs5@4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/datatables.net-fixedheader-bs5/-/datatables.net-fixedheader-bs5-4.0.2.tgz#f2c347853cfdf5c720fde61408e427ae96282ce7"
-  integrity sha512-CT8chF78LZg0zk8C21XEKrJv1i6DxyN1hFS80UHLGnh9bTBn7BzOG3781cZKfyUc2alazVLxZgCiLDreakrgZQ==
+datatables.net-fixedheader-bs5@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/datatables.net-fixedheader-bs5/-/datatables.net-fixedheader-bs5-4.0.1.tgz#c593b2402b5736e571973c6ceba1a6220a674718"
+  integrity sha512-rA02QKEDvzj9dtwoUDl8hdSFDi4THpZeqCpCne0sVul1AM4OBy0O4zcx2WMSiEc5yEjFVZwKHmkvcDyhioV5IQ==
   dependencies:
     datatables.net-bs5 "^2"
-    datatables.net-fixedheader "4.0.2"
+    datatables.net-fixedheader "4.0.1"
     jquery ">=1.7"
 
-datatables.net-fixedheader@4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/datatables.net-fixedheader/-/datatables.net-fixedheader-4.0.2.tgz#29321374aa771babe920a80bd2a365611d1d851c"
-  integrity sha512-pjOs3m0vRQArVZWG/LYfsyi/P9cjuNer0BuG6v2hkn/LT2DAiIe6l543p7IHgTGQXn/my2s/M397DY7U7txavg==
+datatables.net-fixedheader@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/datatables.net-fixedheader/-/datatables.net-fixedheader-4.0.1.tgz#d3c4866fa96fc468002f72b9e8efa3276aa4807b"
+  integrity sha512-jdwvGvI/WBKjNDJ5JwcTqmh7ehLkzXmTqvVCWJ6ig3+P9EHasoTq6Ys08WfICXpCHZgDKwDYLiW2rqVLK5TWOg==
   dependencies:
     datatables.net "^2"
     jquery ">=1.7"
@@ -5438,10 +5442,10 @@ murmurhash-js@^1.0.0:
   resolved "https://registry.yarnpkg.com/murmurhash-js/-/murmurhash-js-1.0.0.tgz#b06278e21fc6c37fa5313732b0412bcb6ae15f51"
   integrity sha512-TvmkNhkv8yct0SVBSy+o8wYzXjE4Zz3PCesbfs8HiCXXdcTuocApFv11UWlNFWKYsP2okqrhb7JNlSm9InBhIw==
 
-nanoid@^3.3.11:
-  version "3.3.11"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.11.tgz#4f4f112cefbe303202f2199838128936266d185b"
-  integrity sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==
+nanoid@^3.3.8:
+  version "3.3.14"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.14.tgz#02d7e019f05dd8eeee2779c6f42206c06542ab33"
+  integrity sha512-U9kYi5bpVMEI31yC8iw4bJJp0avcHXA0W8/wNfLfnvJYzihQo2ZRPYPvpAAd570HAcCBjCTN7vnr+v4StKl1IQ==
 
 nanopop@2.4.2:
   version "2.4.2"
@@ -5814,15 +5818,15 @@ pbf@^3.2.1:
     ieee754 "^1.1.12"
     resolve-protobuf-schema "^2.1.0"
 
-pdfmake@0.2.20:
-  version "0.2.20"
-  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.20.tgz#a2e37114e46247c9a295df2fc1c7184942de567e"
-  integrity sha512-bGbxbGFP5p8PWNT3Phsu1ZcRLnRfF6jmnuKTkgmt6i5PZzSdX6JaB+NeTz9q+aocfW8SE9GUjL3o/5GroBqGcQ==
+pdfmake@0.2.18:
+  version "0.2.18"
+  resolved "https://registry.yarnpkg.com/pdfmake/-/pdfmake-0.2.18.tgz#0be32a9274466494a69285193b64f61f3198ea4e"
+  integrity sha512-Fe+GnMS8EVZu5rci/CDaQ+xmUoHvx8P+rvIlrwSYM6A5c7Aik8G6lpJbddhjBE2jXGjv6WcUCFCB06uZbjxkMw==
   dependencies:
     "@foliojs-fork/linebreak" "^1.1.2"
     "@foliojs-fork/pdfkit" "^0.15.3"
     iconv-lite "^0.6.3"
-    xmldoc "^2.0.1"
+    xmldoc "^1.3.0"
 
 pend@~1.2.0:
   version "1.2.0"
@@ -5949,12 +5953,12 @@ postcss-value-parser@^4.2.0:
   resolved "https://registry.yarnpkg.com/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz#723c09920836ba6d3e5af019f92bc0971c02e514"
   integrity sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==
 
-postcss@8.5.4, postcss@^8.2.14, postcss@^8.4.32, postcss@^8.5.3:
-  version "8.5.4"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.4.tgz#d61014ac00e11d5f58458ed7247d899bd65f99c0"
-  integrity sha512-QSa9EBe+uwlGTFmHsPKokv3B/oEMQZxfqW0QqNCyhpa6mB1afzulwn8hihglqAb2pOw+BJgNlmXQ8la2VeHB7w==
+postcss@8.5.3, postcss@^8.2.14, postcss@^8.4.32, postcss@^8.5.3:
+  version "8.5.3"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.3.tgz#1463b6f1c7fb16fe258736cba29a2de35237eafb"
+  integrity sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==
   dependencies:
-    nanoid "^3.3.11"
+    nanoid "^3.3.8"
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
@@ -6098,22 +6102,22 @@ raw-body@^2.3.2:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-react-dom@19.1.0:
-  version "19.1.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.1.0.tgz#133558deca37fa1d682708df8904b25186793623"
-  integrity sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==
+react-dom@*:
+  version "19.2.7"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-19.2.7.tgz#0450dc9ae9ddbff76ef196401cd8b8c7fb466ccc"
+  integrity sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ==
   dependencies:
-    scheduler "^0.26.0"
+    scheduler "^0.27.0"
 
 react-is@^16.13.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react@19.1.0:
-  version "19.1.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-19.1.0.tgz#926864b6c48da7627f004795d6cce50e90793b75"
-  integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==
+react@*:
+  version "19.2.7"
+  resolved "https://registry.yarnpkg.com/react/-/react-19.2.7.tgz#1f47a1bfc06f8ec885752c6f4af14369a9f8260b"
+  integrity sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==
 
 readable-stream@^2.3.5, readable-stream@~2.3.6:
   version "2.3.8"
@@ -6379,10 +6383,10 @@ sax@^1.2.4:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.4.1.tgz#44cc8988377f126304d3b3fc1010c733b929ef0f"
   integrity sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==
 
-scheduler@^0.26.0:
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.26.0.tgz#4ce8a8c2a2095f13ea11bf9a445be50c555d6337"
-  integrity sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==
+scheduler@^0.27.0:
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.27.0.tgz#0c4ef82d67d1e5c1e359e8fc76d3a87f045fe5bd"
+  integrity sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==
 
 schema-utils@^4.0.0:
   version "4.3.2"
@@ -7475,10 +7479,10 @@ ws@~8.17.1:
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.17.1.tgz#9293da530bb548febc95371d90f9c878727d919b"
   integrity sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==
 
-xmldoc@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/xmldoc/-/xmldoc-2.0.1.tgz#a901f6a6341e4d8cba3dbc5fc61017249f2adf24"
-  integrity sha512-sOOqgsjl3PU6iBw+fBUGAkTCE+JFK+sBaOL3pnZgzqk2/yvOD7RlFmZtDRJAEBzdpOYxSXyOQH4mjubdfs3MSg==
+xmldoc@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/xmldoc/-/xmldoc-1.3.0.tgz#7823225b096c74036347c9ec5924d06b6a3cebab"
+  integrity sha512-y7IRWW6PvEnYQZNZFMRLNJw+p3pezM4nKYPfr15g4OOW9i8VpeydycFuipE2297OvZnh3jSb2pxOt9QpkZUVng==
   dependencies:
     sax "^1.2.4"
 
