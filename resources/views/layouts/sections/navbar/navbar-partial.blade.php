@@ -493,7 +493,7 @@ use Illuminate\Support\Facades\Route;
         </li>
         <li>
           <a class="dropdown-item"
-            href="{{ Auth::user() ? route('teams.show', Auth::user()->currentTeam->id) : 'javascript:void(0)' }}">
+            href="{{ Auth::user()?->currentTeam ? route('teams.show', Auth::user()->currentTeam->id) : 'javascript:void(0)' }}">
             <i class="icon-base bx bx-cog icon-md me-3"></i><span>Team Settings</span>
           </a>
         </li>
