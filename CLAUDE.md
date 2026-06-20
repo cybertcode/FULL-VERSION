@@ -1,125 +1,458 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guía completa para Claude Code al trabajar en este repositorio.
+Actualizado: 2026-06-20 (v2 — estructura escalable completa)
 
-## What this project is
+---
 
-**Vuexy** is a commercial Laravel + Bootstrap 5 admin template by Pixinvent (v3.0.0). It is a multi-page server-rendered application using Laravel 12 (Blade views) for the backend and Vite for frontend asset bundling. There is no SPA framework — pages are traditional Blade templates with per-page vanilla JavaScript files.
+## Qué es este proyecto
 
-## Commands
+**Boilerplate/Starter Kit** basado en la plantilla comercial **Vuexy v3.0.0** (Pixinvent) sobre **Laravel 12**.
+Objetivo: tener una base reutilizable para cualquier proyecto futuro — con o sin frontend público — sin empezar de cero.
+
+- Multi-page server-rendered (Blade + Bootstrap 5). No hay SPA.
+- Vite para bundling de assets.
+- Auth completa via Jetstream (Livewire stack).
+- Roles y permisos via Spatie Permission v6.
+
+---
+
+## Credenciales de desarrollo
+
+| Campo      | Valor                    |
+| ---------- | ------------------------ |
+| URL        | <http://full-version.test> |
+| DB         | MySQL `full-version` / root / (sin password) |
+| Admin email | admin@admin.com         |
+| Admin pass  | Admin123                |
+| Admin rol   | Super-Admin             |
+
+---
+
+## Comandos
+
+### Backend
+
+```bash
+php artisan serve                   # servidor Laravel
+php artisan migrate                 # correr migraciones
+php artisan migrate:fresh --seed    # reset completo de BD
+php artisan tinker                  # REPL
+php artisan optimize:clear          # limpiar todos los caches
+```
 
 ### Frontend
 
 ```bash
-# Always use the npm-global yarn, NOT Laragon's bundled yarn (which uses Node 18.8)
-C:\Users\MKEVYN\AppData\Roaming\npm\yarn.cmd install
-C:\Users\MKEVYN\AppData\Roaming\npm\yarn.cmd dev       # Vite dev server with HMR
-C:\Users\MKEVYN\AppData\Roaming\npm\yarn.cmd build     # Production build
+# Usar npm (Node v22 del sistema) — NO usar el yarn de Laragon (Node 18.8 incompatible)
+npm run dev      # Vite dev server con HMR
+npm run build    # build de producción
 ```
 
-Or use npm scripts directly (npm uses the correct system Node v22):
-```bash
-npm run dev
-npm run build
-```
-
-### Backend (PHP / Laravel)
+### Todo junto
 
 ```bash
-php artisan serve                    # Start Laravel dev server
-php artisan migrate                  # Run migrations
-php artisan migrate:fresh --seed     # Reset DB and seed
-php artisan key:generate             # Generate app key (first-time setup)
-php artisan tinker                   # REPL
+composer run dev   # servidor + queue + logs + vite en paralelo
 ```
 
-### Run all dev processes together (server + queue + logs + vite):
-```bash
-composer run dev
-```
-
-### PHP linting & testing
+### Calidad de código
 
 ```bash
-./vendor/bin/pint                    # Laravel Pint (PHP code style fixer)
-php artisan test                     # PHPUnit tests
-php artisan test --filter TestName   # Run a single test
-./vendor/bin/phpunit --filter TestName
+./vendor/bin/pint                   # PHP code style (Laravel Pint)
+php artisan test                    # PHPUnit
+php artisan permission:cache-reset  # limpiar cache de permisos Spatie
 ```
 
-### JS/CSS linting
+---
 
-```bash
-npx eslint resources/assets/js/     # Lint JS files
-npx stylelint resources/assets/vendor/scss/**/*.scss
-npx prettier --write resources/      # Format all frontend files
-```
+## REGLA DE ORO — Separación Vuexy vs Nuestro código
 
-## Architecture
+**Nunca mezclar** código propio con los archivos de la plantilla Vuexy.
 
-### Dual asset pipeline
+### Zonas Vuexy — NO TOCAR
 
-Vite (`vite.config.js`) bundles a large number of entry points in parallel:
-- **Per-page JS**: `resources/assets/js/app-*.js` — one file per page/feature
-- **Vendor libs JS**: `resources/assets/vendor/libs/**/*.js` — third-party libraries
-- **Core SCSS**: `resources/assets/vendor/scss/**/!(_)*.scss` — theme core styles
-- **Lib SCSS/CSS**: `resources/assets/vendor/libs/**/*.scss|css` — per-lib styles
-- **Fonts**: `resources/assets/vendor/fonts/`
-- **App entry**: `resources/js/app.js` and `resources/css/app.css`
+| Ruta | Motivo |
+| ---- | ------ |
+| `app/Http/Controllers/[apps,authentications,cards,charts,dashboard,extended_ui,...]` | Controllers demo Vuexy |
+| `app/Helpers/Helpers.php` | Helper de layout Vuexy |
+| `app/Actions/Fortify/` | Jetstream |
+| `app/Actions/Jetstream/` | Jetstream |
+| `resources/assets/` | JS/SCSS/vendor de Vuexy |
+| `resources/menu/` | Menús JSON de Vuexy |
+| `resources/views/layouts/` | Layouts Blade de Vuexy |
+| `resources/views/content/` | Vistas demo de Vuexy |
+| `config/custom.php` | Config de tema Vuexy |
+| `config/variables.php` | Metadata de Vuexy |
+| `vite.config.js` | Build pipeline de Vuexy |
 
-The `@` alias resolves to `resources/`.
+### Zonas nuestras — AQUÍ trabajamos
 
-### Blade layout system
+| Ruta | Propósito |
+| ---- | --------- |
+| `app/Http/Controllers/Admin/` | Controllers del panel |
+| `app/Http/Controllers/Frontend/` | Controllers del sitio público |
+| `app/Http/Requests/Admin/` | Form Requests del panel |
+| `app/Http/Requests/Frontend/` | Form Requests públicos |
+| `app/Http/Middleware/` | Middleware custom |
+| `app/Actions/Admin/` | Acciones de negocio del panel |
+| `app/Actions/Frontend/` | Acciones de negocio públicas |
+| `app/Services/Admin/` | Servicios del panel |
+| `app/Services/Frontend/` | Servicios públicos |
+| `app/Repositories/Admin/` | Repositorios del panel |
+| `app/Repositories/Frontend/` | Repositorios públicos |
+| `app/Models/` | Eloquent models |
+| `app/Enums/` | PHP Enums (Status, RoleType, etc.) |
+| `app/Traits/` | Traits reutilizables |
+| `resources/views/admin/` | Vistas del panel |
+| `resources/views/frontend/` | Vistas del sitio público |
+| `resources/js/admin/` | JS custom del panel |
+| `routes/admin.php` | Rutas del panel (`/admin/*`) |
+| `routes/frontend.php` | Rutas públicas |
+| `database/seeders/` | Seeders propios |
+| `database/migrations/` | Migraciones propias |
 
-Every page view extends one of two master wrappers via `layouts/layoutMaster.blade.php`, which dispatches to:
-- `contentNavbarLayout` — default vertical layout
-- `horizontalLayout` — horizontal nav variant
-- `blankLayout` — no nav/menu (e.g., auth pages)
-- `layoutFront` — public front pages
+---
 
-Layout sections live in `resources/views/layouts/sections/` (navbar, menu, footer, scripts, styles). Scripts are split into `scriptsIncludes.blade.php` (CDN/vendor) and `scripts.blade.php` (page-specific JS via `@vite`).
+## Arquitectura del proyecto
 
-### Controller → View → JS convention
-
-Each page follows a strict 1:1:1 pattern:
-- **Controller**: `app/Http/Controllers/{namespace}/{PageName}.php` returns a Blade view
-- **View**: `resources/views/content/{namespace}/{page-name}.blade.php`
-- **JS**: `resources/assets/js/app-{page-name}.js` (loaded via `@vite` in the view)
-
-Controller namespaces mirror `routes/web.php` groupings: `apps`, `dashboard`, `front_pages`, `layouts`, `laravel_example`, etc.
-
-### Configuration system (`config/custom.php`)
-
-Theme layout, skin, RTL mode, and customizer options are set in `config/custom.php`. The `Helpers::appClasses()` method reads this config and returns an array of CSS classes and settings consumed by all Blade layouts. To change the default layout or theme, edit `config/custom.php` — **not** the Blade files directly.
-
-`config/variables.php` holds static template metadata (name, version, URLs).
-
-### Menu definition
-
-Navigation menus are defined as JSON, not PHP:
-- `resources/menu/verticalMenu.json` — sidebar (vertical layout)
-- `resources/menu/horizontalMenu.json` — top nav (horizontal layout)
-
-Each menu item has `url`, `name`, `slug`, `icon`, and optionally `submenu`. The `slug` must match the route name for active-state detection.
-
-### SCSS theme structure (`resources/assets/vendor/scss/`)
+### Capas de código (de arriba hacia abajo)
 
 ```
-_bootstrap.scss          # Bootstrap import
-_bootstrap-extended/     # Bootstrap component overrides
-_components/             # Custom components (avatars, cards, badges, etc.)
-_custom-variables/       # SCSS variable overrides (colors, spacing, etc.)
-pages/                   # Per-page SCSS (e.g., pages/_authentication.scss)
-core.scss                # Main entry: imports all of the above
+Controller → Request (validación) → Action o Service → Model
+                                  ↘ Repository (queries complejas)
 ```
 
-### `app/Helpers/Helpers.php`
+- **Controllers** — solo reciben request, llaman Action/Service, retornan respuesta
+- **Requests** — validación de formularios (uno por operación)
+- **Actions** — una operación de negocio por clase (`CreateUser`, `UpdateRole`) — patrón Jetstream
+- **Services** — lógica agrupada por dominio cuando hay múltiples operaciones relacionadas
+- **Repositories** — queries Eloquent complejas o reutilizables
+- **Models** — Eloquent puro, sin lógica de negocio
 
-Autoloaded globally (see `composer.json` `autoload.files`). Key methods:
-- `appClasses()` — merges `config/custom.php` with page-level `$pageConfigs` overrides, returns layout data
-- `getMenuAttributes()` — generates HTML attributes for semi-dark mode
-- `updatePageConfig()` — allows per-view overrides of layout settings via `$pageConfigs` variable
+### Convención de nombres
 
-### Environment
+| Elemento | Ejemplo |
+| -------- | ------- |
+| Controller | `UserController.php` |
+| Request | `StoreUserRequest.php`, `UpdateUserRequest.php` |
+| Action | `CreateUser.php`, `DeleteUser.php` |
+| Service | `UserService.php` |
+| Repository | `UserRepository.php` |
+| Enum | `UserStatus.php`, `RoleType.php` |
+| Model | `User.php` |
+| Vista | `resources/views/admin/users/index.blade.php` |
 
-Default DB is SQLite (`database/database.sqlite`). Switch to MySQL by updating `.env` with `DB_CONNECTION=mysql` and the relevant credentials. Node >=18.17 required; use system Node v22 (Laragon's bundled Node 18.8.0 is too old for some dependencies).
+---
+
+## Rutas
+
+### Estructura
+
+```
+routes/
+├── web.php        ← Vuexy demos + grupo auth de Jetstream
+├── admin.php      ← panel: prefijo /admin, name admin.*, middleware auth
+└── frontend.php   ← sitio público: sin prefijo, sin auth
+```
+
+### Cómo agregar rutas del panel
+
+En `routes/admin.php`:
+
+```php
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('users', UserController::class);
+        // Route names: admin.users.index, admin.users.create, etc.
+    });
+```
+
+### Cómo agregar rutas públicas
+
+En `routes/frontend.php`:
+
+```php
+Route::get('/', [HomeController::class, 'index'])->name('home');
+```
+
+---
+
+## Auth y permisos
+
+### Jetstream
+
+- Stack: **Livewire**
+- Login real en `/login` (ruta de Jetstream)
+- Vistas Jetstream swapeadas al estilo Vuexy
+- Teams habilitados — cada usuario tiene un personal team
+
+### Spatie Permission
+
+- Roles: `Super-Admin`, `admin`, `user`
+- `Super-Admin` bypasses todos los checks via `Gate::before` en `AppServiceProvider`
+- Permisos con formato `modulo.accion`: `users.view`, `users.create`, `users.edit`, `users.delete`
+- El modelo `User` tiene el trait `HasRoles`
+
+### En Blade
+
+```blade
+@role('Super-Admin')
+  <!-- solo super admin -->
+@endrole
+
+@can('users.create')
+  <!-- tiene permiso -->
+@endcan
+```
+
+### En Controllers
+
+```php
+$this->authorize('users.edit');
+// o
+abort_unless(auth()->user()->can('users.edit'), 403);
+```
+
+---
+
+## Seeders
+
+Siempre correr en este orden (ya definido en `DatabaseSeeder`):
+
+1. `RolesAndPermissionsSeeder` — crea roles y permisos
+2. `AdminUserSeeder` — crea admin con `withPersonalTeam()`
+
+Al agregar nuevos seeders, registrarlos en `DatabaseSeeder::run()`.
+
+---
+
+## Vistas del panel (admin)
+
+Extender siempre el layout de Vuexy:
+
+```blade
+@extends('layouts/layoutMaster')
+
+@section('title', 'Título de la página')
+
+@section('content')
+  <!-- contenido aquí -->
+@endsection
+```
+
+Estructura de carpetas para un módulo:
+
+```
+resources/views/admin/
+└── users/
+    ├── index.blade.php
+    ├── create.blade.php
+    ├── edit.blade.php
+    └── show.blade.php
+```
+
+---
+
+## Arquitectura Vuexy (referencia)
+
+### Sistema de layouts
+
+`layoutMaster.blade.php` despacha a uno de 4 layouts según `config/custom.php`:
+
+- `contentNavbarLayout` — vertical (default)
+- `horizontalLayout` — horizontal
+- `blankLayout` — sin nav (auth pages)
+- `layoutFront` — páginas públicas
+
+Para cambiar tema o layout editar `config/custom.php` — nunca los Blade directamente.
+
+### Menús
+
+Definidos en JSON:
+
+- `resources/menu/verticalMenu.json` — sidebar
+- `resources/menu/horizontalMenu.json` — top nav
+
+El `slug` de cada item debe coincidir exactamente con el `name` de la ruta para el active-state.
+
+### Asset pipeline Vite
+
+- JS por página: `resources/assets/js/app-*.js`
+- Vendor: `resources/assets/vendor/libs/**/*.js`
+- SCSS: `resources/assets/vendor/scss/**/!(_)*.scss`
+- Cargar en vista: `@vite(['resources/assets/js/app-nombre.js'])`
+
+---
+
+## Providers
+
+| Provider | Responsabilidad |
+| -------- | --------------- |
+| `AppServiceProvider` | Bindings del contenedor + Vite config Vuexy |
+| `AuthServiceProvider` | `Gate::before` Super-Admin + registro de Policies |
+| `MenuServiceProvider` | Comparte menús JSON a todas las vistas (Vuexy) |
+| `FortifyServiceProvider` | Configuración de Fortify/auth (Jetstream) |
+| `JetstreamServiceProvider` | Configuración de Jetstream |
+
+Para agregar una Policy nueva, registrarla en `AuthServiceProvider::$policies`.
+
+---
+
+## Middleware disponibles
+
+```php
+// En rutas o controllers:
+->middleware('role:Super-Admin')
+->middleware('role:admin|Super-Admin')
+->middleware('permission:users.edit')
+->middleware('role_or_permission:admin|users.view')
+```
+
+---
+
+## Exceptions custom
+
+| Clase | Código | Cuándo usarla |
+| ----- | ------ | ------------- |
+| `BusinessException` | 422 | Regla de negocio violada — se muestra al usuario |
+| `UnauthorizedException` | 403 | Acción de dominio no permitida |
+
+```php
+// En un Service o Action:
+throw new \App\Exceptions\BusinessException('No puedes eliminar un usuario activo.');
+throw new \App\Exceptions\UnauthorizedException('Solo puedes editar tus propios registros.');
+```
+
+El handler en `bootstrap/app.php` las convierte automáticamente:
+- Web: `back()->withErrors()` o vista `errors.403`
+- API (`expectsJson`): respuesta JSON con el mensaje
+
+---
+
+## Enums disponibles
+
+| Enum | Valores | Métodos |
+| ---- | ------- | ------- |
+| `App\Enums\UserStatus` | `Active`, `Inactive`, `Banned` | `label()`, `badgeClass()` |
+| `App\Enums\RoleType` | `SuperAdmin`, `Admin`, `User` | `label()` |
+
+```php
+// En modelo — cast:
+protected function casts(): array {
+    return ['status' => \App\Enums\UserStatus::class];
+}
+
+// En Blade:
+{!! statusBadge($user->status) !!}
+```
+
+---
+
+## Traits disponibles
+
+| Trait | Propósito | Requisitos |
+| ----- | --------- | ---------- |
+| `App\Traits\HasActive` | Scopes `active()`, `inactive()`, métodos `activate()`, `deactivate()` | Columna `status` tipo `UserStatus` |
+| `App\Traits\HasFilters` | Scope `filter($request)` con búsqueda y ordenamiento | Array `$searchable` en el modelo |
+| `App\Traits\HasAudit` | Auto-rellena `created_by` / `updated_by` con el user autenticado | Columnas `created_by`, `updated_by` en la tabla |
+
+```php
+// Ejemplo de modelo que usa los traits:
+class Post extends Model {
+    use HasActive, HasFilters, HasAudit;
+
+    protected array $searchable = ['title', 'content'];
+    protected string $defaultSort = 'created_at';
+
+    protected function casts(): array {
+        return ['status' => UserStatus::class];
+    }
+}
+
+// En controller:
+Post::filter($request)->active()->paginate(15);
+```
+
+---
+
+## Helpers globales (AppHelper.php)
+
+| Función | Descripción | Ejemplo |
+| -------- | ----------- | ------- |
+| `formatDate($date)` | Fecha en `d/m/Y` | `formatDate($user->created_at)` |
+| `formatDateTime($date)` | Fecha+hora en `d/m/Y H:i` | `formatDateTime($model->updated_at)` |
+| `statusBadge($status)` | Badge Bootstrap HTML para `UserStatus` | `{!! statusBadge($user->status) !!}` |
+| `moneyFormat($amount)` | Formato monetario con prefijo | `moneyFormat(1500.5)` → `S/ 1,500.50` |
+
+---
+
+## Vistas de error
+
+Laravel usa automáticamente `resources/views/errors/{code}.blade.php`.
+Creadas con el estilo Vuexy:
+
+| Vista | HTTP | Descripción |
+| ----- | ---- | ----------- |
+| `errors/404.blade.php` | 404 | Página no encontrada |
+| `errors/403.blade.php` | 403 | Sin autorización |
+| `errors/500.blade.php` | 500 | Error del servidor |
+
+---
+
+## Tests
+
+- `phpunit.xml` usa SQLite en memoria (`DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`)
+- Nunca corren contra MySQL real
+- Tests de Jetstream ya incluidos en `tests/Feature/`
+- Nuevos tests van en `tests/Feature/Admin/` o `tests/Unit/`
+
+---
+
+## Bugs corregidos
+
+| Bug | Archivo | Fix |
+| --- | ------- | --- |
+| `currentTeam->id` null crash | `navbar-partial.blade.php:496` | `Auth::user()?->currentTeam ?` + seeder usa `withPersonalTeam()` |
+| Controllers Vuexy faltantes | `layouts/NavbarFull.php`, `NavbarFullSidebar.php` | Creados con sus vistas |
+
+---
+
+## Paquetes instalados
+
+### PHP
+
+| Paquete | Versión | Uso |
+| ------- | ------- | --- |
+| `laravel/framework` | ^12.0 | Core |
+| `laravel/jetstream` | ^5.5 | Auth completa + Teams |
+| `laravel/sanctum` | ^4.0 | API tokens |
+| `livewire/livewire` | ^3.6.4 | Componentes reactivos |
+| `spatie/laravel-permission` | ^6.25 | Roles y permisos |
+| `pixinvent/vuexy-laravel-bootstrap-jetstream` | ^3.0 | Swap vistas Jetstream → Vuexy |
+
+### JS destacados
+
+| Paquete | Uso |
+| ------- | --- |
+| `bootstrap` 5.3.5 | UI framework |
+| `apexcharts` 4.2.0 | Gráficas |
+| `datatables.net-bs5` 2.1.8 | Tablas avanzadas |
+| `@fullcalendar/*` 6.1.17 | Calendario |
+| `flatpickr` 4.6.13 | Date picker |
+| `sweetalert2` 11.14.5 | Alertas/modales |
+| `quill` 2.0.3 | Editor de texto rico |
+| `leaflet` 1.9.4 | Mapas |
+| `select2` 4.0.13 | Selects con búsqueda |
+| `dropzone` 5.9.3 | Upload drag & drop |
+
+---
+
+## Próximos módulos a desarrollar
+
+- [ ] CRUD Usuarios (`Admin/UserController`)
+- [ ] CRUD Roles y Permisos (`Admin/RoleController`)
+- [ ] Dashboard base con stats
+- [ ] Activity Log (`spatie/laravel-activitylog`)
+- [ ] Settings del sistema (tabla clave-valor)
