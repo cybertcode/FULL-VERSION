@@ -240,10 +240,65 @@ Al agregar nuevos seeders, registrarlos en `DatabaseSeeder::run()`.
 
 ---
 
+## UI Globals — Toast y SweetAlert2
+
+**Archivo:** `resources/views/components/ui-globals.blade.php`
+**Inyectado en:** `layouts/commonMaster.blade.php` → disponible en **todas** las páginas (admin, demos Vuexy, frontend).
+
+SweetAlert2 debe estar cargado antes de usarlo (el panel admin lo carga en `admin/layouts/master`).
+
+### API disponible en JS (window.*)
+
+```js
+// Bootstrap Toast — no requiere SweetAlert2
+showToast('success', 'Guardado correctamente');
+showToast('error',   'Ocurrió un error');
+showToast('info',    'Ten en cuenta esto');
+showToast('warning', 'Revisa los datos');
+showToast('success', 'Texto', { title: 'Título custom', delay: 6000 });
+
+// SweetAlert2 — solo disponible después del evento 'load'
+showAlert('Título', 'Mensaje');
+showAlert('Título', 'Mensaje', 'success'); // icon: success|error|warning|info|question
+
+showAlertHtml('Título', '<b>HTML</b> permitido', 'info');
+
+confirmAction({
+  title      : '¿Publicar?',
+  text       : 'El contenido será visible para todos.',
+  confirmText: 'Sí, publicar',
+  cancelText : 'Cancelar',
+  isDanger   : false,           // true → botón rojo
+  onConfirm  : () => { /* acción */ },
+  onCancel   : () => { /* cancelado */ }
+});
+
+confirmDelete('form-id', 'Nombre del elemento');   // hace submit del <form>
+
+confirmDeleteUrl('/admin/users/5', 'Juan López');   // fetch DELETE + reload
+
+promptInput({
+  title      : '¿Razón del rechazo?',
+  inputLabel : 'Motivo',
+  placeholder: 'Escribe aquí...',
+  onConfirm  : (value) => { console.log(value); }
+});
+```
+
+### Flash desde PHP (Blade)
+
+```php
+// En el controller:
+return redirect()->back()->with('flash', [
+    'type'    => 'success',   // success | error | info | warning
+    'message' => 'Guardado correctamente',
+]);
+```
+
 ## Vistas del panel (admin)
 
 Las vistas admin extienden `admin/layouts/master` — **NO** `layouts/layoutMaster` directamente.
-Esto asegura que SweetAlert2 y los flash messages estén disponibles en todas las páginas del panel.
+SweetAlert2 ya está cargado en el master. Bootstrap Toast está disponible globalmente vía `x-ui-globals`.
 
 ```blade
 @extends('admin/layouts/master')
@@ -254,25 +309,25 @@ Esto asegura que SweetAlert2 y los flash messages estén disponibles en todas la
   <!-- contenido aquí -->
 @endsection
 
-@push('admin-vendor-style')
+@section('admin-vendor-style')
   {{-- CSS extra (datatables, select2, etc.) --}}
   @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss'])
-@endpush
+@endsection
 
-@push('admin-vendor-script')
+@section('admin-vendor-script')
   {{-- JS extra del vendor --}}
   @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.js'])
-@endpush
+@endsection
 
-@push('admin-page-script')
+@section('admin-page-script')
   {{-- JS propio de la página --}}
   <script> /* ... */ </script>
-@endpush
+@endsection
 ```
 
-IMPORTANTE: Usar siempre `@push`/`@endpush` (NO `@section`/`@endsection`) para `admin-vendor-style`, `admin-vendor-script` y `admin-page-script`. Las secciones se sobreescriben mutuamente en herencia múltiple; los stacks se acumulan correctamente.
+IMPORTANTE: Usar `@section`/`@endsection` (NO `@push`) para `admin-vendor-style`, `admin-vendor-script` y `admin-page-script` — el master usa `@yield` que requiere `@section`.
 
-Notyf y SweetAlert2 ya están cargados en el master — no hay que incluirlos manualmente en cada vista.
+Bootstrap Toast y SweetAlert2 ya están disponibles — no incluirlos manualmente en cada vista.
 
 Estructura de carpetas para un módulo:
 

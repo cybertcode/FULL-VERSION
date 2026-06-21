@@ -137,6 +137,9 @@
   <!-- Include Scripts -->
   <!-- $isFront is used to append the front layout scripts only on the front layout otherwise the variable will be blank -->
   @include('layouts/sections/scripts' . $isFront)
+
+  {{-- UI Globals: Bootstrap Toast + SweetAlert2 helpers — disponibles en todo el proyecto --}}
+  <x-ui-globals />
 </body>
 
 </html>
