@@ -60,11 +60,28 @@ class AppServiceProvider extends ServiceProvider
             // Idioma por defecto
             if ($lang = $settings->get('default_language')) {
                 Config::set('app.locale', $lang);
+                app()->setLocale($lang);
             }
 
             // Paginación global
             if ($perPage = $settings->get('pagination_per_page')) {
                 Config::set('app.pagination_per_page', (int) $perPage);
+            }
+
+            // Duración de sesión (minutos)
+            if ($lifetime = $settings->get('session_lifetime')) {
+                Config::set('session.lifetime', (int) $lifetime);
+            }
+
+            // Carbon locale — sincronizar con el idioma del sistema
+            if ($lang = $settings->get('default_language')) {
+                \Carbon\Carbon::setLocale($lang);
+            }
+
+            // Color primario — settings siempre tiene precedencia si no hay cookie activa del customizer
+            // El cookie se borra en SettingController::update() cuando se guarda el grupo 'appearance'
+            if ($color = $settings->get('primary_color')) {
+                Config::set('custom.custom.primaryColor', $color);
             }
 
             // reCAPTCHA keys (disponibles via config())

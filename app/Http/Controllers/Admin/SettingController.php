@@ -78,7 +78,15 @@ class SettingController extends BaseAdminController
         $this->settingService->clearCache();
         $this->flashSuccess('Configuración guardada correctamente.');
 
-        return redirect()->route('admin.settings.index', ['tab' => $group]);
+        $response = redirect()->route('admin.settings.index', ['tab' => $group]);
+
+        // Al guardar apariencia, borrar el cookie del customizer de Vuexy para que el
+        // color de settings tenga efecto inmediato (el cookie tiene prioridad sobre config)
+        if ($group === 'appearance' && isset($data['primary_color'])) {
+            $response = $response->withCookie(cookie()->forget('admin-primaryColor'));
+        }
+
+        return $response;
     }
 
     public function testMail(Request $request): JsonResponse

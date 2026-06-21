@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Setting;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSettingRequest extends FormRequest
 {
@@ -26,7 +27,7 @@ class UpdateSettingRequest extends FormRequest
             'seo_description' => ['sometimes', 'nullable', 'string', 'max:320'],
             'seo_keywords'    => ['sometimes', 'nullable', 'string', 'max:255'],
             'seo_og_image'    => ['sometimes', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'seo_robots'      => ['sometimes', 'nullable', 'string', 'in:index, follow,noindex, nofollow,noindex, follow,index, nofollow'],
+            'seo_robots'      => ['sometimes', 'nullable', 'string', Rule::in(['index, follow', 'noindex, nofollow', 'noindex, follow', 'index, nofollow'])],
 
             // Company
             'company_name'         => ['sometimes', 'nullable', 'string', 'max:150'],
@@ -92,12 +93,93 @@ class UpdateSettingRequest extends FormRequest
         ];
     }
 
+    public function attributes(): array
+    {
+        return [
+            // Branding
+            'site_name'            => 'nombre del sistema',
+            'site_description'     => 'descripción corta',
+            'site_logo'            => 'logo principal',
+            'site_logo_dark'       => 'logo oscuro',
+            'site_favicon'         => 'favicon',
+            // SEO
+            'seo_title'            => 'meta título',
+            'seo_description'      => 'meta descripción',
+            'seo_keywords'         => 'palabras clave',
+            'seo_og_image'         => 'imagen Open Graph',
+            'seo_robots'           => 'indexación robots',
+            // Company
+            'company_name'         => 'razón social',
+            'company_ruc'          => 'RUC',
+            'company_type'         => 'tipo de empresa',
+            'company_email'        => 'email de contacto',
+            'company_phone'        => 'teléfono',
+            'company_address'      => 'dirección',
+            'company_website'      => 'sitio web',
+            'social_facebook'      => 'Facebook',
+            'social_instagram'     => 'Instagram',
+            'social_twitter'       => 'Twitter/X',
+            'social_linkedin'      => 'LinkedIn',
+            'social_youtube'       => 'YouTube',
+            'social_tiktok'        => 'TikTok',
+            'social_whatsapp'      => 'WhatsApp',
+            // Mail
+            'mail_from_name'       => 'nombre del remitente',
+            'mail_from_address'    => 'email remitente',
+            'mail_driver'          => 'driver de correo',
+            'mail_host'            => 'host SMTP',
+            'mail_port'            => 'puerto SMTP',
+            'mail_encryption'      => 'cifrado',
+            'mail_username'        => 'usuario SMTP',
+            'mail_password'        => 'contraseña SMTP',
+            // Regional
+            'timezone'             => 'zona horaria',
+            'date_format'          => 'formato de fecha',
+            'currency_symbol'      => 'símbolo de moneda',
+            'currency_decimals'    => 'decimales',
+            'default_language'     => 'idioma por defecto',
+            'pagination_per_page'  => 'registros por página',
+            // Seguridad
+            'session_lifetime'     => 'duración de sesión',
+            'login_max_attempts'   => 'intentos máximos de login',
+            'login_lockout_minutes'=> 'tiempo de bloqueo',
+            'captcha_site_key'     => 'reCAPTCHA site key',
+            'captcha_secret_key'   => 'reCAPTCHA secret key',
+            'allowed_ips_admin'    => 'IPs permitidas',
+            // Mantenimiento
+            'maintenance_message'  => 'mensaje de mantenimiento',
+            'maintenance_ips'      => 'IPs con acceso en mantenimiento',
+            // Integraciones
+            'google_analytics_id'  => 'Google Analytics ID',
+            'google_maps_key'      => 'Google Maps API key',
+            'meta_pixel_id'        => 'Meta Pixel ID',
+            'recaptcha_site_key'   => 'reCAPTCHA site key',
+            'recaptcha_secret_key' => 'reCAPTCHA secret key',
+            'gtm_id'               => 'Google Tag Manager ID',
+            // Apariencia
+            'primary_color'        => 'color primario',
+            'terms_url'            => 'URL de términos',
+            'privacy_url'          => 'URL de privacidad',
+        ];
+    }
+
     public function messages(): array
     {
         return [
-            'primary_color.regex' => 'El color primario debe ser un código hexadecimal válido (ej: #7367F0).',
-            'timezone.timezone'   => 'La zona horaria seleccionada no es válida.',
-            'mail_port.integer'   => 'El puerto debe ser un número.',
+            'primary_color.regex'      => 'El color primario debe ser un código hexadecimal válido (ej: #7367F0).',
+            'timezone.timezone'        => 'La zona horaria seleccionada no es válida.',
+            'mail_port.integer'        => 'El puerto SMTP debe ser un número.',
+            'mail_port.min'            => 'El puerto SMTP debe ser mayor a 0.',
+            'mail_port.max'            => 'El puerto SMTP no puede superar 65535.',
+            'seo_robots.in'            => 'El valor de indexación robots no es válido.',
+            'mail_driver.in'           => 'El driver de correo seleccionado no es válido.',
+            'mail_encryption.in'       => 'El cifrado seleccionado no es válido.',
+            'default_language.in'      => 'El idioma seleccionado no está disponible.',
+            'company_email.email'      => 'El email de contacto no tiene un formato válido.',
+            'mail_from_address.email'  => 'El email remitente no tiene un formato válido.',
+            'company_website.url'      => 'El sitio web debe ser una URL válida (incluir https://).',
+            'terms_url.url'            => 'La URL de términos debe ser válida (incluir https://).',
+            'privacy_url.url'          => 'La URL de privacidad debe ser válida (incluir https://).',
         ];
     }
 }
