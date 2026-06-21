@@ -4,7 +4,7 @@ namespace App\Actions\Admin\Role;
 
 use App\Exceptions\BusinessException;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class UpdateRole
 {
@@ -24,3 +24,4 @@ class UpdateRole
         return $role->load('permissions');
     }
 }
+

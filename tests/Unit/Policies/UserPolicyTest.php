@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Tests\TestCase;
 
 class UserPolicyTest extends TestCase
@@ -144,3 +144,4 @@ class UserPolicyTest extends TestCase
         $this->assertFalse($this->policy->forceDelete($this->plainUser, $target));
     }
 }
+

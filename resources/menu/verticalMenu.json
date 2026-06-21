@@ -13,8 +13,8 @@
       "icon": "menu-icon icon-base ti tabler-users",
       "slug": "admin-users",
       "submenu": [
-        { "url": "admin/users",        "name": "Todos los usuarios", "slug": "admin-users-index" },
-        { "url": "admin/users/create", "name": "Nuevo usuario",      "slug": "admin-users-create" }
+        { "url": "admin/usuarios",        "name": "Todos los usuarios", "slug": "admin-users-index" },
+        { "url": "admin/usuarios/crear",  "name": "Nuevo usuario",      "slug": "admin-users-create" }
       ]
     },
     {
@@ -22,13 +22,13 @@
       "icon": "menu-icon icon-base ti tabler-shield-lock",
       "slug": "admin-roles",
       "submenu": [
-        { "url": "admin/roles",       "name": "Roles",    "slug": "admin-roles-index" },
-        { "url": "admin/permissions", "name": "Permisos", "slug": "admin-permissions-index" }
+        { "url": "admin/roles",     "name": "Roles",    "slug": "admin-roles-index" },
+        { "url": "admin/permisos", "name": "Permisos", "slug": "admin-permissions-index" }
       ]
     },
     { "menuHeader": "Sistema" },
     {
-      "url": "admin/settings",
+      "url": "admin/configuracion",
       "icon": "menu-icon icon-base ti tabler-settings",
       "name": "Configuración",
       "slug": "admin-settings"

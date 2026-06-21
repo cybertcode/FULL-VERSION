@@ -6,7 +6,7 @@ use App\Enums\UserStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class StoreUserRequest extends FormRequest
 {
@@ -41,3 +41,4 @@ class StoreUserRequest extends FormRequest
         ];
     }
 }
+

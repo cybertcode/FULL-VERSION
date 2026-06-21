@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Policies\RolePolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Tests\TestCase;
 
 class RolePolicyTest extends TestCase
@@ -140,3 +140,4 @@ class RolePolicyTest extends TestCase
         $this->assertFalse($this->policy->assignPermissions($this->plainUser, $this->customRole));
     }
 }
+

@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\UserStatus;
 use App\Http\Requests\Admin\User\StoreUserRequest;
 use App\Http\Requests\Admin\User\UpdateUserRequest;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\UserService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Spatie\Permission\Models\Role;
 
 class UserController extends BaseAdminController
 {
@@ -23,12 +24,41 @@ class UserController extends BaseAdminController
     {
         $this->authorize('viewAny', User::class);
 
-        $users  = $this->userService->paginate($request);
-        $stats  = $this->userService->stats();
-        $roles  = Role::orderBy('name')->pluck('name', 'name');
+        $stats    = $this->userService->stats();
+        $roles    = Role::orderBy('name')->pluck('name', 'name');
         $statuses = UserStatus::cases();
 
-        return view('admin.users.index', compact('users', 'stats', 'roles', 'statuses'));
+        return view('admin.users.index', compact('stats', 'roles', 'statuses'));
+    }
+
+    /**
+     * Endpoint AJAX para DataTable — devuelve JSON con todos los usuarios.
+     */
+    public function data(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', User::class);
+
+        $users = User::with('roles')
+            ->withTrashed()
+            ->filter($request)
+            ->latest()
+            ->get()
+            ->map(fn (User $u) => [
+                'id'          => $u->id,
+                'name'        => $u->name,
+                'email'       => $u->email,
+                'avatar_url'  => $u->avatar_url,
+                'role'        => $u->roles->first()?->name ?? '—',
+                'status'      => $u->status?->value,
+                'status_label'=> $u->status?->label(),
+                'status_class'=> $u->status?->badgeClass(),
+                'deleted_at'  => $u->deleted_at?->toDateTimeString(),
+                'edit_url'    => $u->deleted_at ? null : route('admin.users.edit', $u),
+                'delete_url'  => $u->deleted_at ? null : route('admin.users.destroy', $u),
+                'restore_url' => $u->deleted_at ? route('admin.users.restore', $u->id) : null,
+            ]);
+
+        return response()->json(['data' => $users]);
     }
 
     public function create(): View

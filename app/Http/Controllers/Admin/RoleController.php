@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\Role\StoreRoleRequest;
 use App\Http\Requests\Admin\Role\UpdateRoleRequest;
+use App\Models\User;
 use App\Services\Admin\RoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class RoleController extends BaseAdminController
 {
@@ -22,8 +23,9 @@ class RoleController extends BaseAdminController
 
         $roles              = $this->roleService->all();
         $permissionsGrouped = $this->roleService->allPermissionsGrouped();
+        $users              = User::with('roles')->get();
 
-        return view('admin.roles.index', compact('roles', 'permissionsGrouped'));
+        return view('admin.roles.index', compact('roles', 'permissionsGrouped', 'users'));
     }
 
     public function store(StoreRoleRequest $request): RedirectResponse
@@ -59,3 +61,4 @@ class RoleController extends BaseAdminController
         return redirect()->route('admin.roles.index');
     }
 }
+

@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\DB;
 use App\Actions\Admin\Role\UpdateRole;
 use App\Exceptions\BusinessException;
 use Illuminate\Support\Collection;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Permission;
+use App\Models\Role;
 
 class RoleService
 {
@@ -19,7 +19,7 @@ class RoleService
 
     public function all(): Collection
     {
-        return Role::with('permissions')
+        return Role::with(['permissions', 'topUsers'])
             ->addSelect([
                 'users_count' => DB::table('model_has_roles')
                     ->selectRaw('count(*)')
@@ -76,3 +76,4 @@ class RoleService
         $role->delete();
     }
 }
+

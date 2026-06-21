@@ -5,8 +5,8 @@ namespace Tests\Feature\Admin;
 use App\Enums\UserStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Permission;
+use App\Models\Role;
 use Tests\TestCase;
 
 abstract class AdminTestCase extends TestCase
@@ -96,3 +96,4 @@ abstract class AdminTestCase extends TestCase
         return $this->actingAs($this->plainUser);
     }
 }
+

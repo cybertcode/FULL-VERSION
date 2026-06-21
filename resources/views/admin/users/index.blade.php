@@ -6,6 +6,7 @@
   @vite([
     'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
     'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
+    'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
     'resources/assets/vendor/libs/select2/select2.scss',
   ])
 @endsection
@@ -19,10 +20,9 @@
 
 @section('admin-content')
 
-{{-- Breadcrumb --}}
 <x-breadcrumb :items="[['label' => 'Usuarios']]" />
 
-{{-- Stats cards --}}
+{{-- ─── Stat Cards (igual que app-user-list) ─────────────────────────────── --}}
 <div class="row g-6 mb-6">
   <div class="col-sm-6 col-xl-3">
     <div class="card">
@@ -33,7 +33,7 @@
             <div class="d-flex align-items-center my-1">
               <h4 class="mb-0 me-2">{{ $stats['total'] }}</h4>
             </div>
-            <small class="mb-0">Usuarios registrados</small>
+            <small class="mb-0">Todos los usuarios</small>
           </div>
           <div class="avatar">
             <span class="avatar-initial rounded bg-label-primary">
@@ -73,11 +73,11 @@
             <div class="d-flex align-items-center my-1">
               <h4 class="mb-0 me-2">{{ $stats['inactive'] }}</h4>
             </div>
-            <small class="mb-0">Sin acceso al sistema</small>
+            <small class="mb-0">Usuarios inactivos</small>
           </div>
           <div class="avatar">
             <span class="avatar-initial rounded bg-label-warning">
-              <i class="icon-base ti tabler-user-off icon-26px"></i>
+              <i class="icon-base ti tabler-user-pause icon-26px"></i>
             </span>
           </div>
         </div>
@@ -89,15 +89,15 @@
       <div class="card-body">
         <div class="d-flex align-items-start justify-content-between">
           <div class="content-left">
-            <span class="text-heading">Baneados</span>
+            <span class="text-heading">Bloqueados</span>
             <div class="d-flex align-items-center my-1">
               <h4 class="mb-0 me-2">{{ $stats['banned'] }}</h4>
             </div>
-            <small class="mb-0">Acceso bloqueado</small>
+            <small class="mb-0">Usuarios bloqueados</small>
           </div>
           <div class="avatar">
             <span class="avatar-initial rounded bg-label-danger">
-              <i class="icon-base ti tabler-user-x icon-26px"></i>
+              <i class="icon-base ti tabler-user-off icon-26px"></i>
             </span>
           </div>
         </div>
@@ -106,161 +106,277 @@
   </div>
 </div>
 
-{{-- Tabla --}}
+{{-- ─── Tabla de usuarios (igual que app-user-list) ───────────────────────── --}}
 <div class="card">
   <div class="card-header border-bottom">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <h5 class="card-title mb-0">Usuarios</h5>
-      @can('users.create')
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-          <i class="icon-base ti tabler-plus me-1"></i> Nuevo usuario
-        </a>
-      @endcan
-    </div>
-    {{-- Filtros --}}
+    <h5 class="card-title mb-0">Filtros</h5>
     <div class="d-flex justify-content-between align-items-center row pt-4 gap-4 gap-md-0">
-      <div class="col-md-4">
-        <select id="filter-role" class="form-select select2" data-placeholder="Filtrar por rol">
+      <div class="col-md-4 user_role">
+        <select id="filterRole" class="form-select text-capitalize">
           <option value="">Todos los roles</option>
           @foreach ($roles as $role)
-            <option value="{{ $role }}">{{ ucfirst($role) }}</option>
+            <option value="{{ $role }}">{{ $role }}</option>
           @endforeach
         </select>
       </div>
-      <div class="col-md-4">
-        <select id="filter-status" class="form-select select2" data-placeholder="Filtrar por estado">
+      <div class="col-md-4 user_status">
+        <select id="filterStatus" class="form-select">
           <option value="">Todos los estados</option>
           @foreach ($statuses as $status)
             <option value="{{ $status->value }}">{{ $status->label() }}</option>
           @endforeach
         </select>
       </div>
-      <div class="col-md-4">
-        <input type="search" id="filter-search" class="form-control" placeholder="Buscar por nombre o email...">
+      <div class="col-md-4 d-flex justify-content-md-end">
+        @can('users.create')
+          <a href="{{ route('admin.users.create') }}"
+             class="btn btn-primary">
+            <i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i>
+            <span class="d-none d-sm-inline-block">Nuevo Usuario</span>
+          </a>
+        @endcan
       </div>
     </div>
   </div>
-
-  <div class="card-datatable table-responsive">
-    <table class="table" id="users-table">
-      <thead>
+  <div class="card-datatable">
+    <table class="datatables-users table">
+      <thead class="border-top">
         <tr>
+          <th></th>
+          <th></th>
           <th>Usuario</th>
-          <th>Teléfono</th>
           <th>Rol</th>
           <th>Estado</th>
-          <th>Creado</th>
-          <th class="text-center">Acciones</th>
+          <th>Acciones</th>
         </tr>
       </thead>
-      <tbody>
-        @forelse ($users as $user)
-          <tr>
-            <td>
-              <div class="d-flex align-items-center gap-3">
-                <div class="avatar avatar-sm">
-                  <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="rounded-circle" />
-                </div>
-                <div>
-                  <span class="fw-medium d-block">{{ $user->name }}</span>
-                  <small class="text-muted">{{ $user->email }}</small>
-                </div>
-              </div>
-            </td>
-            <td>{{ $user->phone ?? '—' }}</td>
-            <td>
-              @foreach ($user->roles as $role)
-                <span class="badge bg-label-primary">{{ $role->name }}</span>
-              @endforeach
-            </td>
-            <td>{!! statusBadge($user->status) !!}</td>
-            <td>{{ formatDate($user->created_at) }}</td>
-            <td class="text-center">
-              <div class="d-flex align-items-center justify-content-center gap-1">
-                @if ($user->trashed())
-                  @can('users.restore')
-                    <form action="{{ route('admin.users.restore', $user->id) }}" method="POST" class="d-inline">
-                      @csrf
-                      <button type="submit" class="btn btn-icon btn-sm btn-text-success rounded-pill"
-                        title="Restaurar">
-                        <i class="icon-base ti tabler-restore icon-sm"></i>
-                      </button>
-                    </form>
-                  @endcan
-                @else
-                  @can('users.edit')
-                    <a href="{{ route('admin.users.edit', $user) }}"
-                      class="btn btn-icon btn-sm btn-text-secondary rounded-pill" title="Editar">
-                      <i class="icon-base ti tabler-pencil icon-sm"></i>
-                    </a>
-                  @endcan
-                  @can('users.delete')
-                    @if ($user->id !== auth()->id())
-                      <form id="del-user-{{ $user->id }}"
-                        action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline">
-                        @csrf @method('DELETE')
-                      </form>
-                      <button type="button" class="btn btn-icon btn-sm btn-text-danger rounded-pill"
-                        title="Eliminar"
-                        onclick="confirmDelete('del-user-{{ $user->id }}', '{{ addslashes($user->name) }}')">
-                        <i class="icon-base ti tabler-trash icon-sm"></i>
-                      </button>
-                    @endif
-                  @endcan
-                @endif
-              </div>
-            </td>
-          </tr>
-        @empty
-          <tr>
-            <td colspan="6" class="text-center text-muted py-4">No hay usuarios registrados.</td>
-          </tr>
-        @endforelse
-      </tbody>
     </table>
   </div>
-
-  @if ($users->hasPages())
-    <div class="card-footer d-flex justify-content-end">
-      {{ $users->links() }}
-    </div>
-  @endif
 </div>
 
 @endsection
 
 @section('admin-page-script')
 <script>
-  window.addEventListener('load', function () {
-    // Select2 filtros
-    $('#filter-role, #filter-status').select2({ dropdownParent: $('body') });
+'use strict';
 
-    // Filtro de búsqueda en tabla (lado cliente — simple)
-    const searchInput = document.getElementById('filter-search');
-    const filterRole  = document.getElementById('filter-role');
-    const filterStatus = document.getElementById('filter-status');
+document.addEventListener('DOMContentLoaded', function () {
 
-    function applyFilters() {
-      const search = searchInput.value.toLowerCase();
-      const role   = filterRole.value.toLowerCase();
-      const status = filterStatus.value.toLowerCase();
+  const dtUsersTable = document.querySelector('.datatables-users');
 
-      document.querySelectorAll('#users-table tbody tr').forEach(function (row) {
-        const text   = row.textContent.toLowerCase();
-        const roleEl = row.querySelector('td:nth-child(3)')?.textContent.toLowerCase() ?? '';
-        const statusEl = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() ?? '';
+  if (dtUsersTable) {
+    const dt = new DataTable(dtUsersTable, {
+      ajax: {
+        url: '{{ route('admin.users.data') }}',
+        dataSrc: 'data'
+      },
+      columns: [
+        { data: null },
+        { data: null, orderable: false, searchable: false },
+        { data: 'name' },
+        { data: 'role' },
+        { data: 'status_label' },
+        { data: null, orderable: false, searchable: false }
+      ],
+      columnDefs: [
+        {
+          // Control responsive
+          className: 'control',
+          searchable: false,
+          orderable: false,
+          responsivePriority: 2,
+          targets: 0,
+          render: () => ''
+        },
+        {
+          // Checkbox selección
+          targets: 1,
+          orderable: false,
+          searchable: false,
+          responsivePriority: 4,
+          render: () => '<input type="checkbox" class="dt-checkboxes form-check-input">'
+        },
+        {
+          // Avatar + Nombre + Email
+          targets: 2,
+          responsivePriority: 1,
+          render: function (data, type, full) {
+            const name  = full.name;
+            const email = full.email;
+            const url   = full.avatar_url;
+            const deletedClass = full.deleted_at ? ' opacity-50' : '';
 
-        const matchSearch = !search || text.includes(search);
-        const matchRole   = !role   || roleEl.includes(role);
-        const matchStatus = !status || statusEl.includes(status);
+            let avatar;
+            if (url) {
+              avatar = `<img src="${url}" alt="${name}" class="rounded-circle" width="34" height="34">`;
+            } else {
+              const initials = (name.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
+              const colors   = ['primary','success','danger','warning','info'];
+              const color    = colors[name.charCodeAt(0) % colors.length];
+              avatar = `<span class="avatar-initial rounded-circle bg-label-${color}">${initials}</span>`;
+            }
 
-        row.style.display = (matchSearch && matchRole && matchStatus) ? '' : 'none';
+            return `
+              <div class="d-flex justify-content-start align-items-center user-name${deletedClass}">
+                <div class="avatar-wrapper">
+                  <div class="avatar avatar-sm me-4">${avatar}</div>
+                </div>
+                <div class="d-flex flex-column">
+                  <span class="fw-medium text-heading text-truncate">${name}</span>
+                  <small>${email}</small>
+                </div>
+              </div>`;
+          }
+        },
+        {
+          // Rol
+          targets: 3,
+          render: function (data, type, full) {
+            return `<span class="text-truncate d-flex align-items-center text-heading">${full.role}</span>`;
+          }
+        },
+        {
+          // Estado badge
+          targets: 4,
+          render: function (data, type, full) {
+            if (!full.status) return '—';
+            return `<span class="badge ${full.status_class}">${full.status_label}</span>`;
+          }
+        },
+        {
+          // Acciones
+          targets: -1,
+          title: 'Acciones',
+          searchable: false,
+          orderable: false,
+          render: function (data, type, full) {
+            if (full.deleted_at) {
+              @can('users.restore')
+              return `
+                <form action="${full.restore_url}" method="POST" class="d-inline">
+                  <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-icon btn-text-success rounded-pill waves-effect" title="Restaurar">
+                    <i class="icon-base ti tabler-restore icon-22px"></i>
+                  </button>
+                </form>`;
+              @endcan
+              return '';
+            }
+
+            let html = '<div class="d-flex align-items-center gap-1">';
+
+            @can('users.edit')
+            if (full.edit_url) {
+              html += `<a href="${full.edit_url}" class="btn btn-icon btn-text-secondary rounded-pill waves-effect" title="Editar">
+                         <i class="icon-base ti tabler-pencil icon-22px"></i>
+                       </a>`;
+            }
+            @endcan
+
+            @can('users.delete')
+            if (full.delete_url) {
+              html += `
+                <form id="del-user-${full.id}" action="${full.delete_url}" method="POST" class="d-inline">
+                  <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="_method" value="DELETE">
+                </form>
+                <button type="button"
+                  class="btn btn-icon btn-text-secondary rounded-pill waves-effect"
+                  title="Eliminar"
+                  onclick="confirmDelete('del-user-${full.id}', '${full.name.replace(/'/g, "\\'")}')">
+                  <i class="icon-base ti tabler-trash icon-22px"></i>
+                </button>`;
+            }
+            @endcan
+
+            html += '</div>';
+            return html;
+          }
+        }
+      ],
+      select: {
+        style: 'multi',
+        selector: 'td:nth-child(2)'
+      },
+      order: [[2, 'asc']],
+      responsive: {
+        details: {
+          display: DataTable.Responsive.display.modal({
+            header: row => 'Detalles de ' + row.data().name
+          }),
+          type: 'column',
+          renderer: function (api, rowIdx, columns) {
+            const data = columns
+              .filter(col => col.title !== '')
+              .map(col => `<tr><td>${col.title}:</td><td>${col.data}</td></tr>`)
+              .join('');
+            if (!data) return false;
+            const div = document.createElement('div');
+            div.classList.add('table-responsive');
+            div.innerHTML = `<table class="table"><tbody>${data}</tbody></table>`;
+            return div;
+          }
+        }
+      },
+      layout: {
+        topStart: {
+          rowClass: 'row m-3 my-0 justify-content-between',
+          features: [{ pageLength: { menu: [10, 25, 50, 100], text: '_MENU_' } }]
+        },
+        topEnd: {
+          features: [
+            { search: { placeholder: 'Buscar usuario', text: '_INPUT_' } }
+          ]
+        },
+        bottomStart: {
+          rowClass: 'row mx-3 justify-content-between',
+          features: ['info']
+        },
+        bottomEnd: 'paging'
+      },
+      language: {
+        search: '',
+        lengthMenu: '_MENU_',
+        info: 'Mostrando _START_ a _END_ de _TOTAL_ usuarios',
+        infoEmpty: 'No hay usuarios',
+        zeroRecords: 'No se encontraron usuarios',
+        paginate: {
+          next: '<i class="icon-base ti tabler-chevron-right scaleX-n1-rtl icon-18px"></i>',
+          previous: '<i class="icon-base ti tabler-chevron-left scaleX-n1-rtl icon-18px"></i>'
+        }
+      }
+    });
+
+    // Filtro por Rol
+    document.getElementById('filterRole')?.addEventListener('change', function () {
+      dt.column(3).search(this.value).draw();
+    });
+
+    // Filtro por Estado
+    document.getElementById('filterStatus')?.addEventListener('change', function () {
+      dt.column(4).search(this.value).draw();
+    });
+
+    // Ajustar clases de layout (igual que plantilla)
+    setTimeout(() => {
+      [
+        { selector: '.dt-buttons .btn', remove: 'btn-secondary' },
+        { selector: '.dt-search .form-control', remove: 'form-control-sm' },
+        { selector: '.dt-length .form-select', remove: 'form-select-sm' },
+        { selector: '.dt-length', add: 'mb-md-6 mb-0' },
+        { selector: '.dt-layout-start', add: 'ps-3 mt-0' },
+        { selector: '.dt-layout-end', remove: 'justify-content-between', add: 'justify-content-md-between justify-content-center d-flex flex-wrap gap-4 mt-0 mb-md-0 mb-6' },
+        { selector: '.dt-layout-table', remove: 'row mt-2' },
+        { selector: '.dt-layout-full', remove: 'col-md col-12', add: 'table-responsive' }
+      ].forEach(({ selector, remove, add }) => {
+        document.querySelectorAll(selector).forEach(el => {
+          if (remove) remove.split(' ').forEach(c => el.classList.remove(c));
+          if (add)    add.split(' ').forEach(c => el.classList.add(c));
+        });
       });
-    }
+    }, 100);
+  }
 
-    searchInput.addEventListener('input', applyFilters);
-    filterRole.addEventListener('change', applyFilters);
-    filterStatus.addEventListener('change', applyFilters);
-  });
+});
 </script>
 @endsection

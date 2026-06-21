@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class RoleControllerTest extends AdminTestCase
 {

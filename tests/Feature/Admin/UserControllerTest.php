@@ -20,7 +20,6 @@ class UserControllerTest extends AdminTestCase
             ->get(route('admin.users.index'))
             ->assertOk()
             ->assertViewIs('admin.users.index')
-            ->assertViewHas('users')
             ->assertViewHas('stats');
     }
 
@@ -44,15 +43,17 @@ class UserControllerTest extends AdminTestCase
             ->assertRedirect(route('login'));
     }
 
-    public function test_index_shows_paginated_users(): void
+    public function test_data_endpoint_returns_users(): void
     {
-        User::factory()->withPersonalTeam()->count(5)->create();
+        User::factory()->withPersonalTeam()->count(3)->create();
 
         $response = $this->actingAsSuperAdmin()
-            ->get(route('admin.users.index'));
+            ->getJson(route('admin.users.data'));
 
-        $response->assertOk();
-        $this->assertGreaterThanOrEqual(5, $response->viewData('users')->total());
+        $response->assertOk()
+                 ->assertJsonStructure(['data' => [['id', 'name', 'email', 'role', 'status']]]);
+
+        $this->assertGreaterThanOrEqual(3, count($response->json('data')));
     }
 
     public function test_stats_are_correct(): void
