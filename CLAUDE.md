@@ -44,15 +44,27 @@ php artisan optimize:clear          # limpiar todos los caches
 ### Frontend
 
 ```bash
-# Usar npm (Node v22 del sistema) — NO usar el yarn de Laragon (Node 18.8 incompatible)
-npm run dev      # Vite dev server con HMR
-npm run build    # build de producción
+# SIEMPRE usar yarn — ejecutable: C:\laragon\bin\nodejs\node-v18\yarn.cmd
+yarn dev     # Vite dev server con HMR
+yarn build   # build de producción
 ```
 
 ### Todo junto
 
 ```bash
 composer run dev   # servidor + queue + logs + vite en paralelo
+```
+
+### Agregar idioma nuevo
+
+```bash
+php artisan lang:add {locale}   # publica archivos en lang/{locale}/
+# Luego agregar el locale a:
+# 1. TemplateCustomizer.LANGUAGES en resources/assets/vendor/js/template-customizer.js
+# 2. LanguageController — array de locales permitidos
+# 3. LocaleMiddleware — array de locales permitidos
+# 4. navbar-partial.blade.php — item en el dropdown
+# 5. yarn build
 ```
 
 ### Calidad de código
@@ -230,17 +242,35 @@ Al agregar nuevos seeders, registrarlos en `DatabaseSeeder::run()`.
 
 ## Vistas del panel (admin)
 
-Extender siempre el layout de Vuexy:
+Las vistas admin extienden `admin/layouts/master` — **NO** `layouts/layoutMaster` directamente.
+Esto asegura que SweetAlert2 y los flash messages estén disponibles en todas las páginas del panel.
 
 ```blade
-@extends('layouts/layoutMaster')
+@extends('admin/layouts/master')
 
-@section('title', 'Título de la página')
+@section('title', 'Usuarios')
 
-@section('content')
+@section('admin-content')
   <!-- contenido aquí -->
 @endsection
+
+@section('admin-vendor-style')
+  {{-- CSS extra (datatables, select2, etc.) --}}
+  @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss'])
+@endsection
+
+@section('admin-vendor-script')
+  {{-- JS extra del vendor --}}
+  @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.js'])
+@endsection
+
+@section('admin-page-script')
+  {{-- JS propio de la página --}}
+  <script> /* ... */ </script>
+@endsection
 ```
+
+SweetAlert2 ya está cargado en el master — no hay que incluirlo manualmente en cada vista.
 
 Estructura de carpetas para un módulo:
 

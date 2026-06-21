@@ -23,15 +23,15 @@ return [
     'headerType' => 'fixed', // Header type: 'static' or 'fixed' (only for horizontal layout)
     'showDropdownOnHover' => true, // Dropdown on hover for horizontal layout: true/false
     'customizerControls' => [
-      'color', // Enable/Disable color picker in customizer
-      'theme', // Enable/Disable theme selection in customizer
-      'skins', // Enable/Disable skin options in customizer
-      'semiDark', // Enable/Disable semi-dark mode in customizer
-      'layoutCollapsed', // Enable/Disable collapsed layout in customizer
-      'layoutNavbarOptions', // Enable/Disable navbar options in customizer
-      'headerType', // Enable/Disable header type selection in customizer
-      'contentLayout', // Enable/Disable content layout options in customizer
-      'rtl' // Enable/Disable RTL layout options in customizer
+      'color',               // Color picker
+      'theme',               // Light / Dark / System
+      'skins',               // Default / Bordered
+      'semiDark',            // Semi-dark sidebar
+      'layoutCollapsed',     // Collapsed menu
+      'layoutNavbarOptions', // Navbar type
+      'headerType',          // Header type (horizontal)
+      'contentLayout',       // Compact / Wide
+      // 'rtl' eliminado — requiere idioma árabe que no está disponible
     ], // List of available customizer controls
   ],
 ];
