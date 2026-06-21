@@ -63,9 +63,9 @@ class AppServiceProvider extends ServiceProvider
                 app()->setLocale($lang);
             }
 
-            // Paginación global
+            // Paginación global — usa la misma clave que BaseAdminController
             if ($perPage = $settings->get('pagination_per_page')) {
-                Config::set('app.pagination_per_page', (int) $perPage);
+                Config::set('app-settings.pagination.default', (int) $perPage);
             }
 
             // Duración de sesión (minutos)

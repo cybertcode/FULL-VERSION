@@ -48,8 +48,10 @@
   <title>
     @yield('title') | {{ setting('site_name', config('variables.templateName', 'App')) }}
   </title>
+  {{-- site_description: descripción interna del sistema (usada en auth pages, correos).
+       seo_description: meta tag para motores de búsqueda. Si no hay SEO, cae a site_description. --}}
   <meta name="description"
-    content="{{ setting('seo_description', config('variables.templateDescription', '')) }}" />
+    content="{{ setting('seo_description', setting('site_description', config('variables.templateDescription', ''))) }}" />
   <meta name="keywords"
     content="{{ setting('seo_keywords', config('variables.templateKeyword', '')) }}" />
   <meta property="og:title" content="{{ setting('seo_title', setting('site_name', config('variables.templateName', ''))) }}" />

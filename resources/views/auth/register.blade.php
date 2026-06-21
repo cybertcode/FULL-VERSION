@@ -93,8 +93,8 @@ $customizerHidden = 'customizer-hide';
                 name="terms" />
               <label class="form-check-label" for="terms">
                 I agree to
-                <a href="{{ route('policy.show') }}" target="_blank">privacy policy</a> &
-                <a href="{{ route('terms.show') }}" target="_blank">terms</a>
+                <a href="{{ setting('privacy_url', route('policy.show')) }}" target="_blank">privacy policy</a> &
+                <a href="{{ setting('terms_url', route('terms.show')) }}" target="_blank">terms</a>
               </label>
             </div>
             @error('terms')

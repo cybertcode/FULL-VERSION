@@ -1,13 +1,35 @@
 @php
-  $width  = $width  ?? '32';
-  $height = $height ?? '22';
-  $siteLogo = setting('site_logo');
+  $width        = $width  ?? '32';
+  $height       = $height ?? '22';
+  $siteLogo     = setting('site_logo');
+  $siteLogoDark = setting('site_logo_dark');
+  $logoLight    = $siteLogo     ? \Illuminate\Support\Facades\Storage::url($siteLogo)     : null;
+  $logoDark     = $siteLogoDark ? \Illuminate\Support\Facades\Storage::url($siteLogoDark) : null;
 @endphp
 
-@if($siteLogo)
-  <img src="{{ \Illuminate\Support\Facades\Storage::url($siteLogo) }}"
+@if($logoLight)
+  <img id="app-brand-logo-img"
+    src="{{ $logoLight }}"
     alt="{{ setting('site_name', 'Logo') }}"
-    style="height:{{ $height }}px; width:auto; object-fit:contain;">
+    style="height:{{ $height }}px; width:auto; object-fit:contain;"
+    @if($logoDark)
+      data-logo-light="{{ $logoLight }}"
+      data-logo-dark="{{ $logoDark }}"
+    @endif>
+  @if($logoDark)
+  <script>
+  (function(){
+    function applyLogo(){
+      var el = document.getElementById('app-brand-logo-img');
+      if(!el) return;
+      var theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      el.src = theme === 'dark' ? el.dataset.logoDark : el.dataset.logoLight;
+    }
+    applyLogo();
+    new MutationObserver(applyLogo).observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
+  })();
+  </script>
+  @endif
 @else
   <span class="text-primary">
     <svg width="{{ $width }}" height="{{ $height }}" viewBox="0 0 32 22" fill="none"
