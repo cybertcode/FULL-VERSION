@@ -1,11 +1,14 @@
 @props([
-    'title',
+    'title' => null,
     'items' => [],
 ])
+@php
+    $resolvedTitle = $title ?? (collect($items)->last()['label'] ?? '');
+@endphp
 
 <div class="d-flex align-items-center justify-content-between mb-6">
   <div>
-    <h4 class="mb-1">{{ $title }}</h4>
+    <h4 class="mb-1">{{ $resolvedTitle }}</h4>
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb breadcrumb-custom-icon mb-0">
         <li class="breadcrumb-item">

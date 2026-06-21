@@ -17,6 +17,7 @@
     "laravel/tinker": "^2.10.1",
     "livewire/livewire": "^3.6.4",
     "spatie/image": "^3.9",
+    "spatie/laravel-activitylog": "^4.12",
     "spatie/laravel-permission": "^6.25"
   },
   "require-dev": {

@@ -30,6 +30,8 @@ return [
 
         'role' => Role::class,
 
+        'user' => \App\Models\User::class,
+
     ],
 
     'table_names' => [

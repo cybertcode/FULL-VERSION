@@ -3,43 +3,76 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Permisos por módulo
         $permissions = [
-            // Usuarios
+            // ── Usuarios ──────────────────────────────────────────────
+            'users.viewAny',
             'users.view',
             'users.create',
             'users.edit',
             'users.delete',
+            'users.restore',
+            'users.forceDelete',
 
-            // Roles
+            // ── Roles ─────────────────────────────────────────────────
+            'roles.viewAny',
             'roles.view',
             'roles.create',
             'roles.edit',
             'roles.delete',
+            'roles.assignPermissions',
+
+            // ── Configuración del sistema ──────────────────────────────
+            'settings.view',
+            'settings.edit',
+            'settings.testMail',
+            'settings.runArtisan',
+
+            // ── Activity Log ───────────────────────────────────────────
+            'activitylog.viewAny',
+            'activitylog.export',
+
+            // ── Dashboard ─────────────────────────────────────────────
+            'dashboard.view',
+            'dashboard.viewStats',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // Rol: Super-Admin — acceso total vía Gate::before (sin permisos explícitos)
-        Role::firstOrCreate(['name' => 'Super-Admin']);
+        // Super-Admin — bypass total via Gate::before (sin permisos explícitos en BD)
+        Role::firstOrCreate(['name' => 'Super-Admin', 'guard_name' => 'web']);
 
-        // Rol: admin — permisos explícitos
-        $admin = Role::firstOrCreate(['name' => 'admin']);
-        $admin->syncPermissions($permissions);
+        // Admin — todos los permisos operativos del panel
+        $adminPermissions = [
+            'users.viewAny', 'users.view', 'users.create', 'users.edit', 'users.delete',
+            'roles.viewAny', 'roles.view',
+            'settings.view',
+            'activitylog.viewAny',
+            'dashboard.view', 'dashboard.viewStats',
+        ];
+        $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $admin->syncPermissions($adminPermissions);
 
-        // Rol: user — solo lectura básica
-        $user = Role::firstOrCreate(['name' => 'user']);
-        $user->syncPermissions(['users.view']);
+        // Editor — gestión de contenido, sin acceso a usuarios/roles/settings
+        $editorPermissions = [
+            'dashboard.view',
+        ];
+        $editor = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);
+        $editor->syncPermissions($editorPermissions);
+
+        // User — acceso mínimo, solo su propio perfil
+        $user = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
+        $user->syncPermissions(['dashboard.view']);
     }
 }
