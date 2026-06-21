@@ -34,6 +34,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Sobreescribir las vistas que Jetstream registra con Inertia (este proyecto usa Livewire/Blade)
+        Fortify::twoFactorChallengeView(fn () => view('auth.two-factor-challenge'));
+        Fortify::confirmPasswordView(fn () => view('auth.confirm-password'));
+
         Fortify::authenticateThrough(function () {
             return [
                 EnsureLoginIsNotThrottled::class,

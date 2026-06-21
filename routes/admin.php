@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\SettingController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', \App\Http\Middleware\Enforce2FAMiddleware::class, \App\Http\Middleware\RestrictAdminIpMiddleware::class])
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified', \App\Http\Middleware\RestrictAdminIpMiddleware::class])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

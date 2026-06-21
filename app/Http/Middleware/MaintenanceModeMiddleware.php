@@ -18,22 +18,23 @@ class MaintenanceModeMiddleware
             return $next($request);
         }
 
-        // Rutas siempre permitidas: login, logout, assets
-        if ($request->routeIs('login', 'logout', 'password.*', 'admin.settings.*')) {
-            return $next($request);
-        }
-
-        // Admins autenticados pasan siempre
+        // Super-Admin autenticado siempre pasa (antes que cualquier otra verificación)
         if (auth()->check() && auth()->user()->hasRole('Super-Admin')) {
             return $next($request);
         }
 
-        // IPs en whitelist pasan
+        // IPs en whitelist pasan (incluye acceso al login para que puedan autenticarse)
         $allowedIps = array_filter(
             array_map('trim', explode(',', setting('maintenance_ips', '')))
         );
 
-        if (in_array($request->ip(), $allowedIps)) {
+        if (! empty($allowedIps) && in_array($request->ip(), $allowedIps, true)) {
+            return $next($request);
+        }
+
+        // Solo logout y rutas de assets están siempre permitidas
+        // El settings del admin también para que el Super-Admin pueda desactivar mantenimiento
+        if ($request->routeIs('logout', 'admin.settings.*')) {
             return $next($request);
         }
 
