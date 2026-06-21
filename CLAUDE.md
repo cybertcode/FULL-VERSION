@@ -254,23 +254,25 @@ Esto asegura que SweetAlert2 y los flash messages estén disponibles en todas la
   <!-- contenido aquí -->
 @endsection
 
-@section('admin-vendor-style')
+@push('admin-vendor-style')
   {{-- CSS extra (datatables, select2, etc.) --}}
   @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss'])
-@endsection
+@endpush
 
-@section('admin-vendor-script')
+@push('admin-vendor-script')
   {{-- JS extra del vendor --}}
   @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.js'])
-@endsection
+@endpush
 
-@section('admin-page-script')
+@push('admin-page-script')
   {{-- JS propio de la página --}}
   <script> /* ... */ </script>
-@endsection
+@endpush
 ```
 
-SweetAlert2 ya está cargado en el master — no hay que incluirlo manualmente en cada vista.
+IMPORTANTE: Usar siempre `@push`/`@endpush` (NO `@section`/`@endsection`) para `admin-vendor-style`, `admin-vendor-script` y `admin-page-script`. Las secciones se sobreescriben mutuamente en herencia múltiple; los stacks se acumulan correctamente.
+
+Notyf y SweetAlert2 ya están cargados en el master — no hay que incluirlos manualmente en cada vista.
 
 Estructura de carpetas para un módulo:
 

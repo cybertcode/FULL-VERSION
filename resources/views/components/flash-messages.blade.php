@@ -1,30 +1,27 @@
-@if (session()->has('flash'))
-  @php $flash = session('flash'); @endphp
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      if (typeof Swal === 'undefined') return;
+{{-- Bootstrap Toast via flash del servidor --}}
+@if(session()->has('flash'))
+@php $flash = session('flash'); @endphp
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  window.showToast(@json($flash['type'] ?? 'info'), @json($flash['message'] ?? ''));
+});
+</script>
+@endif
 
-      const type    = @json($flash['type']);
-      const message = @json($flash['message']);
-
-      const iconMap  = { success: 'success', error: 'error', warning: 'warning', info: 'info' };
-      const colorMap = {
-        success: 'var(--bs-success)',
-        error  : 'var(--bs-danger)',
-        warning: 'var(--bs-warning)',
-        info   : 'var(--bs-info)',
-      };
-
-      Swal.fire({
-        toast            : true,
-        position         : 'top-end',
-        icon             : iconMap[type] ?? 'info',
-        title            : message,
-        showConfirmButton: false,
-        timer            : 4000,
-        timerProgressBar : true,
-        iconColor        : colorMap[type] ?? colorMap.info,
-      });
-    });
-  </script>
+{{-- Errores de validación → SweetAlert2 modal --}}
+@if($errors->any() && !session()->has('flash'))
+<script>
+window.addEventListener('load', function () {
+  var first = @json($errors->first());
+  var count = {{ $errors->count() }};
+  Swal.fire({
+    title          : 'Error de validación',
+    html           : first + (count > 1 ? '<br><small class="text-muted">y ' + (count - 1) + ' error' + (count > 2 ? 'es' : '') + ' más</small>' : ''),
+    icon           : 'error',
+    confirmButtonText: 'Entendido',
+    buttonsStyling : false,
+    customClass    : { confirmButton: 'btn btn-primary waves-effect waves-light' }
+  });
+});
+</script>
 @endif

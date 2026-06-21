@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use App\Exceptions\BusinessException;
 use App\Exceptions\UnauthorizedException;
 use App\Http\Middleware\LocaleMiddleware;
+use App\Http\Middleware\MaintenanceModeMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(LocaleMiddleware::class);
+        $middleware->web(MaintenanceModeMiddleware::class);
 
         $middleware->alias([
             'role'       => \Spatie\Permission\Middleware\RoleMiddleware::class,

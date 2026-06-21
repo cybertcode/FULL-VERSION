@@ -17,7 +17,7 @@ $customizerHidden = 'customizer-hide';
   <!-- Logo -->
   <a href="{{ url('/') }}" class="app-brand auth-cover-brand">
     <span class="app-brand-logo demo">@include('_partials.macros')</span>
-    <span class="app-brand-text demo text-heading fw-bold">{{ config('variables.templateName') }}</span>
+    <span class="app-brand-text demo text-heading fw-bold">{{ setting('site_name', config('variables.templateName')) }}</span>
   </a>
   <!-- /Logo -->
   <div class="authentication-inner row m-0">
@@ -38,8 +38,8 @@ $customizerHidden = 'customizer-hide';
     <!-- Login -->
     <div class="d-flex col-12 col-xl-4 align-items-center authentication-bg p-sm-12 p-6">
       <div class="w-px-400 mx-auto mt-12 pt-5">
-        <h4 class="mb-1">Welcome to {{ config('variables.templateName') }}! 👋</h4>
-        <p class="mb-6">Please sign-in to your account and start the adventure</p>
+        <h4 class="mb-1">Bienvenido a {{ setting('site_name', config('variables.templateName')) }}! 👋</h4>
+        <p class="mb-6">Inicia sesión en tu cuenta para continuar</p>
 
         @if (session('status'))
         <div class="alert alert-success mb-1 rounded-0" role="alert">

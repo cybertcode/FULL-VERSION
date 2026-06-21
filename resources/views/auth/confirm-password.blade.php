@@ -18,7 +18,7 @@ $customizerHidden = 'customizer-hide';
   <!-- Logo -->
   <a href="{{ url('/') }}" class="app-brand auth-cover-brand">
     <span class="app-brand-logo demo">@include('_partials.macros')</span>
-    <span class="app-brand-text demo text-heading fw-bold">{{ config('variables.templateName') }}</span>
+    <span class="app-brand-text demo text-heading fw-bold">{{ setting('site_name', config('variables.templateName')) }}</span>
   </a>
   <!-- /Logo -->
   <div class="authentication-inner row m-0">
