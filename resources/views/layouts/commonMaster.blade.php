@@ -45,28 +45,25 @@
     content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
   <title>
-    @yield('title') | {{ config('variables.templateName') ? config('variables.templateName') : 'TemplateName' }}
-    - {{ config('variables.templateSuffix') ? config('variables.templateSuffix') : 'TemplateSuffix' }}
+    @yield('title') | {{ setting('site_name', config('variables.templateName', 'App')) }}
   </title>
   <meta name="description"
-    content="{{ config('variables.templateDescription') ? config('variables.templateDescription') : '' }}" />
+    content="{{ setting('seo_description', config('variables.templateDescription', '')) }}" />
   <meta name="keywords"
-    content="{{ config('variables.templateKeyword') ? config('variables.templateKeyword') : '' }}" />
-  <meta property="og:title" content="{{ config('variables.ogTitle') ? config('variables.ogTitle') : '' }}" />
-  <meta property="og:type" content="{{ config('variables.ogType') ? config('variables.ogType') : '' }}" />
-  <meta property="og:url" content="{{ config('variables.productPage') ? config('variables.productPage') : '' }}" />
-  <meta property="og:image" content="{{ config('variables.ogImage') ? config('variables.ogImage') : '' }}" />
+    content="{{ setting('seo_keywords', config('variables.templateKeyword', '')) }}" />
+  <meta property="og:title" content="{{ setting('seo_title', setting('site_name', config('variables.templateName', ''))) }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ url('/') }}" />
+  <meta property="og:image" content="{{ setting('seo_og_image') ? Storage::url(setting('seo_og_image')) : config('variables.ogImage', '') }}" />
   <meta property="og:description"
-    content="{{ config('variables.templateDescription') ? config('variables.templateDescription') : '' }}" />
+    content="{{ setting('seo_description', config('variables.templateDescription', '')) }}" />
   <meta property="og:site_name"
-    content="{{ config('variables.creatorName') ? config('variables.creatorName') : '' }}" />
-  <meta name="robots" content="noindex, nofollow" />
+    content="{{ setting('site_name', config('variables.templateName', '')) }}" />
+  <meta name="robots" content="{{ setting('seo_robots', 'noindex, nofollow') }}" />
   <!-- laravel CRUD token -->
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <!-- Canonical SEO -->
-  <link rel="canonical" href="{{ config('variables.productPage') ? config('variables.productPage') : '' }}" />
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+  <link rel="icon" type="image/x-icon" href="{{ setting('site_favicon') ? Storage::url(setting('site_favicon')) : asset('assets/img/favicon/favicon.ico') }}" />
 
   <!-- Include Styles -->
   <!-- $isFront is used to append the front layout styles only on the front layout otherwise the variable will be blank -->

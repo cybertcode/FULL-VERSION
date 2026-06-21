@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Services\Admin\SettingService;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Vite;
 
@@ -13,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Singleton para que el cache se comparte en todo el request
+        $this->app->singleton(SettingService::class);
     }
 
     /**
@@ -22,6 +26,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        // Compartir settings a TODAS las vistas — disponible como $appSettings
+        // Solo si la tabla existe (evita crash en migrate:fresh)
+        if (Schema::hasTable('settings')) {
+            View::share('appSettings', app(SettingService::class)->all());
+        }
 
         Vite::useStyleTagAttributes(function (?string $src, string $url, ?array $chunk, ?array $manifest) {
             if ($src !== null) {

@@ -31,3 +31,17 @@ if (! function_exists('moneyFormat')) {
         return $currency . ' ' . number_format($amount, 2);
     }
 }
+
+if (! function_exists('setting')) {
+    /**
+     * Obtiene un valor de configuración del sistema desde la BD (con cache).
+     * Disponible en toda la app y en Blade.
+     *
+     * Uso: setting('site_name')
+     *      setting('mail_from_address', 'noreply@app.com')
+     */
+    function setting(string $key, mixed $default = null): mixed
+    {
+        return app(\App\Services\Admin\SettingService::class)->get($key, $default);
+    }
+}
