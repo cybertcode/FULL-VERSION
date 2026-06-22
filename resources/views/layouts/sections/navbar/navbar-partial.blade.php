@@ -450,9 +450,8 @@ use Illuminate\Support\Facades\Route;
           <div class="dropdown-divider my-1 mx-n2"></div>
         </li>
         <li>
-          <a class="dropdown-item"
-            href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
-            <i class="icon-base ti tabler-user me-3 icon-md"></i><span class="align-middle">My Profile</span> </a>
+          <a class="dropdown-item" href="{{ route('admin.profile.show') }}">
+            <i class="icon-base ti tabler-user me-3 icon-md"></i><span class="align-middle">Mi Perfil</span> </a>
         </li>
         @if (Auth::check() && Laravel\Jetstream\Jetstream::hasApiFeatures())
         <li>
