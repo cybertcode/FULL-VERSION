@@ -181,17 +181,35 @@ window.addEventListener('load', function () {
       if (!result.isConfirmed) return;
       var token = document.querySelector('meta[name="csrf-token"]');
       fetch(url, {
-        method : method || 'DELETE',
+        method  : method || 'DELETE',
+        redirect: 'manual',
         headers: {
           'X-CSRF-TOKEN'    : token ? token.getAttribute('content') : '',
           'Accept'          : 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         }
       }).then(function (r) {
-        if (r.ok) { window.location.reload(); }
-        else      { window.showToast('error', 'No se pudo completar la operación.'); }
+        if (r.type === 'opaqueredirect' || (r.status >= 300 && r.status < 400)) {
+          window.location.reload(); return;
+        }
+        if (r.ok) { window.location.reload(); return; }
+        return r.json().catch(function () { return {}; }).then(function (body) {
+          var msg = body.message || 'No se pudo completar la operación.';
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'error', title: 'No permitido', text: msg, confirmButtonText: 'Entendido',
+              buttonsStyling: false, customClass: { confirmButton: 'btn btn-primary waves-effect' } });
+          } else {
+            window.showToast('error', msg);
+          }
+        });
       }).catch(function () {
-        window.showToast('error', 'Error de conexión.');
+        var msg = 'Error de conexión.';
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonText: 'Entendido',
+            buttonsStyling: false, customClass: { confirmButton: 'btn btn-primary waves-effect' } });
+        } else {
+          window.showToast('error', msg);
+        }
       });
     });
   };

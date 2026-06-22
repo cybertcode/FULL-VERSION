@@ -14,7 +14,14 @@ class ImageService
         ?string $oldPath = null,
         int $quality = 85,
         ?int $maxWidth = 1200,
+        int $maxSizeKb = 5120,
     ): string {
+        if ($file->getSize() > $maxSizeKb * 1024) {
+            throw new \App\Exceptions\BusinessException(
+                "La imagen no debe superar los {$maxSizeKb}KB (" . round($maxSizeKb / 1024, 1) . "MB)."
+            );
+        }
+
         if ($oldPath && Storage::disk('public')->exists($oldPath)) {
             Storage::disk('public')->delete($oldPath);
         }
@@ -37,6 +44,11 @@ class ImageService
         $filename      = pathinfo($tempPath, PATHINFO_FILENAME) . '.webp';
         $finalRelative = $folder . '/' . $filename;
         $absoluteFinal = Storage::disk('public')->path($finalRelative);
+
+        // Asegurar que el directorio destino exista
+        if (! is_dir(dirname($absoluteFinal))) {
+            mkdir(dirname($absoluteFinal), 0755, true);
+        }
 
         $image = Image::load($absoluteTemp)->quality($quality);
 
@@ -78,6 +90,5 @@ class ImageService
             default => imagejpeg($gdImage, $absolutePath, 100), // JPG/JPEG máxima calidad — Spatie recomprimirá
         };
 
-        imagedestroy($gdImage);
     }
 }

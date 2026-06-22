@@ -19,7 +19,8 @@ class RoleService
 
     public function all(): Collection
     {
-        return Role::with(['permissions', 'topUsers'])
+        return Role::select('roles.*')
+            ->with(['permissions', 'topUsers'])
             ->addSelect([
                 'users_count' => DB::table('model_has_roles')
                     ->selectRaw('count(*)')
@@ -63,10 +64,8 @@ class RoleService
 
     public function delete(Role $role): void
     {
-        $protected = ['Super-Admin', 'admin', 'user'];
-
-        if (\in_array($role->name, $protected, true)) {
-            throw new BusinessException("El rol '{$role->name}' es un rol del sistema y no puede eliminarse.");
+        if ($role->name === 'Super-Admin') {
+            throw new BusinessException("El rol 'Super-Admin' es el rol del sistema y no puede eliminarse.");
         }
 
         if ($role->users()->count() > 0) {

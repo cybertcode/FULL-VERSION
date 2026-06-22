@@ -19,6 +19,7 @@
 
 @section('admin-content')
 @php
+  use Illuminate\Support\Facades\Storage;
   $perfil = $user->perfil;
   $tab    = request('tab', 'perfil');
 
@@ -35,78 +36,83 @@
 <div class="row">
   <div class="col-12">
     <div class="card mb-6">
-      <div class="user-profile-header-banner">
-        <img src="{{ asset('assets/img/pages/profile-banner.png') }}" alt="Banner" class="rounded-top w-100" style="height:150px; object-fit:cover;" />
+      <div class="user-profile-header-banner position-relative">
+        <img id="banner-preview"
+          src="{{ $perfil?->banner ? Storage::url($perfil->banner) : asset('assets/img/pages/profile-banner.png') }}"
+          alt="Banner" class="rounded-top" />
+        @if($tab === 'perfil')
+        <button type="button" id="banner-btn"
+          class="position-absolute top-0 end-0 m-3 btn btn-sm btn-light opacity-75"
+          title="Cambiar portada">
+          <i class="icon-base ti tabler-photo-edit me-1"></i> Cambiar portada
+        </button>
+        @endif
       </div>
-      <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-4">
-        <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto ms-sm-6">
-          <div class="position-relative d-inline-block">
-            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
-              class="d-block rounded user-profile-img border border-3 border-white"
-              style="width:90px; height:90px; object-fit:cover;" />
-            <span class="badge bg-{{ $user->status?->badgeClass() ?? 'secondary' }} position-absolute bottom-0 end-0 rounded-pill" style="font-size:.55rem; padding:.25rem .45rem;">
-              {{ $user->status?->label() ?? '—' }}
-            </span>
-          </div>
+      <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-5" style="position:relative;z-index:1">
+        <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
+          <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
+            class="d-block h-auto ms-0 ms-sm-6 rounded user-profile-img" />
         </div>
-        <div class="flex-grow-1 mt-3 mt-lg-4 mx-5">
-          <div class="d-flex align-items-md-end align-items-center justify-content-md-between flex-md-row flex-column gap-3">
-            <div>
-              <h5 class="mb-1">{{ $user->name }}</h5>
-              <div class="d-flex flex-wrap gap-3 justify-content-sm-start justify-content-center">
+        <div class="flex-grow-1 mt-3 mt-lg-5">
+          <div class="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-5 flex-md-row flex-column gap-4">
+            <div class="user-profile-info">
+              <h4 class="mb-2 mt-lg-6">{{ $user->name }}</h4>
+              <ul class="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-4 my-2">
                 @if($perfil?->cargo)
-                  <span class="text-muted small d-flex align-items-center gap-1">
-                    <i class="icon-base ti tabler-briefcase icon-xs"></i> {{ $perfil->cargo }}
-                  </span>
+                  <li class="list-inline-item d-flex gap-2 align-items-center">
+                    <i class="icon-base ti tabler-briefcase icon-lg"></i>
+                    <span class="fw-medium">{{ $perfil->cargo }}</span>
+                  </li>
                 @endif
                 @if($perfil?->area)
-                  <span class="text-muted small d-flex align-items-center gap-1">
-                    <i class="icon-base ti tabler-building icon-xs"></i> {{ $perfil->area }}
-                  </span>
+                  <li class="list-inline-item d-flex gap-2 align-items-center">
+                    <i class="icon-base ti tabler-building icon-lg"></i>
+                    <span class="fw-medium">{{ $perfil->area }}</span>
+                  </li>
                 @endif
-                @if($perfil?->departamento)
-                  <span class="text-muted small d-flex align-items-center gap-1">
-                    <i class="icon-base ti tabler-map-pin icon-xs"></i> {{ $perfil->departamento }}
-                  </span>
-                @endif
-                <span class="text-muted small d-flex align-items-center gap-1">
-                  <i class="icon-base ti tabler-calendar icon-xs"></i> Desde {{ formatDate($user->created_at) }}
-                </span>
-              </div>
+                <li class="list-inline-item d-flex gap-2 align-items-center">
+                  <i class="icon-base ti tabler-calendar icon-lg"></i>
+                  <span class="fw-medium">Desde {{ formatDate($user->created_at) }}</span>
+                </li>
+                <li class="list-inline-item d-flex gap-2 align-items-center">
+                  {!! statusBadge($user->status) !!}
+                </li>
+              </ul>
             </div>
-            <div class="d-flex flex-column align-items-md-end gap-1">
-              <div class="d-flex align-items-center gap-2">
-                <span class="text-muted small">Perfil completado</span>
-                <span class="badge bg-label-{{ $colorPct }} small">{{ $pct }}%</span>
-              </div>
-              <div class="progress" style="width:140px; height:5px;">
+            <div class="d-flex flex-column align-items-md-end gap-1 mb-1">
+              <span class="text-muted small">Perfil completado <span class="fw-semibold text-{{ $colorPct }}">{{ $pct }}%</span></span>
+              <div class="progress" style="width:150px; height:5px;">
                 <div class="progress-bar bg-{{ $colorPct }}" style="width:{{ $pct }}%"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
-      {{-- Tabs de navegación --}}
-      <div class="px-5 pb-0">
-        <ul class="nav nav-pills border-0 gap-1 mb-0 pb-0">
-          <li class="nav-item">
-            <a href="?tab=perfil" class="nav-link rounded-bottom-0 {{ $tab === 'perfil' ? 'active' : '' }}">
-              <i class="icon-base ti tabler-user icon-sm me-1"></i> Mi Perfil
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="?tab=seguridad" class="nav-link rounded-bottom-0 {{ $tab === 'seguridad' ? 'active' : '' }}">
-              <i class="icon-base ti tabler-shield-lock icon-sm me-1"></i> Seguridad
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="?tab=sesiones" class="nav-link rounded-bottom-0 {{ $tab === 'sesiones' ? 'active' : '' }}">
-              <i class="icon-base ti tabler-devices icon-sm me-1"></i> Sesiones
-            </a>
-          </li>
-        </ul>
-      </div>
+{{-- Tabs de navegación (fuera del card, patrón Vuexy nav-align-top) --}}
+<div class="row">
+  <div class="col-12">
+    <div class="nav-align-top">
+      <ul class="nav nav-pills flex-column flex-sm-row mb-6 gap-sm-0 gap-2">
+        <li class="nav-item">
+          <a href="?tab=perfil" class="nav-link {{ $tab === 'perfil' ? 'active' : '' }}">
+            <i class="icon-base ti tabler-user icon-sm me-1_5"></i> Mi Perfil
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="?tab=seguridad" class="nav-link {{ $tab === 'seguridad' ? 'active' : '' }}">
+            <i class="icon-base ti tabler-shield-lock icon-sm me-1_5"></i> Seguridad
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="?tab=sesiones" class="nav-link {{ $tab === 'sesiones' ? 'active' : '' }}">
+            <i class="icon-base ti tabler-devices icon-sm me-1_5"></i> Sesiones
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
@@ -115,8 +121,10 @@
      TAB: MI PERFIL
 ══════════════════════════════════════════════════════════ --}}
 @if($tab === 'perfil')
-<form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data" id="profile-form">
 @csrf @method('PUT')
+{{-- Input banner dentro del form para que se envíe correctamente --}}
+<input type="file" id="banner" name="banner" hidden accept="image/png,image/jpeg,image/webp" />
 
 <div class="row g-6">
 
@@ -367,23 +375,25 @@
 
     {{-- Foto --}}
     <div class="card mb-6">
-      <div class="card-body text-center py-5">
-        <div class="position-relative d-inline-block mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-start align-items-sm-center gap-6">
           <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
             id="avatar-preview"
-            class="rounded-circle object-fit-cover border border-2"
-            style="width:96px; height:96px;" />
-          <label for="avatar"
-            class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle d-flex align-items-center justify-content-center"
-            style="width:30px; height:30px; padding:0;" title="Cambiar foto">
-            <i class="icon-base ti tabler-camera" style="font-size:.85rem;"></i>
-            <input type="file" id="avatar" name="avatar" hidden accept="image/png,image/jpeg,image/webp" />
-          </label>
+            class="d-block w-px-100 h-px-100 rounded" />
+          <div class="button-wrapper">
+            <label for="avatar" class="btn btn-primary me-3 mb-3" tabindex="0">
+              <span class="d-none d-sm-block">Subir foto</span>
+              <i class="icon-base ti tabler-upload d-block d-sm-none"></i>
+              <input type="file" id="avatar" name="avatar" class="account-file-input" hidden accept="image/png,image/jpeg,image/webp" />
+            </label>
+            <button type="button" class="btn btn-label-secondary mb-3" id="avatar-reset-btn">
+              <i class="icon-base ti tabler-refresh-dot d-block d-sm-none"></i>
+              <span class="d-none d-sm-block">Restablecer</span>
+            </button>
+            <p class="text-muted mb-0 small">JPG, PNG o WEBP. Máx. 800KB</p>
+            @error('avatar')<p class="text-danger small mb-0">{{ $message }}</p>@enderror
+          </div>
         </div>
-        <h6 class="mb-0">{{ $user->name }}</h6>
-        <p class="text-muted small mb-1">{{ $user->email }}</p>
-        <span class="badge bg-label-primary">{{ $user->roles->first()?->name ?? 'Sin rol' }}</span>
-        @error('avatar')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
       </div>
     </div>
 
@@ -588,16 +598,47 @@ window.addEventListener('load', function () {
     flatpickr(el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd/m/Y', allowInput: true });
   });
 
+  // Banner: botón dispara el input (que está dentro del form)
+  const bannerBtn   = document.getElementById('banner-btn');
+  const bannerInput = document.getElementById('banner');
+  if (bannerBtn && bannerInput) {
+    bannerBtn.addEventListener('click', () => bannerInput.click());
+    bannerInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showAlert('Archivo muy grande', 'La portada no debe superar 5MB.', 'warning');
+        this.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = e => {
+        const preview = document.getElementById('banner-preview');
+        if (preview) preview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   // Preview avatar
   const avatarInput = document.getElementById('avatar');
+  const avatarPreview = document.getElementById('avatar-preview');
+  const originalSrc = avatarPreview ? avatarPreview.src : '';
   if (avatarInput) {
     avatarInput.addEventListener('change', function () {
       const file = this.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = e => document.getElementById('avatar-preview').src = e.target.result;
+        reader.onload = e => { if (avatarPreview) avatarPreview.src = e.target.result; };
         reader.readAsDataURL(file);
       }
+    });
+  }
+  const resetBtn = document.getElementById('avatar-reset-btn');
+  if (resetBtn && avatarPreview) {
+    resetBtn.addEventListener('click', function () {
+      if (avatarInput) avatarInput.value = '';
+      avatarPreview.src = originalSrc;
     });
   }
 

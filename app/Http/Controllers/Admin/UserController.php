@@ -38,7 +38,7 @@ class UserController extends BaseAdminController
     {
         $this->authorize('viewAny', User::class);
 
-        $users = User::with('roles')
+        $users = User::with('roles', 'perfil')
             ->withTrashed()
             ->filter($request)
             ->latest()
@@ -48,7 +48,11 @@ class UserController extends BaseAdminController
                 'name'        => $u->name,
                 'username'    => $u->username,
                 'email'       => $u->email,
+                'phone'       => $u->phone,
                 'avatar_url'  => $u->avatar_url,
+                'cargo'       => $u->perfil?->cargo,
+                'area'        => $u->perfil?->area,
+                'created_at'  => $u->created_at?->format('d/m/Y'),
                 'role'        => $u->roles->first()?->name ?? '—',
                 'status'      => $u->status?->value,
                 'status_label'=> $u->status?->label(),

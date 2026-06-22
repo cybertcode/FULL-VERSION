@@ -20,7 +20,8 @@ class UpdateProfileRequest extends FormRequest
         return [
             'username' => ['nullable', 'string', 'max:60', 'regex:/^[a-zA-Z0-9._-]+$/', Rule::unique('users', 'username')->ignore($userId)],
             'phone'    => ['nullable', 'string', 'max:20'],
-            'avatar'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'avatar'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'banner'   => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
 
             'perfil.dni'              => ['nullable', 'digits:8', Rule::unique('perfiles', 'dni')->ignore($perfilId)],
             'perfil.apellido_paterno' => ['nullable', 'string', 'max:100'],
@@ -51,7 +52,8 @@ class UpdateProfileRequest extends FormRequest
         return [
             'username'                   => 'usuario',
             'phone'                      => 'teléfono',
-            'avatar'                     => 'foto',
+            'avatar'                     => 'foto de perfil',
+            'banner'                     => 'foto de portada',
             'perfil.dni'                 => 'DNI',
             'perfil.apellido_paterno'    => 'apellido paterno',
             'perfil.apellido_materno'    => 'apellido materno',

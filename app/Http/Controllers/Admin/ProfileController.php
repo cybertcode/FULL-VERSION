@@ -48,6 +48,12 @@ class ProfileController extends BaseAdminController
 
         $user->update($payload);
 
+        if ($request->hasFile('banner')) {
+            $perfilData['banner'] = $this->imageService->store(
+                $request->file('banner'), 'uploads/banners', $user->perfil?->banner, 80, 1600
+            );
+        }
+
         $filtered = array_filter($perfilData, fn ($v) => $v !== null && $v !== '');
         if (! empty($filtered)) {
             $user->perfil()->updateOrCreate(['user_id' => $user->id], $filtered);

@@ -14,7 +14,7 @@ class UpdateRole
             throw new BusinessException('El rol Super-Admin no puede modificarse.');
         }
 
-        $role->update(['name' => $data['name']]);
+        $role->update(['name' => $data['name'], 'description' => $data['description'] ?? null]);
 
         if (array_key_exists('permissions', $data)) {
             $permissions = Permission::whereIn('name', $data['permissions'] ?? [])->get();

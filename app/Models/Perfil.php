@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $apellido_paterno
  * @property string|null $apellido_materno
  * @property string|null $nombres
+ * @property string|null $banner
  * @property string|null $cargo
  * @property string|null $area
  * @property string|null $regimen_laboral
@@ -32,6 +33,7 @@ class Perfil extends Model
         'apellido_paterno',
         'apellido_materno',
         'nombres',
+        'banner',
         'fecha_nacimiento',
         'sexo',
         'nacionalidad',
