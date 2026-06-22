@@ -39,6 +39,19 @@ Route::middleware([
             ->name('users.restore')
             ->withTrashed();
 
+        Route::delete('usuarios/{user}/force-delete', [UserController::class, 'forceDelete'])
+            ->name('users.force-delete')
+            ->withTrashed();
+
+        Route::post('usuarios/{user}/verify-email', [UserController::class, 'verifyEmail'])
+            ->name('users.verify-email');
+
+        Route::post('usuarios/{user}/resend-verification', [UserController::class, 'resendVerification'])
+            ->name('users.resend-verification');
+
+        Route::post('usuarios/bulk-action', [UserController::class, 'bulkAction'])
+            ->name('users.bulk-action');
+
         Route::post('usuarios/{user}/reset-password', [UserController::class, 'resetPassword'])
             ->name('users.reset-password');
 

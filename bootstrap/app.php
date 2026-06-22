@@ -12,6 +12,7 @@ use App\Exceptions\UnauthorizedException;
 use App\Http\Middleware\Enforce2FAMiddleware;
 use App\Http\Middleware\LocaleMiddleware;
 use App\Http\Middleware\MaintenanceModeMiddleware;
+use App\Http\Middleware\TrackLastLoginMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(LocaleMiddleware::class);
         $middleware->web(MaintenanceModeMiddleware::class);
         $middleware->web(Enforce2FAMiddleware::class);
+        $middleware->web(TrackLastLoginMiddleware::class);
 
         $middleware->alias([
             'role'       => \Spatie\Permission\Middleware\RoleMiddleware::class,

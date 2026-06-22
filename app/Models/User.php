@@ -48,6 +48,8 @@ class User extends Authenticatable
         'password',
         'status',
         'avatar',
+        'last_login_at',
+        'last_login_ip',
     ];
 
     protected $hidden = [
@@ -69,6 +71,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at'     => 'datetime',
             'password'          => 'hashed',
             'status'            => UserStatus::class,
         ];

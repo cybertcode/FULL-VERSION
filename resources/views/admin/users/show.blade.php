@@ -146,7 +146,7 @@
     </div>
 
     {{-- Datos laborales --}}
-    @if ($perfil && ($perfil->cargo || $perfil->area || $perfil->regimen_laboral || $perfil->fecha_ingreso || $perfil->codigo_empleado))
+    @if ($perfil && ($perfil->cargo || $perfil->area || $perfil->fecha_ingreso || $perfil->codigo_empleado))
     <div class="card mb-6">
       <div class="card-body">
         <h5 class="pb-4 border-bottom">
@@ -160,10 +160,6 @@
           @if ($perfil->area)
             <dt class="col-sm-5 text-muted fw-normal">Área / Unidad</dt>
             <dd class="col-sm-7 fw-medium">{{ $perfil->area }}</dd>
-          @endif
-          @if ($perfil->regimen_laboral)
-            <dt class="col-sm-5 text-muted fw-normal">Régimen</dt>
-            <dd class="col-sm-7"><span class="badge bg-label-info">{{ $perfil->regimen_laboral }}</span></dd>
           @endif
           @if ($perfil->fecha_ingreso)
             <dt class="col-sm-5 text-muted fw-normal">Ingreso</dt>
@@ -291,7 +287,7 @@
           <div class="card-body">
             <div class="avatar avatar-lg mx-auto mb-3">
               @php
-                $campos = ['dni','apellido_paterno','cargo','area','regimen_laboral','telefono_celular','email_institucional','departamento','bio'];
+                $campos = ['dni','apellido_paterno','cargo','area','telefono_celular','email_institucional','departamento','bio'];
                 $llenos = $perfil ? collect($campos)->filter(fn($c) => !empty($perfil->$c))->count() : 0;
                 $pct    = count($campos) > 0 ? (int) round($llenos / count($campos) * 100) : 0;
                 $colorPct = $pct >= 80 ? 'success' : ($pct >= 40 ? 'warning' : 'danger');
@@ -335,16 +331,46 @@
           </div>
           <div class="col-md-6">
             <p class="text-muted small mb-1">Email verificado</p>
+            @if ($user->email_verified_at)
+              <p class="fw-medium mb-0 text-success">
+                <i class="icon-base ti tabler-circle-check me-1"></i>
+                {{ formatDate($user->email_verified_at) }}
+              </p>
+            @else
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="text-warning fw-medium">
+                  <i class="icon-base ti tabler-circle-x me-1"></i>Sin verificar
+                </span>
+                @can('users.edit')
+                <button type="button" class="btn btn-xs btn-label-success py-1 px-2"
+                  id="btnVerifyEmail"
+                  data-verify-url="{{ route('admin.users.verify-email', $user) }}"
+                  title="Marcar como verificado sin enviar email">
+                  <i class="icon-base ti tabler-mail-check icon-14px me-1"></i>Verificar
+                </button>
+                <button type="button" class="btn btn-xs btn-label-info py-1 px-2"
+                  id="btnResendVerify"
+                  data-resend-url="{{ route('admin.users.resend-verification', $user) }}"
+                  title="Enviar correo de verificación al usuario">
+                  <i class="icon-base ti tabler-send icon-14px me-1"></i>Reenviar
+                </button>
+                @endcan
+              </div>
+            @endif
+          </div>
+          <div class="col-md-6">
+            <p class="text-muted small mb-1">Último acceso</p>
             <p class="fw-medium mb-0">
-              @if ($user->email_verified_at)
-                <span class="text-success">
-                  <i class="icon-base ti tabler-circle-check me-1"></i>
-                  {{ formatDate($user->email_verified_at) }}
+              @if ($user->last_login_at)
+                <span title="{{ formatDateTime($user->last_login_at) }}">
+                  <i class="icon-base ti tabler-clock me-1 text-muted"></i>
+                  {{ $user->last_login_at->diffForHumans() }}
                 </span>
+                @if ($user->last_login_ip)
+                  <br><small class="text-muted"><i class="icon-base ti tabler-network icon-12px me-1"></i>{{ $user->last_login_ip }}</small>
+                @endif
               @else
-                <span class="text-warning">
-                  <i class="icon-base ti tabler-circle-x me-1"></i> Sin verificar
-                </span>
+                <span class="text-muted fst-italic">Nunca ha ingresado</span>
               @endif
             </p>
           </div>
@@ -375,4 +401,41 @@
   </div>
 </div>
 
+@endsection
+
+@section('admin-page-script')
+<script>
+'use strict';
+document.addEventListener('DOMContentLoaded', function () {
+
+  function jsonPost(url) {
+    return fetch(url, {
+      method : 'POST',
+      headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+    }).then(r => r.json());
+  }
+
+  // Verificar email manualmente
+  document.getElementById('btnVerifyEmail')?.addEventListener('click', function () {
+    confirmAction({
+      title      : '¿Verificar email?',
+      text       : 'Se marcará el email como verificado sin enviar ningún correo.',
+      confirmText: 'Sí, verificar',
+      cancelText : 'Cancelar',
+      isDanger   : false,
+      onConfirm  : () => jsonPost(this.dataset.verifyUrl)
+        .then(d => { showToast('success', d.message ?? 'Email verificado.'); setTimeout(() => location.reload(), 1200); })
+        .catch(() => showToast('error', 'No se pudo verificar el email.')),
+    });
+  });
+
+  // Reenviar correo de verificación
+  document.getElementById('btnResendVerify')?.addEventListener('click', function () {
+    jsonPost(this.dataset.resendUrl)
+      .then(d => showToast('success', d.message ?? 'Correo enviado.'))
+      .catch(() => showToast('error', 'No se pudo enviar el correo.'));
+  });
+
+});
+</script>
 @endsection

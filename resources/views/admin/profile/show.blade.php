@@ -24,7 +24,7 @@
   $tab    = request('tab', 'perfil');
 
   $campos = ['dni','apellido_paterno','apellido_materno','nombres','cargo','area',
-             'regimen_laboral','telefono_celular','email_institucional','bio'];
+             'telefono_celular','email_institucional','bio'];
   $llenos = $perfil ? collect($campos)->filter(fn($c) => !empty($perfil->$c))->count() : 0;
   $pct    = (int) round($llenos / count($campos) * 100);
   $colorPct = $pct >= 80 ? 'success' : ($pct >= 40 ? 'warning' : 'danger');
@@ -239,19 +239,6 @@
               value="{{ old('perfil.area', $perfil?->area) }}"
               placeholder="Área de Gestión Institucional" />
             @error('perfil.area')<div class="invalid-feedback">{{ $message }}</div>@enderror
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label" for="regimen_laboral">Régimen laboral</label>
-            <select id="regimen_laboral" name="perfil[regimen_laboral]"
-              class="form-select select2 @error('perfil.regimen_laboral') is-invalid @enderror"
-              data-placeholder="Seleccionar">
-              <option value=""></option>
-              @foreach (['CAS','D. Leg. 276','D. Leg. 728','SPE','Comisionado'] as $reg)
-                <option value="{{ $reg }}" @selected(old('perfil.regimen_laboral', $perfil?->regimen_laboral) === $reg)>{{ $reg }}</option>
-              @endforeach
-            </select>
-            @error('perfil.regimen_laboral')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
           </div>
 
           <div class="col-md-4">
@@ -588,10 +575,7 @@
 <script>
 window.addEventListener('load', function () {
   // Select2
-  const s2Els = document.querySelectorAll('.select2');
-  if (s2Els.length && typeof $ !== 'undefined') {
-    $('#regimen_laboral').select2({ dropdownParent: $('body') });
-  }
+  $('.select2').select2({ dropdownParent: $('body') });
 
   // Flatpickr
   document.querySelectorAll('.flatpickr-date').forEach(el => {

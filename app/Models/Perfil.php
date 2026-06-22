@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $banner
  * @property string|null $cargo
  * @property string|null $area
- * @property string|null $regimen_laboral
  * @property string|null $codigo_empleado
  * @property string|null $telefono_celular
  * @property string|null $email_institucional
@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Perfil extends Model
 {
+    use HasFactory;
     protected $table = 'perfiles';
 
     protected $fillable = [
@@ -39,7 +40,6 @@ class Perfil extends Model
         'nacionalidad',
         'cargo',
         'area',
-        'regimen_laboral',
         'fecha_ingreso',
         'codigo_empleado',
         'telefono_celular',

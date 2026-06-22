@@ -149,19 +149,6 @@
           </div>
 
           <div class="col-md-4">
-            <label class="form-label" for="regimen_laboral">Régimen laboral</label>
-            <select id="regimen_laboral" name="perfil[regimen_laboral]"
-              class="form-select select2 @error('perfil.regimen_laboral') is-invalid @enderror"
-              data-placeholder="Seleccionar">
-              <option value=""></option>
-              @foreach (['CAS','D. Leg. 276','D. Leg. 728','SPE','Comisionado'] as $reg)
-                <option value="{{ $reg }}" @selected(old('perfil.regimen_laboral', $perfil?->regimen_laboral) === $reg)>{{ $reg }}</option>
-              @endforeach
-            </select>
-            @error('perfil.regimen_laboral')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-          </div>
-
-          <div class="col-md-4">
             <label class="form-label" for="fecha_ingreso">Fecha de ingreso</label>
             <div class="input-group input-group-merge">
               <span class="input-group-text"><i class="icon-base ti tabler-calendar-check"></i></span>
@@ -430,9 +417,9 @@
             class="form-select select2 @error('role') is-invalid @enderror"
             data-placeholder="Seleccionar rol">
             <option value=""></option>
-            @foreach ($roles as $role)
-              <option value="{{ $role }}" @selected(old('role', $user->roles->first()?->name) === $role)>
-                {{ ucfirst($role) }}
+            @foreach ($roles as $roleName)
+              <option value="{{ $roleName }}" @selected(old('role', $user->roles->first()?->name) === $roleName)>
+                {{ ucfirst($roleName) }}
               </option>
             @endforeach
           </select>
@@ -443,9 +430,9 @@
           <label class="form-label" for="status">Estado <span class="text-danger">*</span></label>
           <select id="status" name="status"
             class="form-select @error('status') is-invalid @enderror">
-            @foreach ($statuses as $status)
-              <option value="{{ $status->value }}" @selected(old('status', $user->status?->value) === $status->value)>
-                {{ $status->label() }}
+            @foreach ($statuses as $st)
+              <option value="{{ $st->value }}" @selected(old('status', $user->status?->value) === $st->value)>
+                {{ $st->label() }}
               </option>
             @endforeach
           </select>
@@ -468,7 +455,7 @@
         @if ($perfil)
           @php
             $campos = ['dni','apellido_paterno','apellido_materno','cargo','area',
-                       'regimen_laboral','telefono_celular','email_institucional',
+                       'telefono_celular','email_institucional',
                        'departamento','bio'];
             $llenos = collect($campos)->filter(fn($c) => !empty($perfil->$c))->count();
             $pct    = (int) round($llenos / count($campos) * 100);
@@ -495,7 +482,7 @@
 @section('admin-page-script')
 <script>
 window.addEventListener('load', function () {
-  $('#role, #regimen_laboral, #departamento').select2({ dropdownParent: $('body') });
+  $('#role, #departamento').select2({ dropdownParent: $('body') });
 
   document.querySelectorAll('.flatpickr-date').forEach(el => {
     flatpickr(el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd/m/Y', allowInput: true });

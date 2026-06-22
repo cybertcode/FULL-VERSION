@@ -40,7 +40,6 @@ class StoreUserRequest extends FormRequest
             // Perfil — laboral
             'perfil.cargo'            => ['nullable', 'string', 'max:150'],
             'perfil.area'             => ['nullable', 'string', 'max:150'],
-            'perfil.regimen_laboral'  => ['nullable', 'string', 'max:60'],
             'perfil.fecha_ingreso'    => ['nullable', 'date'],
             'perfil.codigo_empleado'  => ['nullable', 'string', 'max:30', 'unique:perfiles,codigo_empleado'],
 
@@ -82,7 +81,6 @@ class StoreUserRequest extends FormRequest
             'perfil.sexo'                => 'sexo',
             'perfil.cargo'               => 'cargo',
             'perfil.area'                => 'área',
-            'perfil.regimen_laboral'     => 'régimen laboral',
             'perfil.fecha_ingreso'       => 'fecha de ingreso',
             'perfil.codigo_empleado'     => 'código de empleado',
             'perfil.telefono_celular'    => 'teléfono celular',

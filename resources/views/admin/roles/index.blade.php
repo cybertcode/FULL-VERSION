@@ -323,16 +323,26 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   const dt = new DataTable(dtRolesTable, {
-    ajax: { url: '{{ route('admin.users.data') }}', dataSrc: 'data' },
+    processing: true,
+    serverSide: true,
+    ajax: {
+      url: '{{ route('admin.users.data') }}',
+      dataSrc: function (json) {
+        if (typeof json.recordsTotal !== 'number') json.recordsTotal = 0;
+        if (typeof json.recordsFiltered !== 'number') json.recordsFiltered = 0;
+        json.data = Array.isArray(json.data) ? json.data : [];
+        return json.data;
+      }
+    },
     columns: [
-      { data: 'id' },
-      { data: 'id', orderable: false, render: DataTable.render.select() },
+      { data: null },
+      { data: null,           orderable: false, searchable: false },
       { data: 'name' },
-      { data: 'role' },
-      { data: 'phone', searchable: false },
-      { data: 'created_at', searchable: false },
-      { data: 'status_label' },
-      { data: 'id', orderable: false, searchable: false }
+      { data: 'role',         orderable: false, searchable: false },
+      { data: 'telefono',     orderable: false, searchable: false },
+      { data: 'created_at',   orderable: false, searchable: false },
+      { data: 'status_label', orderable: false, searchable: false },
+      { data: null,           orderable: false, searchable: false }
     ],
     columnDefs: [
       {
@@ -382,8 +392,8 @@ document.addEventListener('DOMContentLoaded', function () {
       {
         targets: 4,
         render: (data, type, full) =>
-          full.phone
-            ? `<span class="d-flex align-items-center gap-1"><i class="icon-base ti tabler-phone icon-xs text-muted"></i>${full.phone}</span>`
+          full.telefono
+            ? `<span class="d-flex align-items-center gap-1"><i class="icon-base ti tabler-phone icon-xs text-muted"></i>${full.telefono}</span>`
             : '<span class="text-muted">—</span>'
       },
       {
@@ -404,40 +414,72 @@ document.addEventListener('DOMContentLoaded', function () {
         searchable: false,
         orderable: false,
         render: function (data, type, full) {
-          if (full.restore_url) {
-            return `
-              <div class="d-flex align-items-center">
-                <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect restore-record"
-                   data-url="${full.restore_url}" data-name="${full.name}" title="Restaurar">
-                  <i class="icon-base ti tabler-refresh icon-md"></i>
-                </a>
-              </div>`;
-          }
-          return `
-            <div class="d-flex align-items-center">
-              <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect delete-record"
-                 data-url="${full.delete_url ?? ''}" data-name="${full.name}" title="Eliminar">
-                <i class="icon-base ti tabler-trash icon-md"></i>
-              </a>
-              <a href="${full.show_url ?? '#'}" class="btn btn-icon btn-text-secondary rounded-pill waves-effect" title="Ver perfil">
-                <i class="icon-base ti tabler-eye icon-md"></i>
-              </a>
-              <div class="dropdown">
-                <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect dropdown-toggle hide-arrow"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="icon-base ti tabler-dots-vertical icon-md"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="${full.edit_url ?? '#'}" class="dropdown-item">
-                    <i class="icon-base ti tabler-pencil icon-sm me-2"></i>Editar
-                  </a>
-                  <a href="javascript:;" class="dropdown-item reset-password-record"
-                     data-url="${full.reset_password_url ?? ''}" data-name="${full.name}">
-                    <i class="icon-base ti tabler-key icon-sm me-2"></i>Resetear contraseña
-                  </a>
-                </div>
-              </div>
+          const name = (full.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+          if (full.deleted_at) {
+            @can('users.restore')
+            return `<div class="d-flex align-items-center gap-4">
+              <form action="${full.restore_url}" method="POST" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-sm btn-icon" title="Restaurar">
+                  <i class="icon-base ti tabler-restore icon-22px"></i>
+                </button>
+              </form>
             </div>`;
+            @endcan
+            return '';
+          }
+
+          @can('users.edit')
+          const editBtn = full.edit_url
+            ? `<a href="${full.edit_url}" class="btn btn-sm btn-icon" title="Editar">
+                 <i class="icon-base ti tabler-edit icon-22px"></i>
+               </a>`
+            : '';
+          @else
+          const editBtn = '';
+          @endcan
+
+          @can('users.delete')
+          const deleteBtn = full.delete_url
+            ? `<form id="del-urole-${full.id}" action="${full.delete_url}" method="POST" class="d-inline">
+                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                 <input type="hidden" name="_method" value="DELETE">
+               </form>
+               <button type="button" class="btn btn-sm btn-icon" title="Eliminar"
+                 onclick="confirmDelete('del-urole-${full.id}', '${name}')">
+                 <i class="icon-base ti tabler-trash icon-22px"></i>
+               </button>`
+            : '';
+          @else
+          const deleteBtn = '';
+          @endcan
+
+          const dropdownItems = [
+            full.show_url
+              ? `<a href="${full.show_url}" class="dropdown-item">
+                   <i class="icon-base ti tabler-eye icon-sm me-2"></i>Ver perfil
+                 </a>`
+              : '',
+            @can('users.edit')
+            full.reset_password_url
+              ? `<a href="javascript:;" class="dropdown-item"
+                   data-reset-url="${full.reset_password_url}"
+                   data-user-name="${name}">
+                   <i class="icon-base ti tabler-key icon-sm me-2"></i>Resetear contraseña
+                 </a>`
+              : '',
+            @endcan
+          ].filter(Boolean).join('');
+
+          const dropdown = dropdownItems
+            ? `<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                 <i class="icon-base ti tabler-dots-vertical icon-22px"></i>
+               </button>
+               <div class="dropdown-menu dropdown-menu-end m-0">${dropdownItems}</div>`
+            : '';
+
+          return `<div class="d-flex align-items-center gap-4">${editBtn}${deleteBtn}${dropdown}</div>`;
         }
       }
     ],
@@ -546,47 +588,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Eliminar registro
-  dtRolesTable.addEventListener('click', function (e) {
-    const btn = e.target.closest('.delete-record');
-    if (!btn) return;
-    confirmDeleteUrl(btn.dataset.url, btn.dataset.name);
-  });
-
-  // Resetear contraseña
-  dtRolesTable.addEventListener('click', function (e) {
-    const btn = e.target.closest('.reset-password-record');
+  // Reset password — delegado al document para capturar clicks dentro del dropdown
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-reset-url]');
     if (!btn) return;
     confirmAction({
-      title: '¿Resetear contraseña?',
-      text: `Se generará una contraseña aleatoria para "${btn.dataset.name}" y se enviará por correo.`,
+      title      : '¿Resetear contraseña?',
+      text       : `La contraseña de "${btn.dataset.userName}" será reemplazada por su DNI (o una temporal si no tiene DNI registrado).`,
       confirmText: 'Sí, resetear',
-      isDanger: false,
-      onConfirm: () => {
-        fetch(btn.dataset.url, {
-          method: 'POST',
-          headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
-        }).then(r => r.json()).then(() => {
-          showToast('success', `Contraseña de ${btn.dataset.name} restablecida y enviada por correo.`);
-        }).catch(() => showToast('error', 'Ocurrió un error al resetear la contraseña.'));
-      }
-    });
-  });
-
-  // Restaurar registro eliminado
-  dtRolesTable.addEventListener('click', function (e) {
-    const btn = e.target.closest('.restore-record');
-    if (!btn) return;
-    confirmAction({
-      title: '¿Restaurar usuario?',
-      text: `"${btn.dataset.name}" volverá a estar activo.`,
-      confirmText: 'Sí, restaurar',
-      isDanger: false,
-      onConfirm: () => {
-        fetch(btn.dataset.url, {
-          method: 'POST',
-          headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
-        }).then(() => location.reload());
+      cancelText : 'Cancelar',
+      isDanger   : true,
+      onConfirm  : () => {
+        fetch(btn.dataset.resetUrl, {
+          method : 'POST',
+          headers: {
+            'X-CSRF-TOKEN' : '{{ csrf_token() }}',
+            'Accept'       : 'application/json',
+            'Content-Type' : 'application/json',
+          }
+        })
+        .then(r => r.json())
+        .then(data => showToast('success', data.message ?? 'Contraseña restablecida.'))
+        .catch(() => showToast('error', 'No se pudo restablecer la contraseña.'));
       }
     });
   });

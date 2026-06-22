@@ -2,9 +2,12 @@
 
 namespace App\Services\Admin;
 
+use App\Actions\Admin\User\BulkUserAction;
 use App\Actions\Admin\User\CreateUser;
 use App\Actions\Admin\User\DeleteUser;
+use App\Actions\Admin\User\ForceDeleteUser;
 use App\Actions\Admin\User\UpdateUser;
+use App\Actions\Admin\User\VerifyUserEmail;
 use App\Enums\UserStatus;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -16,9 +19,12 @@ use Illuminate\Support\Str;
 class UserService
 {
     public function __construct(
-        private readonly CreateUser $createUser,
-        private readonly UpdateUser $updateUser,
-        private readonly DeleteUser $deleteUser,
+        private readonly CreateUser    $createUser,
+        private readonly UpdateUser    $updateUser,
+        private readonly DeleteUser    $deleteUser,
+        private readonly ForceDeleteUser $forceDeleteUser,
+        private readonly VerifyUserEmail $verifyUserEmail,
+        private readonly BulkUserAction  $bulkUserAction,
     ) {}
 
     public function paginate(\Illuminate\Http\Request $request): LengthAwarePaginator
@@ -38,10 +44,12 @@ class UserService
     public function stats(): array
     {
         return [
-            'total'    => User::count(),
-            'active'   => User::where('status', UserStatus::Active->value)->count(),
-            'inactive' => User::where('status', UserStatus::Inactive->value)->count(),
-            'banned'   => User::where('status', UserStatus::Banned->value)->count(),
+            'total'      => User::count(),
+            'active'     => User::where('status', UserStatus::Active->value)->count(),
+            'inactive'   => User::where('status', UserStatus::Inactive->value)->count(),
+            'banned'     => User::where('status', UserStatus::Banned->value)->count(),
+            'verified'   => User::whereNotNull('email_verified_at')->count(),
+            'sin_acceso' => User::where(fn ($q) => $q->whereNull('last_login_at')->orWhere('last_login_at', '<', now()->subDays(30)))->count(),
         ];
     }
 
@@ -92,6 +100,52 @@ class UserService
             ->performedOn($user)
             ->event('restored')
             ->log("Usuario '{$user->name}' restaurado.");
+    }
+
+    public function forceDelete(User $user): void
+    {
+        $name = $user->name;
+        $this->forceDeleteUser->handle($user);
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->event('force_deleted')
+            ->log("Usuario '{$name}' eliminado permanentemente.");
+    }
+
+    public function verifyEmail(User $user): void
+    {
+        $this->verifyUserEmail->handle($user);
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->event('email_verified')
+            ->log("Email de '{$user->name}' verificado manualmente por administrador.");
+    }
+
+    public function resendVerification(User $user): void
+    {
+        $user->sendEmailVerificationNotification();
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->event('verification_resent')
+            ->log("Reenvío de verificación de email a '{$user->name}'.");
+    }
+
+    public function bulkAction(array $ids, string $action): array
+    {
+        $result = $this->bulkUserAction->handle($ids, $action);
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->withProperties(['action' => $action, 'ids' => $ids, 'processed' => $result['processed']])
+            ->event('bulk_action')
+            ->log("Acción masiva '{$action}' aplicada a {$result['processed']} usuarios.");
+
+        return $result;
     }
 
     public function resetPassword(User $user): void
