@@ -1,11 +1,12 @@
 @extends('admin/layouts/master')
 
-@section('title', 'Editar Usuario')
+@section('title', 'Mi Perfil')
 
 @section('admin-vendor-style')
   @vite([
     'resources/assets/vendor/libs/select2/select2.scss',
     'resources/assets/vendor/libs/flatpickr/flatpickr.scss',
+    'resources/assets/vendor/scss/pages/page-profile.scss',
   ])
 @endsection
 
@@ -17,30 +18,116 @@
 @endsection
 
 @section('admin-content')
+@php
+  $perfil = $user->perfil;
+  $tab    = request('tab', 'perfil');
 
-<x-breadcrumb :items="[
-  ['label' => 'Usuarios', 'url' => route('admin.users.index')],
-  ['label' => 'Editar: ' . $user->name],
-]" />
+  $campos = ['dni','apellido_paterno','apellido_materno','nombres','cargo','area',
+             'regimen_laboral','telefono_celular','email_institucional','bio'];
+  $llenos = $perfil ? collect($campos)->filter(fn($c) => !empty($perfil->$c))->count() : 0;
+  $pct    = (int) round($llenos / count($campos) * 100);
+  $colorPct = $pct >= 80 ? 'success' : ($pct >= 40 ? 'warning' : 'danger');
+@endphp
 
-@php $perfil = $user->perfil; @endphp
+{{-- ══════════════════════════════════════════════════════════
+     HEADER — banner + avatar + nombre
+══════════════════════════════════════════════════════════ --}}
+<div class="row">
+  <div class="col-12">
+    <div class="card mb-6">
+      <div class="user-profile-header-banner">
+        <img src="{{ asset('assets/img/pages/profile-banner.png') }}" alt="Banner" class="rounded-top w-100" style="height:150px; object-fit:cover;" />
+      </div>
+      <div class="user-profile-header d-flex flex-column flex-lg-row text-sm-start text-center mb-4">
+        <div class="flex-shrink-0 mt-n2 mx-sm-0 mx-auto ms-sm-6">
+          <div class="position-relative d-inline-block">
+            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
+              class="d-block rounded user-profile-img border border-3 border-white"
+              style="width:90px; height:90px; object-fit:cover;" />
+            <span class="badge bg-{{ $user->status?->badgeClass() ?? 'secondary' }} position-absolute bottom-0 end-0 rounded-pill" style="font-size:.55rem; padding:.25rem .45rem;">
+              {{ $user->status?->label() ?? '—' }}
+            </span>
+          </div>
+        </div>
+        <div class="flex-grow-1 mt-3 mt-lg-4 mx-5">
+          <div class="d-flex align-items-md-end align-items-center justify-content-md-between flex-md-row flex-column gap-3">
+            <div>
+              <h5 class="mb-1">{{ $user->name }}</h5>
+              <div class="d-flex flex-wrap gap-3 justify-content-sm-start justify-content-center">
+                @if($perfil?->cargo)
+                  <span class="text-muted small d-flex align-items-center gap-1">
+                    <i class="icon-base ti tabler-briefcase icon-xs"></i> {{ $perfil->cargo }}
+                  </span>
+                @endif
+                @if($perfil?->area)
+                  <span class="text-muted small d-flex align-items-center gap-1">
+                    <i class="icon-base ti tabler-building icon-xs"></i> {{ $perfil->area }}
+                  </span>
+                @endif
+                @if($perfil?->departamento)
+                  <span class="text-muted small d-flex align-items-center gap-1">
+                    <i class="icon-base ti tabler-map-pin icon-xs"></i> {{ $perfil->departamento }}
+                  </span>
+                @endif
+                <span class="text-muted small d-flex align-items-center gap-1">
+                  <i class="icon-base ti tabler-calendar icon-xs"></i> Desde {{ formatDate($user->created_at) }}
+                </span>
+              </div>
+            </div>
+            <div class="d-flex flex-column align-items-md-end gap-1">
+              <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Perfil completado</span>
+                <span class="badge bg-label-{{ $colorPct }} small">{{ $pct }}%</span>
+              </div>
+              <div class="progress" style="width:140px; height:5px;">
+                <div class="progress-bar bg-{{ $colorPct }}" style="width:{{ $pct }}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<form action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data">
+      {{-- Tabs de navegación --}}
+      <div class="px-5 pb-0">
+        <ul class="nav nav-pills border-0 gap-1 mb-0 pb-0">
+          <li class="nav-item">
+            <a href="?tab=perfil" class="nav-link rounded-bottom-0 {{ $tab === 'perfil' ? 'active' : '' }}">
+              <i class="icon-base ti tabler-user icon-sm me-1"></i> Mi Perfil
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="?tab=seguridad" class="nav-link rounded-bottom-0 {{ $tab === 'seguridad' ? 'active' : '' }}">
+              <i class="icon-base ti tabler-shield-lock icon-sm me-1"></i> Seguridad
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="?tab=sesiones" class="nav-link rounded-bottom-0 {{ $tab === 'sesiones' ? 'active' : '' }}">
+              <i class="icon-base ti tabler-devices icon-sm me-1"></i> Sesiones
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
+     TAB: MI PERFIL
+══════════════════════════════════════════════════════════ --}}
+@if($tab === 'perfil')
+<form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
 @csrf @method('PUT')
 
 <div class="row g-6">
 
-  {{-- ══════════════════════════════════════════════
-       COLUMNA PRINCIPAL
-  ══════════════════════════════════════════════ --}}
+  {{-- Columna principal --}}
   <div class="col-xl-8 col-lg-7">
 
-    {{-- ── Identidad ────────────────────────────── --}}
+    {{-- Datos personales --}}
     <div class="card mb-6">
-      <div class="card-header">
-        <h5 class="card-title mb-0 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-id-badge-2 text-primary"></i> Datos personales
-        </h5>
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="icon-base ti tabler-id-badge-2 text-primary"></i>
+        <h5 class="card-title mb-0">Datos personales</h5>
       </div>
       <div class="card-body">
         <div class="row g-5">
@@ -82,7 +169,6 @@
                 placeholder="12345678" maxlength="8" inputmode="numeric" />
             </div>
             @error('perfil.dni')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-            <div class="form-text">Se usará como contraseña al resetear.</div>
           </div>
 
           <div class="col-md-4">
@@ -120,12 +206,11 @@
       </div>
     </div>
 
-    {{-- ── Datos laborales ──────────────────────── --}}
+    {{-- Datos laborales --}}
     <div class="card mb-6">
-      <div class="card-header">
-        <h5 class="card-title mb-0 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-briefcase text-primary"></i> Datos laborales
-        </h5>
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="icon-base ti tabler-briefcase text-primary"></i>
+        <h5 class="card-title mb-0">Datos laborales</h5>
       </div>
       <div class="card-body">
         <div class="row g-5">
@@ -189,18 +274,17 @@
       </div>
     </div>
 
-    {{-- ── Contacto institucional ───────────────── --}}
+    {{-- Contacto --}}
     <div class="card mb-6">
-      <div class="card-header">
-        <h5 class="card-title mb-0 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-address-book text-primary"></i> Contacto institucional
-        </h5>
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="icon-base ti tabler-address-book text-primary"></i>
+        <h5 class="card-title mb-0">Contacto</h5>
       </div>
       <div class="card-body">
         <div class="row g-5">
 
           <div class="col-md-4">
-            <label class="form-label" for="telefono_celular">Celular institucional</label>
+            <label class="form-label" for="telefono_celular">Celular</label>
             <div class="input-group input-group-merge">
               <span class="input-group-text"><i class="icon-base ti tabler-device-mobile"></i></span>
               <input type="text" id="telefono_celular" name="perfil[telefono_celular]"
@@ -239,7 +323,7 @@
               <input type="email" id="email_institucional" name="perfil[email_institucional]"
                 class="form-control @error('perfil.email_institucional') is-invalid @enderror"
                 value="{{ old('perfil.email_institucional', $perfil?->email_institucional) }}"
-                placeholder="j.perez@ugel.gob.pe" />
+                placeholder="j.perez@empresa.com" />
             </div>
             @error('perfil.email_institucional')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
           </div>
@@ -256,55 +340,12 @@
             @error('perfil.linkedin')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
           </div>
 
-          {{-- Ubicación dentro del bloque contacto (menos cards = menos ruido) --}}
-          <div class="col-12"><hr class="my-1"></div>
-
-          <div class="col-md-5">
-            <label class="form-label" for="direccion">Dirección</label>
-            <input type="text" id="direccion" name="perfil[direccion]"
-              class="form-control @error('perfil.direccion') is-invalid @enderror"
-              value="{{ old('perfil.direccion', $perfil?->direccion) }}"
-              placeholder="Av. Principal 123, Urb. Los Jardines" />
-            @error('perfil.direccion')<div class="invalid-feedback">{{ $message }}</div>@enderror
-          </div>
-
-          <div class="col-md-2">
-            <label class="form-label" for="ubigeo">Ubigeo</label>
-            <input type="text" id="ubigeo" name="perfil[ubigeo]"
-              class="form-control @error('perfil.ubigeo') is-invalid @enderror"
-              value="{{ old('perfil.ubigeo', $perfil?->ubigeo) }}"
-              placeholder="150101" maxlength="6" />
-            @error('perfil.ubigeo')<div class="invalid-feedback">{{ $message }}</div>@enderror
-          </div>
-
-          <div class="col-md-2">
-            <label class="form-label" for="distrito">Distrito</label>
-            <input type="text" id="distrito" name="perfil[distrito]"
-              class="form-control @error('perfil.distrito') is-invalid @enderror"
-              value="{{ old('perfil.distrito', $perfil?->distrito) }}"
-              placeholder="Lima" />
-            @error('perfil.distrito')<div class="invalid-feedback">{{ $message }}</div>@enderror
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label" for="departamento">Departamento</label>
-            <select id="departamento" name="perfil[departamento]"
-              class="form-select select2 @error('perfil.departamento') is-invalid @enderror"
-              data-placeholder="Seleccionar">
-              <option value=""></option>
-              @foreach (['Amazonas','Áncash','Apurímac','Arequipa','Ayacucho','Cajamarca','Callao','Cusco','Huancavelica','Huánuco','Ica','Junín','La Libertad','Lambayeque','Lima','Loreto','Madre de Dios','Moquegua','Pasco','Piura','Puno','San Martín','Tacna','Tumbes','Ucayali'] as $dep)
-                <option value="{{ $dep }}" @selected(old('perfil.departamento', $perfil?->departamento) === $dep)>{{ $dep }}</option>
-              @endforeach
-            </select>
-            @error('perfil.departamento')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-          </div>
-
-          {{-- Bio --}}
           <div class="col-12">
             <label class="form-label" for="bio">Presentación / Biografía</label>
             <textarea id="bio" name="perfil[bio]" rows="3"
               class="form-control @error('perfil.bio') is-invalid @enderror"
               placeholder="Breve descripción profesional...">{{ old('perfil.bio', $perfil?->bio) }}</textarea>
+            <div class="form-text text-end"><span id="bio-count">{{ strlen($perfil?->bio ?? '') }}</span>/1000</div>
             @error('perfil.bio')<div class="invalid-feedback">{{ $message }}</div>@enderror
           </div>
 
@@ -312,9 +353,8 @@
       </div>
     </div>
 
-    {{-- ── Botones ──────────────────────────────── --}}
     <div class="d-flex gap-3 justify-content-end mb-6">
-      <a href="{{ route('admin.users.index') }}" class="btn btn-label-secondary">Cancelar</a>
+      <button type="reset" class="btn btn-label-secondary">Descartar</button>
       <button type="submit" class="btn btn-primary">
         <i class="icon-base ti tabler-device-floppy me-1"></i> Guardar cambios
       </button>
@@ -322,49 +362,45 @@
 
   </div>
 
-  {{-- ══════════════════════════════════════════════
-       SIDEBAR
-  ══════════════════════════════════════════════ --}}
+  {{-- Sidebar --}}
   <div class="col-xl-4 col-lg-5">
 
-    {{-- Foto de perfil --}}
+    {{-- Foto --}}
     <div class="card mb-6">
       <div class="card-body text-center py-5">
         <div class="position-relative d-inline-block mb-4">
           <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
             id="avatar-preview"
-            class="rounded-circle object-fit-cover border"
-            style="width:100px; height:100px;" />
+            class="rounded-circle object-fit-cover border border-2"
+            style="width:96px; height:96px;" />
           <label for="avatar"
             class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle d-flex align-items-center justify-content-center"
-            style="width:32px; height:32px; padding:0;" title="Cambiar foto">
-            <i class="icon-base ti tabler-camera icon-sm"></i>
+            style="width:30px; height:30px; padding:0;" title="Cambiar foto">
+            <i class="icon-base ti tabler-camera" style="font-size:.85rem;"></i>
             <input type="file" id="avatar" name="avatar" hidden accept="image/png,image/jpeg,image/webp" />
           </label>
         </div>
         <h6 class="mb-0">{{ $user->name }}</h6>
-        <p class="text-muted small mb-0">{{ $user->email }}</p>
+        <p class="text-muted small mb-1">{{ $user->email }}</p>
+        <span class="badge bg-label-primary">{{ $user->roles->first()?->name ?? 'Sin rol' }}</span>
         @error('avatar')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
       </div>
     </div>
 
-    {{-- Email del sistema + teléfono --}}
+    {{-- Acceso al sistema --}}
     <div class="card mb-6">
-      <div class="card-header">
-        <h6 class="card-title mb-0 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-lock text-primary"></i> Acceso al sistema
-        </h6>
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="icon-base ti tabler-lock text-primary"></i>
+        <h6 class="card-title mb-0">Acceso al sistema</h6>
       </div>
       <div class="card-body">
         <div class="mb-4">
-          <label class="form-label" for="email">Correo electrónico <span class="text-danger">*</span></label>
-          <div class="input-group input-group-merge @error('email') is-invalid @enderror">
+          <label class="form-label">Correo electrónico</label>
+          <div class="input-group input-group-merge">
             <span class="input-group-text"><i class="icon-base ti tabler-mail"></i></span>
-            <input type="email" id="email" name="email"
-              class="form-control @error('email') is-invalid @enderror"
-              value="{{ old('email', $user->email) }}" required />
+            <input type="email" class="form-control bg-body-secondary" value="{{ $user->email }}" disabled />
           </div>
-          @error('email')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+          <div class="form-text">Para cambiar el correo, contacta al administrador.</div>
         </div>
 
         <div class="mb-4">
@@ -377,10 +413,10 @@
               placeholder="juan.garcia" autocomplete="off" />
           </div>
           @error('username')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-          <div class="form-text">Solo letras, números, guiones y puntos. Único en el sistema.</div>
+          <div class="form-text">Solo letras, números, guiones y puntos.</div>
         </div>
 
-        <div class="mb-4">
+        <div>
           <label class="form-label" for="phone">Teléfono personal</label>
           <div class="input-group input-group-merge">
             <span class="input-group-text"><i class="icon-base ti tabler-phone"></i></span>
@@ -390,137 +426,187 @@
           </div>
           @error('phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
-
-        <div class="mb-4">
-          <label class="form-label" for="password">Nueva contraseña <span class="text-muted fw-normal">(opcional)</span></label>
-          <div class="input-group input-group-merge @error('password') is-invalid @enderror">
-            <span class="input-group-text"><i class="icon-base ti tabler-lock"></i></span>
-            <input type="password" id="password" name="password"
-              class="form-control @error('password') is-invalid @enderror"
-              placeholder="Dejar en blanco para no cambiar" />
-            <span class="input-group-text cursor-pointer" id="toggle-password">
-              <i class="icon-base ti tabler-eye-off"></i>
-            </span>
-          </div>
-          @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-        </div>
-
-        <div>
-          <label class="form-label" for="password_confirmation">Confirmar contraseña</label>
-          <div class="input-group input-group-merge">
-            <span class="input-group-text"><i class="icon-base ti tabler-lock-check"></i></span>
-            <input type="password" id="password_confirmation" name="password_confirmation"
-              class="form-control" />
-          </div>
-        </div>
       </div>
     </div>
 
-    {{-- Rol y estado --}}
-    <div class="card mb-6">
-      <div class="card-header">
-        <h6 class="card-title mb-0 d-flex align-items-center gap-2">
-          <i class="icon-base ti tabler-shield text-primary"></i> Rol y estado
-        </h6>
-      </div>
-      <div class="card-body">
-        <div class="mb-4">
-          <label class="form-label" for="role">Rol <span class="text-danger">*</span></label>
-          <select id="role" name="role"
-            class="form-select select2 @error('role') is-invalid @enderror"
-            data-placeholder="Seleccionar rol">
-            <option value=""></option>
-            @foreach ($roles as $role)
-              <option value="{{ $role }}" @selected(old('role', $user->roles->first()?->name) === $role)>
-                {{ ucfirst($role) }}
-              </option>
-            @endforeach
-          </select>
-          @error('role')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-        </div>
-
-        <div>
-          <label class="form-label" for="status">Estado <span class="text-danger">*</span></label>
-          <select id="status" name="status"
-            class="form-select @error('status') is-invalid @enderror">
-            @foreach ($statuses as $status)
-              <option value="{{ $status->value }}" @selected(old('status', $user->status?->value) === $status->value)>
-                {{ $status->label() }}
-              </option>
-            @endforeach
-          </select>
-          @error('status')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-        </div>
-      </div>
-    </div>
-
-    {{-- Metadatos + completitud --}}
+    {{-- Info cuenta --}}
     <div class="card">
       <div class="card-body">
+        <p class="text-uppercase text-muted small fw-semibold mb-3">Información de cuenta</p>
         <div class="d-flex justify-content-between mb-2">
           <span class="text-muted small">Registrado</span>
-          <span class="small fw-medium">{{ formatDateTime($user->created_at) }}</span>
+          <span class="small fw-medium">{{ formatDate($user->created_at) }}</span>
         </div>
-        <div class="d-flex justify-content-between mb-4">
-          <span class="text-muted small">Actualizado</span>
-          <span class="small fw-medium">{{ formatDateTime($user->updated_at) }}</span>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted small">Última actualización</span>
+          <span class="small fw-medium">{{ formatDate($user->updated_at) }}</span>
         </div>
-        @if ($perfil)
-          @php
-            $campos = ['dni','apellido_paterno','apellido_materno','cargo','area',
-                       'regimen_laboral','telefono_celular','email_institucional',
-                       'departamento','bio'];
-            $llenos = collect($campos)->filter(fn($c) => !empty($perfil->$c))->count();
-            $pct    = (int) round($llenos / count($campos) * 100);
-            $color  = $pct >= 80 ? 'success' : ($pct >= 40 ? 'warning' : 'danger');
-          @endphp
-          <p class="small mb-1 d-flex justify-content-between">
-            <span class="text-muted">Perfil completado</span>
-            <span class="fw-medium">{{ $pct }}%</span>
-          </p>
-          <div class="progress" style="height:6px">
-            <div class="progress-bar bg-{{ $color }}" style="width:{{ $pct }}%"></div>
-          </div>
-          <p class="text-muted small mt-1 mb-0">{{ $llenos }} de {{ count($campos) }} campos</p>
-        @endif
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted small">Estado</span>
+          {!! statusBadge($user->status) !!}
+        </div>
+        <hr class="my-3">
+        <p class="small mb-1 d-flex justify-content-between">
+          <span class="text-muted">Perfil completado</span>
+          <span class="fw-semibold text-{{ $colorPct }}">{{ $pct }}%</span>
+        </p>
+        <div class="progress mb-1" style="height:6px;">
+          <div class="progress-bar bg-{{ $colorPct }}" style="width:{{ $pct }}%"></div>
+        </div>
+        <p class="text-muted small mb-0">{{ $llenos }} de {{ count($campos) }} campos completados</p>
       </div>
     </div>
 
   </div>
 </div>
-
 </form>
+@endif
+
+{{-- ══════════════════════════════════════════════════════════
+     TAB: SEGURIDAD
+══════════════════════════════════════════════════════════ --}}
+@if($tab === 'seguridad')
+<div class="row g-6">
+  <div class="col-xl-8 col-lg-7">
+
+    {{-- Cambiar contraseña (Jetstream Livewire) --}}
+    <div class="card mb-6">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="icon-base ti tabler-key text-primary"></i>
+        <h5 class="card-title mb-0">Actualizar contraseña</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-4">Usa una contraseña larga y aleatoria para mantener tu cuenta segura.</p>
+        @livewire('profile.update-password-form')
+      </div>
+    </div>
+
+    {{-- 2FA (Jetstream Livewire) --}}
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="icon-base ti tabler-shield-check text-primary"></i>
+        <h5 class="card-title mb-0">Autenticación de dos factores</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-4">Agrega una capa extra de seguridad mediante un código de tu aplicación autenticadora.</p>
+        @livewire('profile.two-factor-authentication-form')
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-xl-4 col-lg-5">
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div class="avatar avatar-xl mb-3">
+          <span class="avatar-initial rounded-circle bg-label-warning">
+            <i class="icon-base ti tabler-shield icon-lg"></i>
+          </span>
+        </div>
+        <h6 class="mb-1">Seguridad de cuenta</h6>
+        <p class="text-muted small mb-3">Protege tu cuenta con una contraseña fuerte y la autenticación de dos factores.</p>
+        <div class="text-start">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="icon-base ti tabler-check text-success icon-sm"></i>
+            <span class="small">Correo verificado</span>
+          </div>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="icon-base ti tabler-{{ auth()->user()->two_factor_confirmed_at ? 'check text-success' : 'x text-danger' }} icon-sm"></i>
+            <span class="small">2FA {{ auth()->user()->two_factor_confirmed_at ? 'habilitado' : 'deshabilitado' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@endif
+
+{{-- ══════════════════════════════════════════════════════════
+     TAB: SESIONES
+══════════════════════════════════════════════════════════ --}}
+@if($tab === 'sesiones')
+<div class="row g-6">
+  <div class="col-xl-8 col-lg-7">
+
+    {{-- Sesiones del navegador --}}
+    <div class="card mb-6">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="icon-base ti tabler-devices text-primary"></i>
+        <h5 class="card-title mb-0">Sesiones activas</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-4">Administra y cierra tus sesiones en otros navegadores y dispositivos.</p>
+        @livewire('profile.logout-other-browser-sessions-form')
+      </div>
+    </div>
+
+    {{-- Eliminar cuenta --}}
+    @if (Laravel\Jetstream\Jetstream::hasAccountDeletionFeatures())
+    <div class="card border-danger">
+      <div class="card-header d-flex align-items-center gap-2 border-bottom border-danger">
+        <i class="icon-base ti tabler-alert-triangle text-danger"></i>
+        <h5 class="card-title mb-0 text-danger">Zona de peligro</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-4">Una vez que elimines tu cuenta, todos sus datos serán eliminados permanentemente. Descarga cualquier información importante antes de proceder.</p>
+        @livewire('profile.delete-user-form')
+      </div>
+    </div>
+    @endif
+
+  </div>
+
+  <div class="col-xl-4 col-lg-5">
+    <div class="card">
+      <div class="card-body text-center py-5">
+        <div class="avatar avatar-xl mb-3">
+          <span class="avatar-initial rounded-circle bg-label-info">
+            <i class="icon-base ti tabler-devices icon-lg"></i>
+          </span>
+        </div>
+        <h6 class="mb-1">Control de sesiones</h6>
+        <p class="text-muted small">Si detectas actividad sospechosa en tu cuenta, cierra todas las otras sesiones y cambia tu contraseña inmediatamente.</p>
+      </div>
+    </div>
+  </div>
+</div>
+@endif
+
 @endsection
 
 @section('admin-page-script')
 <script>
 window.addEventListener('load', function () {
-  $('#role, #regimen_laboral, #departamento').select2({ dropdownParent: $('body') });
+  // Select2
+  const s2Els = document.querySelectorAll('.select2');
+  if (s2Els.length && typeof $ !== 'undefined') {
+    $('#regimen_laboral').select2({ dropdownParent: $('body') });
+  }
 
+  // Flatpickr
   document.querySelectorAll('.flatpickr-date').forEach(el => {
     flatpickr(el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd/m/Y', allowInput: true });
   });
 
-  document.getElementById('avatar').addEventListener('change', function () {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => document.getElementById('avatar-preview').src = e.target.result;
-      reader.readAsDataURL(file);
-    }
-  });
+  // Preview avatar
+  const avatarInput = document.getElementById('avatar');
+  if (avatarInput) {
+    avatarInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => document.getElementById('avatar-preview').src = e.target.result;
+        reader.readAsDataURL(file);
+      }
+    });
+  }
 
-  document.getElementById('toggle-password')?.addEventListener('click', function () {
-    const input = document.getElementById('password');
-    const icon  = this.querySelector('i');
-    if (input.type === 'password') {
-      input.type = 'text';
-      icon.classList.replace('tabler-eye-off', 'tabler-eye');
-    } else {
-      input.type = 'password';
-      icon.classList.replace('tabler-eye', 'tabler-eye-off');
-    }
-  });
+  // Contador bio
+  const bioEl = document.getElementById('bio');
+  const bioCount = document.getElementById('bio-count');
+  if (bioEl && bioCount) {
+    bioEl.addEventListener('input', () => bioCount.textContent = bioEl.value.length);
+  }
 });
 </script>
 @endsection

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -22,6 +23,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string           $avatar_url
  * @property UserStatus|null  $status
  * @property string           $name
+ * @property string|null      $username
  * @property string           $email
  * @property string|null      $phone
  */
@@ -40,6 +42,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'email',
         'phone',
         'password',
@@ -58,7 +61,7 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
-    protected array $searchable = ['name', 'email', 'phone'];
+    protected array $searchable = ['name', 'username', 'email', 'phone'];
 
     protected string $defaultSort = 'created_at';
 
@@ -69,6 +72,11 @@ class User extends Authenticatable
             'password'          => 'hashed',
             'status'            => UserStatus::class,
         ];
+    }
+
+    public function perfil(): HasOne
+    {
+        return $this->hasOne(Perfil::class);
     }
 
     public function getAvatarUrlAttribute(): string

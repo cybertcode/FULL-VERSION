@@ -2,6 +2,7 @@
 
 namespace App\Actions\Admin\User;
 
+use App\Models\Perfil;
 use App\Models\User;
 use App\Services\Admin\ImageService;
 use Illuminate\Http\UploadedFile;
@@ -13,11 +14,19 @@ class UpdateUser
 
     public function handle(User $user, array $data, ?UploadedFile $avatar = null): User
     {
+        $perfil = $data['perfil'] ?? [];
+        $name = Perfil::buildName(
+            $perfil['apellido_paterno'] ?? null,
+            $perfil['apellido_materno'] ?? null,
+            $perfil['nombres'] ?? null,
+        ) ?: ($user->name);
+
         $payload = [
-            'name'   => $data['name'],
-            'email'  => $data['email'],
-            'phone'  => $data['phone'] ?? null,
-            'status' => $data['status'],
+            'name'     => $name,
+            'username' => $data['username'] ?? null,
+            'email'    => $data['email'],
+            'phone'    => $data['phone'] ?? null,
+            'status'   => $data['status'],
         ];
 
         if (! empty($data['password'])) {
@@ -32,10 +41,15 @@ class UpdateUser
 
         $user->update($payload);
 
-        if (array_key_exists('role', $data)) {
+        if (! empty($data['role'])) {
             $user->syncRoles([$data['role']]);
         }
 
-        return $user->fresh();
+        if (array_key_exists('perfil', $data) && is_array($data['perfil'])) {
+            $perfilData = array_filter($data['perfil'], fn($v) => $v !== null && $v !== '');
+            $user->perfil()->updateOrCreate(['user_id' => $user->id], $perfilData);
+        }
+
+        return $user->fresh(['perfil']);
     }
 }

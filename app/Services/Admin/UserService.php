@@ -9,6 +9,9 @@ use App\Enums\UserStatus;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class UserService
 {
@@ -89,5 +92,36 @@ class UserService
             ->performedOn($user)
             ->event('restored')
             ->log("Usuario '{$user->name}' restaurado.");
+    }
+
+    public function resetPassword(User $user): void
+    {
+        // Usar DNI como contraseña si existe, sino generar temporal
+        $newPassword = $user->perfil?->dni ?? Str::random(10);
+
+        $user->update(['password' => Hash::make($newPassword)]);
+
+        $esDni = $user->perfil?->dni !== null;
+        $mensaje = $esDni
+            ? "Tu nueva contraseña es tu número de DNI: <strong>{$newPassword}</strong>"
+            : "Tu nueva contraseña temporal es: <strong>{$newPassword}</strong>";
+
+        Mail::send([], [], function ($message) use ($user, $mensaje) {
+            $message->to($user->email, $user->name)
+                ->subject('Tu contraseña ha sido restablecida — ' . config('app.name'))
+                ->html(
+                    "<p>Hola <strong>{$user->name}</strong>,</p>" .
+                    "<p>Un administrador ha restablecido tu contraseña.</p>" .
+                    "<p>{$mensaje}</p>" .
+                    "<p>Por seguridad, te recomendamos cambiarla después de iniciar sesión.</p>" .
+                    "<p>— Equipo de Sistemas</p>"
+                );
+        });
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->event('password_reset')
+            ->log("Contraseña de '{$user->name}' restablecida por administrador.");
     }
 }

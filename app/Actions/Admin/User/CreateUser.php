@@ -3,6 +3,7 @@
 namespace App\Actions\Admin\User;
 
 use App\Enums\UserStatus;
+use App\Models\Perfil;
 use App\Models\User;
 use App\Services\Admin\ImageService;
 use Illuminate\Http\UploadedFile;
@@ -14,8 +15,16 @@ class CreateUser
 
     public function handle(array $data, ?UploadedFile $avatar = null): User
     {
+        $perfil = $data['perfil'] ?? [];
+        $name = Perfil::buildName(
+            $perfil['apellido_paterno'] ?? null,
+            $perfil['apellido_materno'] ?? null,
+            $perfil['nombres'] ?? null,
+        ) ?: ($data['name'] ?? 'Sin nombre');
+
         $user = User::create([
-            'name'     => $data['name'],
+            'name'     => $name,
+            'username' => $data['username'] ?? null,
             'email'    => $data['email'],
             'phone'    => $data['phone'] ?? null,
             'password' => Hash::make($data['password']),
@@ -27,6 +36,13 @@ class CreateUser
 
         if (! empty($data['role'])) {
             $user->syncRoles([$data['role']]);
+        }
+
+        if (! empty($data['perfil'])) {
+            $perfilData = array_filter($data['perfil'], fn($v) => $v !== null && $v !== '');
+            if (! empty($perfilData)) {
+                $user->perfil()->create($perfilData);
+            }
         }
 
         return $user;

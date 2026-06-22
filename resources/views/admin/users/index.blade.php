@@ -265,11 +265,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let html = '<div class="d-flex align-items-center gap-1">';
 
+            // Ver perfil
+            if (full.show_url) {
+              html += `<a href="${full.show_url}" class="btn btn-icon btn-text-secondary rounded-pill waves-effect" title="Ver perfil">
+                         <i class="icon-base ti tabler-eye icon-22px"></i>
+                       </a>`;
+            }
+
             @can('users.edit')
             if (full.edit_url) {
               html += `<a href="${full.edit_url}" class="btn btn-icon btn-text-secondary rounded-pill waves-effect" title="Editar">
                          <i class="icon-base ti tabler-pencil icon-22px"></i>
                        </a>`;
+            }
+            @endcan
+
+            @can('users.edit')
+            if (full.reset_password_url) {
+              html += `<button type="button"
+                  class="btn btn-icon btn-text-secondary rounded-pill waves-effect"
+                  title="Resetear contraseña"
+                  data-reset-url="${full.reset_password_url}"
+                  data-user-name="${full.name.replace(/"/g, '&quot;')}"
+                  data-bs-toggle="tooltip">
+                  <i class="icon-base ti tabler-key icon-22px"></i>
+                </button>`;
             }
             @endcan
 
@@ -355,6 +375,34 @@ document.addEventListener('DOMContentLoaded', function () {
     // Filtro por Estado
     document.getElementById('filterStatus')?.addEventListener('change', function () {
       dt.column(4).search(this.value).draw();
+    });
+
+    // Reset password — delegación de evento en la tabla
+    dtUsersTable.addEventListener('click', function (e) {
+      const btn = e.target.closest('[data-reset-url]');
+      if (!btn) return;
+      const name = btn.dataset.userName;
+      const url  = btn.dataset.resetUrl;
+      confirmAction({
+        title      : `¿Resetear contraseña?`,
+        text       : `La contraseña de "${name}" será reemplazada por su DNI (o una temporal si no tiene DNI registrado).`,
+        confirmText: 'Sí, resetear',
+        cancelText : 'Cancelar',
+        isDanger   : true,
+        onConfirm  : () => {
+          fetch(url, {
+            method : 'POST',
+            headers: {
+              'X-CSRF-TOKEN' : '{{ csrf_token() }}',
+              'Accept'       : 'application/json',
+              'Content-Type' : 'application/json',
+            }
+          })
+          .then(r => r.json())
+          .then(data => showToast('success', data.message ?? 'Contraseña restablecida.'))
+          .catch(() => showToast('error', 'No se pudo restablecer la contraseña.'));
+        }
+      });
     });
 
     // Ajustar clases de layout (igual que plantilla)

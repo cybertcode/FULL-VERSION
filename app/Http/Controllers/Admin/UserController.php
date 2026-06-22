@@ -46,6 +46,7 @@ class UserController extends BaseAdminController
             ->map(fn (User $u) => [
                 'id'          => $u->id,
                 'name'        => $u->name,
+                'username'    => $u->username,
                 'email'       => $u->email,
                 'avatar_url'  => $u->avatar_url,
                 'role'        => $u->roles->first()?->name ?? '—',
@@ -53,9 +54,11 @@ class UserController extends BaseAdminController
                 'status_label'=> $u->status?->label(),
                 'status_class'=> $u->status?->badgeClass(),
                 'deleted_at'  => $u->deleted_at?->toDateTimeString(),
-                'edit_url'    => $u->deleted_at ? null : route('admin.users.edit', $u),
-                'delete_url'  => $u->deleted_at ? null : route('admin.users.destroy', $u),
-                'restore_url' => $u->deleted_at ? route('admin.users.restore', $u->id) : null,
+                'show_url'           => route('admin.users.show', $u),
+                'edit_url'           => $u->deleted_at ? null : route('admin.users.edit', $u),
+                'delete_url'         => $u->deleted_at ? null : route('admin.users.destroy', $u),
+                'restore_url'        => $u->deleted_at ? route('admin.users.restore', $u->id) : null,
+                'reset_password_url' => $u->deleted_at ? null : route('admin.users.reset-password', $u),
             ]);
 
         return response()->json(['data' => $users]);
@@ -85,11 +88,21 @@ class UserController extends BaseAdminController
         return redirect()->route('admin.users.index');
     }
 
+    public function show(User $user): View
+    {
+        $this->authorize('view', $user);
+        $user->load('perfil', 'roles');
+
+        return view('admin.users.show', compact('user'));
+    }
+
     public function edit(User $user): View
     {
         $this->authorize('update', $user);
 
-        $roles    = Role::where('name', '!=', 'Super-Admin')->orderBy('name')->pluck('name', 'name');
+        $user->load('perfil', 'roles');
+        // Incluir todos los roles; Super-Admin solo aparece si el usuario ya lo tiene
+        $roles = Role::orderBy('name')->pluck('name', 'name');
         $statuses = UserStatus::cases();
 
         return view('admin.users.edit', compact('user', 'roles', 'statuses'));
@@ -132,5 +145,14 @@ class UserController extends BaseAdminController
         $this->flashSuccess('Usuario restaurado correctamente.');
 
         return redirect()->route('admin.users.index');
+    }
+
+    public function resetPassword(User $user): JsonResponse
+    {
+        $this->authorize('update', $user);
+
+        $this->userService->resetPassword($user);
+
+        return response()->json(['message' => "Contraseña de {$user->name} restablecida correctamente."]);
     }
 }

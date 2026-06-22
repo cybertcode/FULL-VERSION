@@ -28,6 +28,12 @@
     },
     { "menuHeader": "Sistema" },
     {
+      "url": "admin/mi-perfil",
+      "icon": "menu-icon icon-base ti tabler-user-circle",
+      "name": "Mi Perfil",
+      "slug": "admin-profile"
+    },
+    {
       "url": "admin/configuracion",
       "icon": "menu-icon icon-base ti tabler-settings",
       "name": "Configuración",
