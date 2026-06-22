@@ -150,28 +150,124 @@
     </div>
   @endcan
 
-  {{-- ─── Tabla usuarios con roles ─────────────────────────────────────────── --}}
+  {{-- ─── Alertas de riesgo ────────────────────────────────────────────────── --}}
+  @if ($riskStats['inactivePrivileged'] > 0 || $riskStats['sinRol'] > 0)
+  <div class="col-12 mt-2">
+    <div class="row g-3">
+      @if ($riskStats['inactivePrivileged'] > 0)
+      <div class="col-md-6">
+        <div class="alert alert-warning d-flex align-items-start gap-3 mb-0" role="alert">
+          <i class="icon-base ti tabler-alert-triangle icon-24px mt-1 flex-shrink-0"></i>
+          <div>
+            <div class="fw-semibold">{{ $riskStats['inactivePrivileged'] }} cuenta(s) privilegiada(s) inactiva(s)</div>
+            <small>Usuarios con rol <strong>admin</strong> o superior que no ingresan hace más de 30 días. Considera revisar o revocar el acceso.</small>
+          </div>
+        </div>
+      </div>
+      @endif
+      @if ($riskStats['sinRol'] > 0)
+      <div class="col-md-6">
+        <div class="alert alert-info d-flex align-items-start gap-3 mb-0" role="alert">
+          <i class="icon-base ti tabler-user-question icon-24px mt-1 flex-shrink-0"></i>
+          <div>
+            <div class="fw-semibold">{{ $riskStats['sinRol'] }} usuario(s) sin rol asignado</div>
+            <small>Estos usuarios no tienen ningún rol. Asígnales uno para definir sus permisos en el sistema.</small>
+          </div>
+        </div>
+      </div>
+      @endif
+    </div>
+  </div>
+  @endif
+
+  {{-- ─── Asignación de roles ────────────────────────────────────────────────── --}}
   <div class="col-12">
-    <h4 class="mt-6 mb-1">Usuarios y sus roles</h4>
-    <p class="mb-0">Todos los usuarios del sistema y sus roles asignados.</p>
+    <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
+      <div>
+        <h4 class="mb-1">Asignación de roles</h4>
+        <p class="mb-0 text-muted small">Cambia el rol de cada usuario directamente sin entrar a editar su cuenta.</p>
+      </div>
+    </div>
   </div>
   <div class="col-12">
     <div class="card">
+      <div class="card-header border-bottom py-3">
+        <div class="row align-items-center g-3">
+          <div class="col-6 col-sm-4 col-lg-3">
+            <select id="filterRoleTable" class="form-select">
+              <option value="">Todos los roles</option>
+              @foreach ($roles as $role)
+                <option value="{{ $role->name }}">{{ $role->name }} ({{ $role->users_count }})</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-6 col-sm-4 col-lg-3">
+            <select id="filterStatusTable" class="form-select">
+              <option value="">Todos los estados</option>
+              @foreach ($statuses as $status)
+                <option value="{{ $status->value }}">{{ $status->label() }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-12 col-sm-4 col-lg-6 d-flex justify-content-sm-end align-items-center gap-2 flex-wrap">
+            <span class="text-muted small">
+              <i class="icon-base ti tabler-info-circle icon-14px me-1"></i>
+              <strong>Super-Admin</strong> no es modificable desde aquí.
+            </span>
+          </div>
+        </div>
+      </div>
       <div class="card-datatable">
-        <table class="datatables-roles table border-top">
+        <table class="datatables-role-users table border-top">
           <thead>
             <tr>
               <th></th>
-              <th></th>
               <th>Usuario</th>
-              <th>Rol</th>
-              <th>Teléfono</th>
-              <th>Registrado</th>
+              <th>Rol actual</th>
+              <th>Último acceso</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
         </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- ─── Modal Historial de rol ──────────────────────────────────────────────── --}}
+<div class="modal fade" id="roleHistoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="icon-base ti tabler-history icon-18px me-2 text-primary"></i>
+          Historial de rol — <span id="historyUserName"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div id="historyLoading" class="text-center py-5 d-none">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+        <div id="historyEmpty" class="text-center py-5 text-muted d-none">
+          <i class="icon-base ti tabler-mood-empty icon-40px mb-2 d-block"></i>
+          Sin cambios registrados aún.
+        </div>
+        <div class="table-responsive" id="historyTableWrap">
+          <table class="table table-sm mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Fecha</th>
+                <th>Anterior</th>
+                <th></th>
+                <th>Nuevo</th>
+                <th>Por</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -300,265 +396,203 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  const dtRolesTable = document.querySelector('.datatables-roles');
-  if (!dtRolesTable) return;
+  // ── DataTable asignación de roles ────────────────────────────────────────
+  const dtRoleUsers = document.querySelector('.datatables-role-users');
+  if (!dtRoleUsers) return;
+
+  const assignableRoles = @json($assignableRoles);
 
   const roleIconMap = {
-    'Super-Admin': '<span class="me-2"><i class="icon-base ti tabler-crown icon-22px text-primary"></i></span>',
-    'admin':       '<span class="me-2"><i class="icon-base ti tabler-shield icon-22px text-warning"></i></span>',
-    'editor':      '<span class="me-2"><i class="icon-base ti tabler-edit icon-22px text-info"></i></span>',
-    'user':        '<span class="me-2"><i class="icon-base ti tabler-user icon-22px text-success"></i></span>',
+    'Super-Admin': 'tabler-crown text-primary',
+    'admin':       'tabler-shield text-warning',
+    'editor':      'tabler-pencil text-info',
+    'user':        'tabler-user text-success',
   };
 
-  const exportFormat = {
-    format: {
-      body: function (inner) {
-        if (!inner || inner.indexOf('<') === -1) return inner;
-        const doc = new DOMParser().parseFromString(inner, 'text/html');
-        const nameEl = doc.querySelector('.role-name .fw-medium');
-        if (nameEl) return nameEl.textContent.trim();
-        return (doc.body.textContent || '').trim();
-      }
-    }
-  };
-
-  const dt = new DataTable(dtRolesTable, {
+  const dt = new DataTable(dtRoleUsers, {
     processing: true,
     serverSide: true,
     ajax: {
-      url: '{{ route('admin.users.data') }}',
-      dataSrc: function (json) {
-        if (typeof json.recordsTotal !== 'number') json.recordsTotal = 0;
-        if (typeof json.recordsFiltered !== 'number') json.recordsFiltered = 0;
-        json.data = Array.isArray(json.data) ? json.data : [];
+      url: '{{ route('admin.roles.users.data') }}',
+      data: d => {
+        d.role   = document.getElementById('filterRoleTable')?.value   ?? '';
+        d.status = document.getElementById('filterStatusTable')?.value ?? '';
+      },
+      dataSrc: json => {
+        json.recordsTotal    = json.recordsTotal    ?? 0;
+        json.recordsFiltered = json.recordsFiltered ?? 0;
+        json.data            = Array.isArray(json.data) ? json.data : [];
         return json.data;
       }
     },
     columns: [
-      { data: null },
       { data: null,           orderable: false, searchable: false },
       { data: 'name' },
       { data: 'role',         orderable: false, searchable: false },
-      { data: 'telefono',     orderable: false, searchable: false },
-      { data: 'created_at',   orderable: false, searchable: false },
+      { data: 'last_login_at',orderable: false, searchable: false },
       { data: 'status_label', orderable: false, searchable: false },
-      { data: null,           orderable: false, searchable: false }
+      { data: null,           orderable: false, searchable: false },
     ],
     columnDefs: [
       {
         className: 'control',
         orderable: false,
         searchable: false,
-        responsivePriority: 5,
+        responsivePriority: 4,
         targets: 0,
         render: () => ''
       },
       {
         targets: 1,
-        orderable: false,
-        searchable: false,
-        responsivePriority: 3,
-        checkboxes: { selectAllRender: '<input type="checkbox" class="form-check-input">' },
-        render: () => '<input type="checkbox" class="dt-checkboxes form-check-input">'
+        responsivePriority: 2,
+        render: (d, t, full) => {
+          const url = full.avatar_url;
+          const ini = (full.name.match(/\b\w/g) || []).slice(0,2).join('').toUpperCase();
+          const cols = ['primary','success','danger','warning','info'];
+          const col  = cols[full.name.charCodeAt(0) % cols.length];
+          const avatar = url
+            ? `<img src="${url}" alt="${full.name}" class="rounded-circle" width="34" height="34">`
+            : `<span class="avatar-initial rounded-circle bg-label-${col}">${ini}</span>`;
+          const sub = full.cargo || full.email;
+          return `<div class="d-flex align-items-center gap-3">
+            <div class="avatar avatar-sm">${avatar}</div>
+            <div class="d-flex flex-column">
+              <span class="fw-medium text-heading">${full.name}</span>
+              <small class="text-muted">${sub}</small>
+            </div>
+          </div>`;
+        }
       },
       {
         targets: 2,
         responsivePriority: 1,
-        render: function (data, type, full) {
-          const url = full.avatar_url;
-          let avatar = url
-            ? `<img src="${url}" alt="${full.name}" class="rounded-circle">`
-            : `<span class="avatar-initial rounded-circle bg-label-primary">${(full.name.match(/\b\w/g)||[]).slice(0,2).join('').toUpperCase()}</span>`;
-          const sub = [full.cargo, full.area].filter(Boolean).join(' · ') || full.email;
-          return `
-            <div class="d-flex justify-content-left align-items-center role-name">
-              <div class="avatar-wrapper">
-                <div class="avatar avatar-sm me-3">${avatar}</div>
-              </div>
-              <div class="d-flex flex-column">
-                <span class="fw-medium text-heading">${full.name}</span>
-                <small class="text-muted">${sub}</small>
-              </div>
-            </div>`;
+        render: (d, t, full) => {
+          const isSuperAdmin = full.role === 'Super-Admin';
+          if (isSuperAdmin) {
+            const ico = roleIconMap[full.role] ?? 'tabler-circle text-secondary';
+            return `<span class="d-flex align-items-center gap-2">
+              <i class="icon-base ti ${ico} icon-18px"></i>${full.role}
+            </span>`;
+          }
+          @can('users.edit')
+          const options = assignableRoles.map(r =>
+            `<option value="${r}" ${r === full.role ? 'selected' : ''}>${r}</option>`
+          ).join('');
+          return `<select class="form-select form-select-sm role-inline-select"
+                    style="min-width:130px;max-width:180px"
+                    data-assign-url="${full.assign_url}"
+                    data-user-name="${(full.name).replace(/"/g,'&quot;')}"
+                    data-current-role="${full.role}">
+                    ${options}
+                  </select>`;
+          @else
+          const ico2 = roleIconMap[full.role] ?? 'tabler-circle text-secondary';
+          return `<span class="d-flex align-items-center gap-2">
+            <i class="icon-base ti ${ico2} icon-18px"></i>${full.role}
+          </span>`;
+          @endcan
         }
       },
       {
         targets: 3,
-        render: (data, type, full) => {
-          const icon = roleIconMap[full.role] || '<span class="me-2"><i class="icon-base ti tabler-circle icon-22px text-secondary"></i></span>';
-          return `<span class="text-truncate d-flex align-items-center">${icon}${full.role}</span>`;
-        }
+        responsivePriority: 5,
+        render: (d, t, full) => full.last_login_at
+          ? `<span class="small text-muted">${full.last_login_at}</span>`
+          : '<span class="text-muted fst-italic small">Nunca</span>'
       },
       {
         targets: 4,
-        render: (data, type, full) =>
-          full.telefono
-            ? `<span class="d-flex align-items-center gap-1"><i class="icon-base ti tabler-phone icon-xs text-muted"></i>${full.telefono}</span>`
-            : '<span class="text-muted">—</span>'
-      },
-      {
-        targets: 5,
-        render: (data, type, full) =>
-          full.created_at
-            ? `<span class="d-flex align-items-center gap-1"><i class="icon-base ti tabler-calendar icon-xs text-muted"></i>${full.created_at}</span>`
-            : '—'
-      },
-      {
-        targets: 6,
-        render: (data, type, full) =>
-          full.status ? `<span class="badge ${full.status_class}">${full.status_label}</span>` : '—'
+        responsivePriority: 3,
+        render: (d, t, full) => full.status
+          ? `<span class="badge ${full.status_class}">${full.status_label}</span>`
+          : '—'
       },
       {
         targets: -1,
-        title: 'Acciones',
-        searchable: false,
+        responsivePriority: 1,
         orderable: false,
-        render: function (data, type, full) {
-          const name = (full.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-          if (full.deleted_at) {
-            @can('users.restore')
-            return `<div class="d-flex align-items-center gap-4">
-              <form action="${full.restore_url}" method="POST" class="d-inline">
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-sm btn-icon" title="Restaurar">
-                  <i class="icon-base ti tabler-restore icon-22px"></i>
-                </button>
-              </form>
-            </div>`;
-            @endcan
-            return '';
-          }
-
-          @can('users.edit')
-          const editBtn = full.edit_url
-            ? `<a href="${full.edit_url}" class="btn btn-sm btn-icon" title="Editar">
-                 <i class="icon-base ti tabler-edit icon-22px"></i>
-               </a>`
-            : '';
-          @else
-          const editBtn = '';
-          @endcan
-
-          @can('users.delete')
-          const deleteBtn = full.delete_url
-            ? `<form id="del-urole-${full.id}" action="${full.delete_url}" method="POST" class="d-inline">
-                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                 <input type="hidden" name="_method" value="DELETE">
-               </form>
-               <button type="button" class="btn btn-sm btn-icon" title="Eliminar"
-                 onclick="confirmDelete('del-urole-${full.id}', '${name}')">
-                 <i class="icon-base ti tabler-trash icon-22px"></i>
-               </button>`
-            : '';
-          @else
-          const deleteBtn = '';
-          @endcan
-
-          const dropdownItems = [
-            full.show_url
-              ? `<a href="${full.show_url}" class="dropdown-item">
-                   <i class="icon-base ti tabler-eye icon-sm me-2"></i>Ver perfil
+        searchable: false,
+        render: (d, t, full) => {
+          const name = (full.name || '').replace(/"/g, '&quot;');
+          return `<div class="d-flex align-items-center gap-1">
+            ${full.show_url
+              ? `<a href="${full.show_url}" class="btn btn-sm btn-icon" title="Ver perfil">
+                   <i class="icon-base ti tabler-eye icon-22px"></i>
                  </a>`
-              : '',
-            @can('users.edit')
-            full.reset_password_url
-              ? `<a href="javascript:;" class="dropdown-item"
-                   data-reset-url="${full.reset_password_url}"
-                   data-user-name="${name}">
-                   <i class="icon-base ti tabler-key icon-sm me-2"></i>Resetear contraseña
-                 </a>`
-              : '',
-            @endcan
-          ].filter(Boolean).join('');
-
-          const dropdown = dropdownItems
-            ? `<button class="btn btn-sm btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                 <i class="icon-base ti tabler-dots-vertical icon-22px"></i>
-               </button>
-               <div class="dropdown-menu dropdown-menu-end m-0">${dropdownItems}</div>`
-            : '';
-
-          return `<div class="d-flex align-items-center gap-4">${editBtn}${deleteBtn}${dropdown}</div>`;
+              : ''}
+            <button type="button" class="btn btn-sm btn-icon" title="Ver historial de rol"
+              data-history-url="${full.history_url}"
+              data-user-name="${name}">
+              <i class="icon-base ti tabler-history icon-22px text-secondary"></i>
+            </button>
+          </div>`;
         }
       }
     ],
-    select: { style: 'multi', selector: 'td:nth-child(2)' },
-    order: [[2, 'asc']],
+    order: [[1, 'asc']],
     layout: {
       topStart: {
         rowClass: 'row my-md-0 me-3 ms-0 justify-content-between',
-        features: [{ pageLength: { menu: [10, 25, 50, 100], text: '_MENU_' } }]
+        features: [{ pageLength: { menu: [10, 25, 50], text: '_MENU_' } }]
       },
       topEnd: {
         features: [
-          { search: { placeholder: 'Buscar usuario', text: '_INPUT_' } },
+          { search: { placeholder: 'Buscar usuario…', text: '_INPUT_' } },
           {
-            buttons: [
-              {
-                extend: 'collection',
-                className: 'btn btn-label-secondary dropdown-toggle me-4 waves-effect waves-light',
-                text: '<span class="d-flex align-items-center gap-1"><i class="icon-base ti tabler-upload icon-xs"></i><span class="d-none d-sm-inline-block">Exportar</span></span>',
-                buttons: [
-                  {
-                    extend: 'print',
-                    text: '<span class="d-flex align-items-center"><i class="icon-base ti tabler-printer me-2"></i>Imprimir</span>',
-                    className: 'dropdown-item',
-                    exportOptions: { columns: [2, 3, 4, 5, 6], ...exportFormat },
-                    customize: function (win) {
-                      win.document.body.style.color = config.colors.headingColor;
-                      win.document.body.style.borderColor = config.colors.borderColor;
-                      win.document.body.style.backgroundColor = config.colors.bodyBg;
-                      const table = win.document.body.querySelector('table');
-                      table.classList.add('compact');
-                      table.style.color = 'inherit';
-                    }
-                  },
-                  {
-                    extend: 'csv',
-                    text: '<span class="d-flex align-items-center"><i class="icon-base ti tabler-file me-2"></i>CSV</span>',
-                    className: 'dropdown-item',
-                    exportOptions: { columns: [2, 3, 4, 5, 6], ...exportFormat }
-                  },
-                  {
-                    extend: 'excel',
-                    text: '<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-export me-2"></i>Excel</span>',
-                    className: 'dropdown-item',
-                    exportOptions: { columns: [2, 3, 4, 5, 6], ...exportFormat }
-                  },
-                  {
-                    extend: 'pdf',
-                    text: '<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-text me-2"></i>PDF</span>',
-                    className: 'dropdown-item',
-                    exportOptions: { columns: [2, 3, 4, 5, 6], ...exportFormat }
-                  },
-                  {
-                    extend: 'copy',
-                    text: '<span class="d-flex align-items-center"><i class="icon-base ti tabler-copy me-2"></i>Copiar</span>',
-                    className: 'dropdown-item',
-                    exportOptions: { columns: [2, 3, 4, 5, 6], ...exportFormat }
+            buttons: [{
+              extend: 'collection',
+              className: 'btn btn-label-secondary dropdown-toggle ms-2',
+              text: '<i class="icon-base ti tabler-upload me-1 icon-sm"></i><span class="d-none d-sm-inline-block">Exportar</span>',
+              buttons: [
+                {
+                  extend: 'print', title: 'Asignación de Roles',
+                  text: '<i class="icon-base ti tabler-printer me-2"></i>Imprimir',
+                  className: 'dropdown-item',
+                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } },
+                  customize: win => {
+                    win.document.body.style.color = config.colors.headingColor;
+                    win.document.body.style.backgroundColor = config.colors.bodyBg;
+                    const t = win.document.body.querySelector('table');
+                    if (t) { t.classList.add('compact'); t.style.color = 'inherit'; }
                   }
-                ]
-              },
-              {
-                text: '<i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Agregar Usuario</span>',
-                className: 'btn btn-primary rounded-2 waves-effect waves-light',
-                attr: { onclick: `window.location='{{ route('admin.users.create') }}'` }
-              }
-            ]
+                },
+                {
+                  extend: 'csv', title: 'Asignación de Roles',
+                  text: '<i class="icon-base ti tabler-file-text me-2"></i>CSV',
+                  className: 'dropdown-item',
+                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                },
+                {
+                  extend: 'excel', title: 'Asignación de Roles',
+                  text: '<i class="icon-base ti tabler-file-spreadsheet me-2"></i>Excel',
+                  className: 'dropdown-item',
+                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                },
+                {
+                  extend: 'pdf', title: 'Asignación de Roles',
+                  text: '<i class="icon-base ti tabler-file-code-2 me-2"></i>PDF',
+                  className: 'dropdown-item',
+                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                },
+                {
+                  extend: 'copy', title: 'Asignación de Roles',
+                  text: '<i class="icon-base ti tabler-copy me-2"></i>Copiar',
+                  className: 'dropdown-item',
+                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                },
+              ]
+            }]
           }
         ]
       },
       bottomStart: {
         rowClass: 'row mx-3 justify-content-between',
-        features: ['info']
+        features: [{ info: { text: 'Mostrando _START_ a _END_ de _TOTAL_ usuarios' } }]
       },
       bottomEnd: 'paging'
     },
     language: {
-      info: 'Mostrando _START_ a _END_ de _TOTAL_ usuarios',
-      infoEmpty: 'Sin usuarios',
-      zeroRecords: 'Sin resultados',
+      infoEmpty: 'Sin usuarios', zeroRecords: 'Sin resultados',
       paginate: {
         next:     '<i class="icon-base ti tabler-chevron-right scaleX-n1-rtl icon-18px"></i>',
         previous: '<i class="icon-base ti tabler-chevron-left scaleX-n1-rtl icon-18px"></i>'
@@ -566,67 +600,124 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     responsive: {
       details: {
-        display: DataTable.Responsive.display.modal({
-          header: row => 'Detalle de ' + row.data()['name']
-        }),
+        display: DataTable.Responsive.display.modal({ header: row => row.data().name }),
         type: 'column',
-        renderer: function (api, rowIdx, columns) {
-          const data = columns
-            .filter(col => col.title !== '')
-            .map(col => `<tr data-dt-row="${col.rowIndex}" data-dt-column="${col.columnIndex}"><td>${col.title}:</td><td>${col.data}</td></tr>`)
-            .join('');
+        renderer: (api, rowIdx, columns) => {
+          const data = columns.filter(c => c.title !== '')
+            .map(c => `<tr><td>${c.title}:</td><td>${c.data}</td></tr>`).join('');
           if (!data) return false;
           const div = document.createElement('div');
           div.classList.add('table-responsive');
-          const table = document.createElement('table');
-          table.classList.add('table');
-          table.innerHTML = `<tbody>${data}</tbody>`;
-          div.appendChild(table);
+          div.innerHTML = `<table class="table"><tbody>${data}</tbody></table>`;
           return div;
         }
       }
-    }
+    },
+    initComplete: () => document.querySelectorAll('.dt-buttons .btn').forEach(b => b.classList.remove('btn-secondary'))
   });
 
-  // Reset password — delegado al document para capturar clicks dentro del dropdown
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('[data-reset-url]');
-    if (!btn) return;
+  // ── Helper exportBody ─────────────────────────────────────────────────────
+  function exportBody(inner) {
+    if (!inner || inner.indexOf('<') === -1) return inner;
+    const doc = new DOMParser().parseFromString(inner, 'text/html');
+    const sel = doc.querySelector('select');
+    if (sel) return sel.value;
+    return (doc.querySelector('.fw-medium') || doc.body)?.textContent?.trim() ?? inner;
+  }
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  document.getElementById('filterRoleTable')?.addEventListener('change',   () => dt.ajax.reload());
+  document.getElementById('filterStatusTable')?.addEventListener('change', () => dt.ajax.reload());
+
+  // ── Select inline de rol ──────────────────────────────────────────────────
+  dtRoleUsers.addEventListener('change', function (e) {
+    const sel = e.target.closest('.role-inline-select');
+    if (!sel) return;
+    const newRole    = sel.value;
+    const prevRole   = sel.dataset.currentRole;
+    const userName   = sel.dataset.userNameDecoded || sel.getAttribute('data-user-name');
+    if (newRole === prevRole) return;
+
     confirmAction({
-      title      : '¿Resetear contraseña?',
-      text       : `La contraseña de "${btn.dataset.userName}" será reemplazada por su DNI (o una temporal si no tiene DNI registrado).`,
-      confirmText: 'Sí, resetear',
+      title      : '¿Cambiar rol?',
+      text       : `Se cambiará el rol de "${userName}" de "${prevRole}" a "${newRole}".`,
+      confirmText: 'Sí, cambiar',
       cancelText : 'Cancelar',
-      isDanger   : true,
+      isDanger   : false,
       onConfirm  : () => {
-        fetch(btn.dataset.resetUrl, {
-          method : 'POST',
-          headers: {
-            'X-CSRF-TOKEN' : '{{ csrf_token() }}',
-            'Accept'       : 'application/json',
-            'Content-Type' : 'application/json',
-          }
+        fetch(sel.dataset.assignUrl, {
+          method : 'PATCH',
+          headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'Content-Type': 'application/json' },
+          body   : JSON.stringify({ role: newRole }),
         })
         .then(r => r.json())
-        .then(data => showToast('success', data.message ?? 'Contraseña restablecida.'))
-        .catch(() => showToast('error', 'No se pudo restablecer la contraseña.'));
-      }
+        .then(d => {
+          showToast('success', d.message ?? 'Rol actualizado.');
+          sel.dataset.currentRole = newRole;
+          dt.ajax.reload(null, false);
+        })
+        .catch(() => {
+          showToast('error', 'No se pudo cambiar el rol.');
+          sel.value = prevRole;
+        });
+      },
+      onCancel: () => { sel.value = prevRole; }
     });
   });
 
-  // Ajustar clases — copiado exacto de app-access-roles.js
+  // ── Historial de rol ──────────────────────────────────────────────────────
+  const historyModal   = new bootstrap.Modal(document.getElementById('roleHistoryModal'));
+  const historyName    = document.getElementById('historyUserName');
+  const historyLoading = document.getElementById('historyLoading');
+  const historyEmpty   = document.getElementById('historyEmpty');
+  const historyWrap    = document.getElementById('historyTableWrap');
+  const historyBody    = document.getElementById('historyTableBody');
+
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-history-url]');
+    if (!btn) return;
+
+    historyName.textContent = btn.dataset.userName;
+    historyLoading.classList.remove('d-none');
+    historyEmpty.classList.add('d-none');
+    historyWrap.classList.add('d-none');
+    historyBody.innerHTML = '';
+    historyModal.show();
+
+    fetch(btn.dataset.historyUrl, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } })
+      .then(r => r.json())
+      .then(d => {
+        historyLoading.classList.add('d-none');
+        if (!d.history || d.history.length === 0) {
+          historyEmpty.classList.remove('d-none');
+          return;
+        }
+        historyBody.innerHTML = d.history.map(h => `
+          <tr>
+            <td class="small text-nowrap">${h.fecha}</td>
+            <td><span class="badge bg-label-secondary">${h.old_role}</span></td>
+            <td><i class="icon-base ti tabler-arrow-right icon-14px text-muted"></i></td>
+            <td><span class="badge bg-label-primary">${h.new_role}</span></td>
+            <td class="small text-muted">${h.por}</td>
+          </tr>`).join('');
+        historyWrap.classList.remove('d-none');
+      })
+      .catch(() => {
+        historyLoading.classList.add('d-none');
+        historyEmpty.classList.remove('d-none');
+      });
+  });
+
+  // ── Ajustar clases DataTable ──────────────────────────────────────────────
   setTimeout(() => {
     [
-      { s: '.dt-buttons .btn',              r: 'btn-secondary' },
-      { s: '.dt-buttons.btn-group .btn-group', r: 'btn-group' },
-      { s: '.dt-buttons.btn-group',         r: 'btn-group', a: 'd-flex' },
-      { s: '.dt-search .form-control',      r: 'form-control-sm' },
-      { s: '.dt-length .form-select',       r: 'form-select-sm' },
-      { s: '.dt-length',                    a: 'mb-md-6 mb-0' },
-      { s: '.dt-layout-start',              a: 'ps-3 mt-0' },
-      { s: '.dt-layout-end',                r: 'justify-content-between', a: 'justify-content-md-between justify-content-center d-flex flex-wrap gap-4 mt-0 mb-md-0 mb-6' },
-      { s: '.dt-layout-table',              r: 'row mt-2' },
-      { s: '.dt-layout-full',               r: 'col-md col-12', a: 'table-responsive' }
+      { s: '.dt-buttons .btn',         r: 'btn-secondary' },
+      { s: '.dt-search .form-control', r: 'form-control-sm' },
+      { s: '.dt-length .form-select',  r: 'form-select-sm', a: 'ms-0' },
+      { s: '.dt-length',               a: 'mb-md-6 mb-0' },
+      { s: '.dt-layout-end',           r: 'justify-content-between', a: 'd-flex gap-md-4 justify-content-md-between justify-content-center gap-2 flex-wrap' },
+      { s: '.dt-layout-table',         r: 'row mt-2' },
+      { s: '.dt-layout-full',          r: 'col-md col-12', a: 'table-responsive' }
     ].forEach(({ s, r, a }) => {
       document.querySelectorAll(s).forEach(el => {
         if (r) r.split(' ').forEach(c => el.classList.remove(c));

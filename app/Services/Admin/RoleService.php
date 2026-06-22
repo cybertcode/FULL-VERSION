@@ -9,6 +9,7 @@ use App\Exceptions\BusinessException;
 use Illuminate\Support\Collection;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 
 class RoleService
 {
@@ -73,6 +74,61 @@ class RoleService
         }
 
         $role->delete();
+    }
+
+    public function assignRole(User $user, string $roleName): void
+    {
+        if ($user->hasRole('Super-Admin')) {
+            throw new BusinessException("No se puede cambiar el rol del Super-Admin.");
+        }
+
+        $role = Role::findByName($roleName, 'web');
+        $oldRole = $user->roles->first()?->name ?? '—';
+
+        $user->syncRoles([$role]);
+
+        activity('roles')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->event('role_assigned')
+            ->withProperties(['old_role' => $oldRole, 'new_role' => $roleName])
+            ->log("Rol de '{$user->name}' cambiado de '{$oldRole}' a '{$roleName}'.");
+    }
+
+    public function roleHistory(User $user): Collection
+    {
+        return \Spatie\Activitylog\Models\Activity::with('causer')
+            ->where('log_name', 'roles')
+            ->where('subject_type', User::class)
+            ->where('subject_id', $user->id)
+            ->where('event', 'role_assigned')
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(fn ($a) => [
+                'fecha'     => $a->created_at->format('d/m/Y H:i'),
+                'old_role'  => $a->properties['old_role'] ?? '—',
+                'new_role'  => $a->properties['new_role'] ?? '—',
+                'por'       => $a->causer?->name ?? 'Sistema',
+            ]);
+    }
+
+    public function riskStats(): array
+    {
+        $privilegedRoles = ['Super-Admin', 'admin'];
+
+        $inactivePrivileged = User::whereHas('roles', fn ($q) => $q->whereIn('name', $privilegedRoles))
+            ->where(fn ($q) => $q
+                ->whereNull('last_login_at')
+                ->orWhere('last_login_at', '<', now()->subDays(30))
+            )
+            ->count();
+
+        $sinRol = User::whereDoesntHave('roles')->count();
+
+        $totalPrivileged = User::whereHas('roles', fn ($q) => $q->whereIn('name', $privilegedRoles))->count();
+
+        return compact('inactivePrivileged', 'sinRol', 'totalPrivileged');
     }
 }
 

@@ -66,6 +66,10 @@ Route::middleware([
                 'destroy' => 'roles.destroy',
             ]);
 
+        Route::get('roles/usuarios/data',              [RoleController::class, 'usersData'])->name('roles.users.data');
+        Route::patch('roles/usuarios/{user}/asignar',  [RoleController::class, 'assignRole'])->name('roles.users.assign');
+        Route::get('roles/usuarios/{user}/historial',  [RoleController::class, 'roleHistory'])->name('roles.users.history');
+
         // ── Permisos ──────────────────────────────────────────────────
         Route::get('permisos/data', [PermissionController::class, 'data'])->name('permissions.data');
         Route::get('permisos', [PermissionController::class, 'index'])->name('permissions.index');
