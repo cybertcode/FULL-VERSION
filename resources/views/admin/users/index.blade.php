@@ -717,21 +717,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 text: '<i class="icon-base ti tabler-upload me-2 icon-sm"></i>Exportar',
                 buttons: [
                   {
-                    extend: 'print', title: 'Usuarios',
-                    text: '<i class="icon-base ti tabler-printer me-2"></i>Imprimir',
+                    text: '<i class="icon-base ti tabler-file-type-pdf me-2 text-danger"></i>PDF',
                     className: 'dropdown-item',
-                    exportOptions: { columns: [2,3,4,5,7,8], format: { body: exportBody } },
-                    customize: win => {
-                      win.document.body.style.color = config.colors.headingColor;
-                      win.document.body.style.backgroundColor = config.colors.bodyBg;
-                      const t = win.document.body.querySelector('table');
-                      if (t) { t.classList.add('compact'); t.style.color = 'inherit'; }
-                    }
+                    action: () => exportProfesional('pdf')
                   },
-                  { extend: 'csv',   title: 'Usuarios', text: '<i class="icon-base ti tabler-file-text me-2"></i>CSV',         className: 'dropdown-item', exportOptions: { columns: [2,3,4,5,7,8], format: { body: exportBody } } },
-                  { extend: 'excel', title: 'Usuarios', text: '<i class="icon-base ti tabler-file-spreadsheet me-2"></i>Excel', className: 'dropdown-item', exportOptions: { columns: [2,3,4,5,7,8], format: { body: exportBody } } },
-                  { extend: 'pdf',   title: 'Usuarios', text: '<i class="icon-base ti tabler-file-code-2 me-2"></i>PDF',        className: 'dropdown-item', exportOptions: { columns: [2,3,4,5,7,8], format: { body: exportBody } } },
-                  { extend: 'copy',  title: 'Usuarios', text: '<i class="icon-base ti tabler-copy me-2"></i>Copiar',            className: 'dropdown-item', exportOptions: { columns: [2,3,4,5,7,8], format: { body: exportBody } } },
+                  {
+                    text: '<i class="icon-base ti tabler-file-spreadsheet me-2 text-success"></i>Excel',
+                    className: 'dropdown-item',
+                    action: () => exportProfesional('excel')
+                  },
+                  {
+                    text: '<i class="icon-base ti tabler-file-text me-2 text-info"></i>CSV',
+                    className: 'dropdown-item',
+                    action: () => exportProfesional('csv')
+                  },
                 ]
               }
               @can('users.create')
@@ -988,6 +987,29 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   });
+
+  // ── Exportación profesional (PDF / Excel / CSV) ───────────────────────────
+  function exportProfesional(formato) {
+    const params = new URLSearchParams({
+      ...getMainFilters(),
+      ...getAdvFilters(),
+      search: document.querySelector('.dt-search input')?.value ?? '',
+    });
+    // Limpiar params vacíos
+    for (const [k, v] of [...params]) { if (!v) params.delete(k); }
+
+    const urls = {
+      pdf  : '{{ route("admin.users.export.pdf") }}',
+      excel: '{{ route("admin.users.export.excel") }}',
+      csv  : '{{ route("admin.users.export.csv") }}',
+    };
+
+    const url = urls[formato] + (params.toString() ? '?' + params.toString() : '');
+
+    // Toast informativo y descarga en nueva pestaña
+    showToast('info', `Preparando ${formato.toUpperCase()}… se descargará en breve.`);
+    window.open(url, '_blank');
+  }
 
   // ── Ajuste de clases del layout DataTable ─────────────────────────────────
   setTimeout(() => {

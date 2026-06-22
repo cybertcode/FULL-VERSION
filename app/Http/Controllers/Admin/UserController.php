@@ -8,15 +8,21 @@ use App\Http\Requests\Admin\User\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Admin\UserService;
+use App\Services\Admin\ExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends BaseAdminController
 {
-    public function __construct(private readonly UserService $userService)
-    {
+    public function __construct(
+        private readonly UserService $userService,
+        private readonly ExportService $exportService,
+    ) {
         parent::__construct();
     }
 
@@ -325,5 +331,23 @@ if ($request->filled('departamento')) {
         $this->userService->resetPassword($user);
 
         return response()->json(['message' => "Contraseña de {$user->name} restablecida correctamente."]);
+    }
+
+    public function exportPdf(Request $request): Response
+    {
+        $this->authorize('viewAny', User::class);
+        return $this->exportService->exportUsersPdf($request);
+    }
+
+    public function exportExcel(Request $request): BinaryFileResponse
+    {
+        $this->authorize('viewAny', User::class);
+        return $this->exportService->exportUsersExcel($request);
+    }
+
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $this->authorize('viewAny', User::class);
+        return $this->exportService->exportUsersCsv($request);
     }
 }

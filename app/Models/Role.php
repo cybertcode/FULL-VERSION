@@ -9,9 +9,17 @@ class Role extends SpatieRole
 {
     protected $fillable = ['name', 'guard_name', 'description'];
 
-    /**
-     * Los primeros 4 usuarios del rol para mostrar en el avatar group.
-     */
+    public function users(): BelongsToMany
+    {
+        return $this->morphedByMany(
+            User::class,
+            'model',
+            config('permission.table_names.model_has_roles'),
+            app(\Spatie\Permission\PermissionRegistrar::class)->pivotRole,
+            config('permission.column_names.model_morph_key')
+        );
+    }
+
     public function topUsers(): BelongsToMany
     {
         return $this->morphedByMany(

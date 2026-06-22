@@ -4,19 +4,25 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\Role\StoreRoleRequest;
 use App\Http\Requests\Admin\Role\UpdateRoleRequest;
+use App\Models\Role;
 use App\Models\User;
+use App\Enums\UserStatus;
+use App\Services\Admin\ExportService;
 use App\Services\Admin\RoleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
-use App\Models\Role;
-use App\Enums\UserStatus;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RoleController extends BaseAdminController
 {
-    public function __construct(private readonly RoleService $roleService)
-    {
+    public function __construct(
+        private readonly RoleService $roleService,
+        private readonly ExportService $exportService,
+    ) {
         parent::__construct();
     }
 
@@ -129,6 +135,24 @@ class RoleController extends BaseAdminController
         $this->flashSuccess('Rol actualizado correctamente.');
 
         return redirect()->route('admin.roles.index');
+    }
+
+    public function exportPdf(Request $request): Response
+    {
+        $this->authorize('viewAny', Role::class);
+        return $this->exportService->exportRolesPdf($request);
+    }
+
+    public function exportExcel(Request $request): BinaryFileResponse
+    {
+        $this->authorize('viewAny', Role::class);
+        return $this->exportService->exportRolesExcel($request);
+    }
+
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $this->authorize('viewAny', Role::class);
+        return $this->exportService->exportRolesCsv($request);
     }
 
     public function destroy(Role $role): RedirectResponse

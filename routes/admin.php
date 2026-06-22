@@ -21,7 +21,10 @@ Route::middleware([
     ->group(function () {
 
         // ── Usuarios ──────────────────────────────────────────────────
-        Route::get('usuarios/data', [UserController::class, 'data'])->name('users.data');
+        Route::get('usuarios/data',          [UserController::class, 'data'])->name('users.data');
+        Route::get('usuarios/exportar/pdf',  [UserController::class, 'exportPdf'])->name('users.export.pdf');
+        Route::get('usuarios/exportar/excel',[UserController::class, 'exportExcel'])->name('users.export.excel');
+        Route::get('usuarios/exportar/csv',  [UserController::class, 'exportCsv'])->name('users.export.csv');
 
         Route::resource('usuarios', UserController::class)
             ->parameters(['usuarios' => 'user'])
@@ -55,7 +58,14 @@ Route::middleware([
         Route::post('usuarios/{user}/reset-password', [UserController::class, 'resetPassword'])
             ->name('users.reset-password');
 
-        // ── Roles ─────────────────────────────────────────────────────
+        // ── Roles — rutas específicas ANTES del resource para evitar conflictos ──
+        Route::get('roles/exportar/pdf',               [RoleController::class, 'exportPdf'])->name('roles.export.pdf');
+        Route::get('roles/exportar/excel',             [RoleController::class, 'exportExcel'])->name('roles.export.excel');
+        Route::get('roles/exportar/csv',               [RoleController::class, 'exportCsv'])->name('roles.export.csv');
+        Route::get('roles/usuarios/data',              [RoleController::class, 'usersData'])->name('roles.users.data');
+        Route::patch('roles/usuarios/{user}/asignar',  [RoleController::class, 'assignRole'])->name('roles.users.assign');
+        Route::get('roles/usuarios/{user}/historial',  [RoleController::class, 'roleHistory'])->name('roles.users.history');
+
         Route::resource('roles', RoleController::class)
             ->only(['index', 'store', 'update', 'destroy'])
             ->parameters(['roles' => 'role'])
@@ -65,10 +75,6 @@ Route::middleware([
                 'update'  => 'roles.update',
                 'destroy' => 'roles.destroy',
             ]);
-
-        Route::get('roles/usuarios/data',              [RoleController::class, 'usersData'])->name('roles.users.data');
-        Route::patch('roles/usuarios/{user}/asignar',  [RoleController::class, 'assignRole'])->name('roles.users.assign');
-        Route::get('roles/usuarios/{user}/historial',  [RoleController::class, 'roleHistory'])->name('roles.users.history');
 
         // ── Permisos ──────────────────────────────────────────────────
         Route::get('permisos/data', [PermissionController::class, 'data'])->name('permissions.data');

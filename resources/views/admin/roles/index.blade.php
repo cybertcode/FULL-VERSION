@@ -210,10 +210,33 @@
             </select>
           </div>
           <div class="col-12 col-sm-4 col-lg-6 d-flex justify-content-sm-end align-items-center gap-2 flex-wrap">
-            <span class="text-muted small">
+            <span class="text-muted small d-none d-lg-inline">
               <i class="icon-base ti tabler-info-circle icon-14px me-1"></i>
               <strong>Super-Admin</strong> no es modificable desde aquí.
             </span>
+            <div class="dropdown">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportRolesBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="icon-base ti tabler-upload me-1 icon-sm"></i>
+                <span class="d-none d-sm-inline-block">Exportar</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportRolesBtn">
+                <li>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="exportRolesProfesional('pdf')">
+                    <i class="icon-base ti tabler-file-type-pdf me-2 text-danger"></i>PDF
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="exportRolesProfesional('excel')">
+                    <i class="icon-base ti tabler-file-spreadsheet me-2 text-success"></i>Excel
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="javascript:void(0)" onclick="exportRolesProfesional('csv')">
+                    <i class="icon-base ti tabler-file-text me-2 text-info"></i>CSV
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -803,5 +826,22 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 });
+
+// ── Exportación profesional roles — scope global para onclick ────────────
+function exportRolesProfesional(formato) {
+  const params = new URLSearchParams({
+    role:   document.getElementById('filterRoleTable')?.value   ?? '',
+    status: document.getElementById('filterStatusTable')?.value ?? '',
+  });
+  for (const [k, v] of [...params]) { if (!v) params.delete(k); }
+
+  const urls = {
+    pdf  : '{{ route("admin.roles.export.pdf") }}',
+    excel: '{{ route("admin.roles.export.excel") }}',
+    csv  : '{{ route("admin.roles.export.csv") }}',
+  };
+  showToast('info', `Preparando ${formato.toUpperCase()}… se descargará en breve.`);
+  window.open(urls[formato] + (params.toString() ? '?' + params.toString() : ''), '_blank');
+}
 </script>
 @endsection
