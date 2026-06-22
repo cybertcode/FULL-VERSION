@@ -453,7 +453,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ── DataTable ─────────────────────────────────────────────────────────────
+  const defaultPerPage = @json(config('app-settings.pagination.default', 15));
+
   const dt = new DataTable(dtUsersTable, {
+    pageLength: defaultPerPage,
     processing: true,
     serverSide: true,
     ajax: {
@@ -508,9 +511,9 @@ document.addEventListener('DOMContentLoaded', function () {
           const avatar = url
             ? `<img src="${url}" alt="${name}" class="rounded-circle" width="34" height="34">`
             : (() => {
-                const ini   = (name.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
+                const ini   = name.trim().split(/\s+/).slice(0,2).map(w => [...w][0] ?? '').join('').toUpperCase();
                 const cols  = ['primary','success','danger','warning','info'];
-                const color = cols[name.charCodeAt(0) % cols.length];
+                const color = cols[([...name][0] ?? ' ').codePointAt(0) % cols.length];
                 return `<span class="avatar-initial rounded-circle bg-label-${color}">${ini}</span>`;
               })();
 
@@ -704,7 +707,7 @@ document.addEventListener('DOMContentLoaded', function () {
     layout: {
       topStart: {
         rowClass: 'row m-3 my-0 justify-content-between',
-        features: [{ pageLength: { menu: [10, 25, 50, 100], text: '_MENU_' } }]
+        features: [{ pageLength: { menu: [...new Set([10, 25, 50, 100, defaultPerPage])].sort((a,b)=>a-b), text: '_MENU_' } }]
       },
       topEnd: {
         features: [

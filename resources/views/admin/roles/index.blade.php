@@ -20,18 +20,33 @@
 
 <p class="mb-6 text-body-secondary">Un rol define qué acciones puede realizar un usuario en el sistema. Asigna roles para controlar el acceso.</p>
 
+{{-- ─── Buscador de tarjetas ───────────────────────────────────────────────── --}}
+<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
+  <div class="input-group input-group-merge" style="max-width:280px">
+    <span class="input-group-text"><i class="icon-base ti tabler-search icon-sm"></i></span>
+    <input type="text" id="roleCardSearch" class="form-control" placeholder="Buscar rol…" autocomplete="off" />
+  </div>
+  <small id="roleCardCount" class="text-muted"></small>
+</div>
+
 {{-- ─── Role cards ─────────────────────────────────────────────────────────── --}}
-<div class="row g-6">
+<div class="row g-6" id="roleCardsContainer">
 
   @foreach ($roles as $role)
     @php $isSuperAdmin = $role->name === 'Super-Admin'; @endphp
-    <div class="col-xl-4 col-lg-6 col-md-6">
+    <div class="col-xl-4 col-lg-6 col-md-6 role-card-item" data-role-name="{{ strtolower($role->name) }}">
       <div class="card h-100">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h6 class="fw-normal mb-0 text-body">
-              Total {{ $role->users_count }} {{ $role->users_count === 1 ? 'usuario' : 'usuarios' }}
-            </h6>
+            <div class="d-flex flex-column gap-1">
+              <h6 class="fw-normal mb-0 text-body">
+                Total {{ $role->users_count }} {{ $role->users_count === 1 ? 'usuario' : 'usuarios' }}
+              </h6>
+              <span class="text-muted small">
+                <i class="icon-base ti tabler-key icon-xs me-1"></i>
+                {{ $role->permissions->count() }} {{ $role->permissions->count() === 1 ? 'permiso' : 'permisos' }}
+              </span>
+            </div>
             @if ($role->users_count > 0)
               <ul class="list-unstyled d-flex align-items-center avatar-group mb-0">
                 @foreach ($role->topUsers as $u)
@@ -43,8 +58,8 @@
                     @else
                       @php
                         $colors = ['primary','success','danger','warning','info'];
-                        $col    = $colors[ord($u->name[0]) % count($colors)];
-                        $ini    = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(explode(' ', $u->name), 0, 2)));
+                        $col    = $colors[mb_ord(mb_strtoupper(mb_substr($u->name, 0, 1)), 'UTF-8') % count($colors)];
+                        $ini    = implode('', array_map(fn($w) => mb_strtoupper(mb_substr($w, 0, 1), 'UTF-8'), array_slice(explode(' ', $u->name), 0, 2)));
                       @endphp
                       <span class="avatar-initial rounded-circle bg-label-{{ $col }}">{{ $ini }}</span>
                     @endif
@@ -68,6 +83,14 @@
               <h5 class="mb-1">{{ $role->name }}</h5>
               @if ($isSuperAdmin)
                 <span class="text-muted small">Acceso total al sistema</span>
+                <a href="javascript:void(0);" class="role-detail-link d-block mt-1 small"
+                   data-role-name="{{ $role->name }}"
+                   data-role-perms="[]"
+                   data-role-is-super-admin="1"
+                   data-role-users="{{ $role->users->take(30)->pluck('name')->toJson() }}"
+                   data-role-user-count="{{ $role->users_count }}">
+                  Ver detalle
+                </a>
               @else
                 @if($role->description)
                   <small class="text-muted d-block mb-1">{{ $role->description }}</small>
@@ -84,10 +107,26 @@
                     Editar Rol
                   </a>
                 @endcan
+                <a href="javascript:void(0);" class="role-detail-link d-block mt-1 small"
+                   data-role-name="{{ $role->name }}"
+                   data-role-perms="{{ $role->permissions->map(fn($p) => ['name'=>$p->name,'label'=>$p->label??$p->name])->toJson() }}"
+                   data-role-users="{{ $role->users->take(30)->pluck('name')->toJson() }}"
+                   data-role-user-count="{{ $role->users_count }}">
+                  Ver detalle
+                </a>
               @endif
             </div>
 
             <div class="d-flex align-items-center gap-1">
+              {{-- Historial de cambios del rol --}}
+              <a href="javascript:void(0);"
+                 class="btn btn-icon btn-text-secondary rounded-pill waves-effect role-change-history"
+                 data-history-url="{{ route('admin.roles.change-history', $role) }}"
+                 data-role-name="{{ $role->name }}"
+                 data-bs-toggle="tooltip" title="Historial de cambios del rol">
+                <i class="icon-base ti tabler-clock-record icon-md"></i>
+              </a>
+
               {{-- Copiar rol --}}
               @if (!$isSuperAdmin)
                 @can('roles.create')
@@ -149,36 +188,6 @@
       </div>
     </div>
   @endcan
-
-  {{-- ─── Alertas de riesgo ────────────────────────────────────────────────── --}}
-  @if ($riskStats['inactivePrivileged'] > 0 || $riskStats['sinRol'] > 0)
-  <div class="col-12 mt-2">
-    <div class="row g-3">
-      @if ($riskStats['inactivePrivileged'] > 0)
-      <div class="col-md-6">
-        <div class="alert alert-warning d-flex align-items-start gap-3 mb-0" role="alert">
-          <i class="icon-base ti tabler-alert-triangle icon-24px mt-1 flex-shrink-0"></i>
-          <div>
-            <div class="fw-semibold">{{ $riskStats['inactivePrivileged'] }} cuenta(s) privilegiada(s) inactiva(s)</div>
-            <small>Usuarios con rol <strong>admin</strong> o superior que no ingresan hace más de 30 días. Considera revisar o revocar el acceso.</small>
-          </div>
-        </div>
-      </div>
-      @endif
-      @if ($riskStats['sinRol'] > 0)
-      <div class="col-md-6">
-        <div class="alert alert-info d-flex align-items-start gap-3 mb-0" role="alert">
-          <i class="icon-base ti tabler-user-question icon-24px mt-1 flex-shrink-0"></i>
-          <div>
-            <div class="fw-semibold">{{ $riskStats['sinRol'] }} usuario(s) sin rol asignado</div>
-            <small>Estos usuarios no tienen ningún rol. Asígnales uno para definir sus permisos en el sistema.</small>
-          </div>
-        </div>
-      </div>
-      @endif
-    </div>
-  </div>
-  @endif
 
   {{-- ─── Asignación de roles ────────────────────────────────────────────────── --}}
   <div class="col-12">
@@ -245,14 +254,35 @@
           <thead>
             <tr>
               <th></th>
+              <th><input type="checkbox" id="checkAllUsers" class="form-check-input mt-0" title="Seleccionar todos"></th>
               <th>Usuario</th>
               <th>Rol actual</th>
               <th>Último acceso</th>
               <th>Estado</th>
+              <th>Registrado</th>
               <th>Acciones</th>
             </tr>
           </thead>
         </table>
+        {{-- Barra bulk assign --}}
+        <div id="bulkAssignBar" class="d-none border-top px-4 py-3 bg-light d-flex align-items-center gap-3 flex-wrap">
+          <span class="fw-semibold text-primary"><span id="bulkCount">0</span> seleccionado(s)</span>
+          <div class="d-flex align-items-center gap-2">
+            <label class="mb-0 small fw-medium">Asignar rol:</label>
+            <select id="bulkRoleSelect" class="form-select form-select-sm" style="min-width:150px">
+              <option value="">— Seleccionar —</option>
+              @foreach ($assignableRoles as $rName)
+                <option value="{{ $rName }}">{{ $rName }}</option>
+              @endforeach
+            </select>
+            <button id="bulkAssignBtn" class="btn btn-sm btn-primary" disabled>
+              <i class="icon-base ti tabler-users-group me-1 icon-sm"></i>Aplicar
+            </button>
+          </div>
+          <button id="bulkClearBtn" class="btn btn-sm btn-outline-secondary ms-auto">
+            <i class="icon-base ti tabler-x me-1 icon-sm"></i>Cancelar
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -411,6 +441,71 @@
   </div>
 </div>
 
+{{-- ─── Modal Historial de cambios del ROL ────────────────────────────────── --}}
+<div class="modal fade" id="roleChangeHistoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="icon-base ti tabler-clock-record icon-18px me-2 text-primary"></i>
+          Historial de cambios — <span id="roleChangeHistoryName"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div id="roleChangeHistoryLoading" class="text-center py-5 d-none">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+        <div id="roleChangeHistoryEmpty" class="text-center py-5 text-muted d-none">
+          <i class="icon-base ti tabler-mood-empty icon-40px mb-2 d-block"></i>
+          Sin cambios registrados aún.
+        </div>
+        <div class="table-responsive" id="roleChangeHistoryWrap">
+          <table class="table table-sm mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Fecha</th>
+                <th>Nombre</th>
+                <th>Permisos agregados</th>
+                <th>Permisos quitados</th>
+                <th>Por</th>
+              </tr>
+            </thead>
+            <tbody id="roleChangeHistoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- ─── Modal Detalle de rol ───────────────────────────────────────────────── --}}
+<div class="modal fade" id="roleDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="icon-base ti tabler-shield icon-18px me-2 text-primary"></i>
+          Detalle del rol — <span id="roleDetailName"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h6 class="fw-semibold mb-3"><i class="icon-base ti tabler-key icon-sm me-1 text-primary"></i>Permisos asignados</h6>
+            <div id="roleDetailPerms" class="d-flex flex-wrap gap-2"></div>
+          </div>
+          <div class="col-md-6">
+            <h6 class="fw-semibold mb-3"><i class="icon-base ti tabler-users icon-sm me-1 text-primary"></i>Usuarios con este rol</h6>
+            <div id="roleDetailUsers" class="d-flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @section('admin-page-script')
@@ -432,7 +527,10 @@ document.addEventListener('DOMContentLoaded', function () {
     'user':        'tabler-user text-success',
   };
 
+  const defaultPerPage = @json(config('app-settings.pagination.default', 15));
+
   const dt = new DataTable(dtRoleUsers, {
+    pageLength: defaultPerPage,
     processing: true,
     serverSide: true,
     ajax: {
@@ -450,29 +548,35 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     columns: [
       { data: null,           orderable: false, searchable: false },
+      { data: null,           orderable: false, searchable: false },
       { data: 'name' },
       { data: 'role',         orderable: false, searchable: false },
       { data: 'last_login_at',orderable: false, searchable: false },
       { data: 'status_label', orderable: false, searchable: false },
+      { data: 'created_at',   orderable: false, searchable: false },
       { data: null,           orderable: false, searchable: false },
     ],
     columnDefs: [
-      {
-        className: 'control',
-        orderable: false,
-        searchable: false,
-        responsivePriority: 4,
-        targets: 0,
-        render: () => ''
-      },
+      // Col 0: responsive control
+      { className: 'control', orderable: false, searchable: false, responsivePriority: 4, targets: 0, render: () => '' },
+      // Col 1: checkbox bulk
       {
         targets: 1,
+        orderable: false,
+        searchable: false,
+        responsivePriority: 6,
+        render: (d, t, full) =>
+          `<input type="checkbox" class="form-check-input row-checkbox mt-0" data-user-id="${full.id}">`
+      },
+      // Col 2: usuario
+      {
+        targets: 2,
         responsivePriority: 2,
         render: (d, t, full) => {
           const url = full.avatar_url;
-          const ini = (full.name.match(/\b\w/g) || []).slice(0,2).join('').toUpperCase();
+          const ini = full.name.trim().split(/\s+/).slice(0,2).map(w => [...w][0] ?? '').join('').toUpperCase();
           const cols = ['primary','success','danger','warning','info'];
-          const col  = cols[full.name.charCodeAt(0) % cols.length];
+          const col  = cols[([...full.name][0] ?? ' ').codePointAt(0) % cols.length];
           const avatar = url
             ? `<img src="${url}" alt="${full.name}" class="rounded-circle" width="34" height="34">`
             : `<span class="avatar-initial rounded-circle bg-label-${col}">${ini}</span>`;
@@ -486,8 +590,9 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>`;
         }
       },
+      // Col 3: rol actual
       {
-        targets: 2,
+        targets: 3,
         responsivePriority: 1,
         render: (d, t, full) => {
           const isSuperAdmin = full.role === 'Super-Admin';
@@ -516,20 +621,29 @@ document.addEventListener('DOMContentLoaded', function () {
           @endcan
         }
       },
+      // Col 4: último acceso
       {
-        targets: 3,
+        targets: 4,
         responsivePriority: 5,
         render: (d, t, full) => full.last_login_at
           ? `<span class="small text-muted">${full.last_login_at}</span>`
           : '<span class="text-muted fst-italic small">Nunca</span>'
       },
+      // Col 5: estado
       {
-        targets: 4,
+        targets: 5,
         responsivePriority: 3,
         render: (d, t, full) => full.status
           ? `<span class="badge ${full.status_class}">${full.status_label}</span>`
           : '—'
       },
+      // Col 6: registrado
+      {
+        targets: 6,
+        responsivePriority: 7,
+        render: (d, t, full) => `<span class="small text-muted">${full.created_at ?? '—'}</span>`
+      },
+      // Col 7: acciones
       {
         targets: -1,
         responsivePriority: 1,
@@ -552,11 +666,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     ],
-    order: [[1, 'asc']],
+    order: [[2, 'asc']],
     layout: {
       topStart: {
         rowClass: 'row my-md-0 me-3 ms-0 justify-content-between',
-        features: [{ pageLength: { menu: [10, 25, 50], text: '_MENU_' } }]
+        features: [{ pageLength: { menu: [...new Set([10, 25, 50, 100, defaultPerPage])].sort((a,b)=>a-b), text: '_MENU_' } }]
       },
       topEnd: {
         features: [
@@ -571,7 +685,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   extend: 'print', title: 'Asignación de Roles',
                   text: '<i class="icon-base ti tabler-printer me-2"></i>Imprimir',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } },
+                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } },
                   customize: win => {
                     win.document.body.style.color = config.colors.headingColor;
                     win.document.body.style.backgroundColor = config.colors.bodyBg;
@@ -583,25 +697,25 @@ document.addEventListener('DOMContentLoaded', function () {
                   extend: 'csv', title: 'Asignación de Roles',
                   text: '<i class="icon-base ti tabler-file-text me-2"></i>CSV',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
                 },
                 {
                   extend: 'excel', title: 'Asignación de Roles',
                   text: '<i class="icon-base ti tabler-file-spreadsheet me-2"></i>Excel',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
                 },
                 {
                   extend: 'pdf', title: 'Asignación de Roles',
                   text: '<i class="icon-base ti tabler-file-code-2 me-2"></i>PDF',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
                 },
                 {
                   extend: 'copy', title: 'Asignación de Roles',
                   text: '<i class="icon-base ti tabler-copy me-2"></i>Copiar',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [1, 2, 3, 4], format: { body: exportBody } }
+                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
                 },
               ]
             }]
@@ -698,7 +812,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.addEventListener('click', function (e) {
     const btn = e.target.closest('[data-history-url]');
-    if (!btn) return;
+    // Ignorar botones de historial del ROL (tarjetas) — tienen data-role-name, no data-user-name
+    if (!btn || btn.dataset.userName === undefined) return;
 
     historyName.textContent = btn.dataset.userName;
     historyLoading.classList.remove('d-none');
@@ -824,6 +939,210 @@ document.addEventListener('DOMContentLoaded', function () {
       modal.show();
     });
   });
+
+  // ── Historial de cambios del ROL (tarjeta) ───────────────────────────────
+  document.querySelectorAll('.role-change-history').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const url      = this.dataset.historyUrl;
+      const roleName = this.dataset.roleName;
+      document.getElementById('roleChangeHistoryName').textContent = roleName;
+
+      const loading = document.getElementById('roleChangeHistoryLoading');
+      const empty   = document.getElementById('roleChangeHistoryEmpty');
+      const wrap    = document.getElementById('roleChangeHistoryWrap');
+      const tbody   = document.getElementById('roleChangeHistoryBody');
+
+      loading.classList.remove('d-none');
+      empty.classList.add('d-none');
+      wrap.classList.add('d-none');
+      tbody.innerHTML = '';
+
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('roleChangeHistoryModal')).show();
+
+      fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
+        .then(r => r.json())
+        .then(data => {
+          loading.classList.add('d-none');
+          if (!data.history || data.history.length === 0) {
+            empty.classList.remove('d-none');
+            return;
+          }
+          wrap.classList.remove('d-none');
+          tbody.innerHTML = data.history.map(h => {
+            const added   = (h.permissions_added   || []).map(p => `<span class="badge bg-label-success me-1">${p}</span>`).join('') || '—';
+            const removed = (h.permissions_removed || []).map(p => `<span class="badge bg-label-danger me-1">${p}</span>`).join('')  || '—';
+            const nameChange = h.old_name !== h.new_name
+              ? `<span class="text-muted text-decoration-line-through me-1">${h.old_name}</span> → <strong>${h.new_name}</strong>`
+              : `<span class="text-muted">Sin cambio</span>`;
+            return `<tr>
+              <td><small class="text-muted">${h.fecha}</small></td>
+              <td>${nameChange}</td>
+              <td><div class="d-flex flex-wrap gap-1">${added}</div></td>
+              <td><div class="d-flex flex-wrap gap-1">${removed}</div></td>
+              <td><small>${h.por}</small></td>
+            </tr>`;
+          }).join('');
+        })
+        .catch(() => { loading.classList.add('d-none'); empty.classList.remove('d-none'); });
+    });
+  });
+
+  // ── Bulk assign ──────────────────────────────────────────────────────────
+  const checkAll      = document.getElementById('checkAllUsers');
+  const bulkBar       = document.getElementById('bulkAssignBar');
+  const bulkCount     = document.getElementById('bulkCount');
+  const bulkRoleSel   = document.getElementById('bulkRoleSelect');
+  const bulkAssignBtn = document.getElementById('bulkAssignBtn');
+  const bulkClearBtn  = document.getElementById('bulkClearBtn');
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-checkbox:checked');
+    if (checked.length > 0) {
+      bulkBar.classList.remove('d-none');
+      bulkCount.textContent = checked.length;
+    } else {
+      bulkBar.classList.add('d-none');
+    }
+    bulkAssignBtn.disabled = (checked.length === 0 || !bulkRoleSel.value);
+  }
+
+  // Checkbox "seleccionar todos" en header (solo los visibles en la página actual)
+  if (checkAll) {
+    checkAll.addEventListener('change', function () {
+      document.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = this.checked; });
+      updateBulkBar();
+    });
+  }
+
+  // Delegación para checkboxes individuales (se generan dinámicamente por DataTable)
+  dtRoleUsers.addEventListener('change', function (e) {
+    if (e.target.classList.contains('row-checkbox')) {
+      updateBulkBar();
+      if (checkAll) {
+        const all     = document.querySelectorAll('.row-checkbox');
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        checkAll.indeterminate = checked.length > 0 && checked.length < all.length;
+        checkAll.checked = checked.length === all.length && all.length > 0;
+      }
+    }
+  });
+
+  bulkRoleSel?.addEventListener('change', updateBulkBar);
+
+  bulkClearBtn?.addEventListener('click', () => {
+    document.querySelectorAll('.row-checkbox').forEach(cb => { cb.checked = false; });
+    if (checkAll) { checkAll.checked = false; checkAll.indeterminate = false; }
+    bulkBar.classList.add('d-none');
+  });
+
+  bulkAssignBtn?.addEventListener('click', () => {
+    const ids  = [...document.querySelectorAll('.row-checkbox:checked')].map(cb => cb.dataset.userId);
+    const role = bulkRoleSel.value;
+    if (!ids.length || !role) return;
+
+    confirmAction({
+      title:       '¿Asignar rol masivo?',
+      text:        `Se asignará el rol <strong>${role}</strong> a ${ids.length} usuario(s). Los Super-Admin serán omitidos.`,
+      confirmText: 'Sí, asignar',
+      isDanger:    false,
+      onConfirm: () => {
+        fetch('{{ route("admin.roles.users.bulk-assign") }}', {
+          method:  'POST',
+          headers: {
+            'Content-Type':     'application/json',
+            'Accept':           'application/json',
+            'X-CSRF-TOKEN':     document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body: JSON.stringify({ user_ids: ids.map(Number), role }),
+        })
+        .then(r => r.json())
+        .then(data => {
+          showToast('success', data.message);
+          dt.ajax.reload(null, false);
+          bulkClearBtn.click();
+        })
+        .catch(() => showToast('error', 'Error al asignar roles. Intenta nuevamente.'));
+      }
+    });
+  });
+
+  // Limpiar checkboxes al recargar DataTable
+  dt.on('draw', () => {
+    if (checkAll) { checkAll.checked = false; checkAll.indeterminate = false; }
+    bulkBar.classList.add('d-none');
+  });
+
+  // ── Detalle de rol ───────────────────────────────────────────────────────
+  document.querySelectorAll('.role-detail-link').forEach(link => {
+    link.addEventListener('click', function () {
+      const name      = this.dataset.roleName;
+      const perms     = JSON.parse(this.dataset.rolePerms  || '[]');
+      const users     = JSON.parse(this.dataset.roleUsers  || '[]');
+      const userCount = parseInt(this.dataset.roleUserCount || 0);
+
+      document.getElementById('roleDetailName').textContent = name;
+
+      const isSuperAdmin = this.dataset.roleIsSuperAdmin === '1';
+      const permsEl = document.getElementById('roleDetailPerms');
+      if (isSuperAdmin) {
+        permsEl.innerHTML = `<div class="alert alert-primary py-2 mb-0 w-100">
+          <i class="icon-base ti tabler-crown me-2"></i>
+          <strong>Acceso total al sistema.</strong> El Super-Admin tiene todos los permisos implícitamente, sin restricciones.
+        </div>`;
+      } else {
+        if (perms.length) {
+          // Agrupar por módulo (prefijo antes del punto)
+          const groups = {};
+          perms.forEach(p => {
+            const mod = (p.name || p).split('.')[0];
+            if (!groups[mod]) groups[mod] = [];
+            groups[mod].push(p);
+          });
+          permsEl.innerHTML = Object.entries(groups).map(([mod, list]) =>
+            `<div class="w-100 mb-2">
+              <small class="text-uppercase fw-bold text-muted d-block mb-1" style="letter-spacing:.8px;font-size:.65rem">${mod}</small>
+              <div class="d-flex flex-wrap gap-1">
+                ${list.map(p => `<span class="badge bg-label-primary" title="${p.name || p}">${p.label || p.name || p}</span>`).join('')}
+              </div>
+            </div>`
+          ).join('');
+        } else {
+          permsEl.innerHTML = '<span class="text-muted small">Sin permisos asignados</span>';
+        }
+      }
+
+      const usersEl = document.getElementById('roleDetailUsers');
+      let usersHtml = users.map(u => `<span class="badge bg-label-secondary">${u}</span>`).join(' ');
+      if (userCount > users.length) {
+        usersHtml += ` <span class="badge bg-label-dark">+${userCount - users.length} más</span>`;
+      }
+      usersEl.innerHTML = usersHtml || '<span class="text-muted small">Sin usuarios asignados</span>';
+
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('roleDetailModal')).show();
+    });
+  });
+
+  // ── Filtro de tarjetas ───────────────────────────────────────────────────
+  const cardSearch  = document.getElementById('roleCardSearch');
+  const cardItems   = document.querySelectorAll('.role-card-item');
+  const cardCounter = document.getElementById('roleCardCount');
+
+  function filterCards() {
+    const q = (cardSearch?.value ?? '').toLowerCase().trim();
+    let visible = 0;
+    cardItems.forEach(item => {
+      const name = item.dataset.roleName ?? '';
+      const show = !q || name.includes(q);
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    if (cardCounter) {
+      cardCounter.textContent = q ? `${visible} de ${cardItems.length} roles` : '';
+    }
+  }
+
+  cardSearch?.addEventListener('input', filterCards);
 
 });
 

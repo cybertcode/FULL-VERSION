@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Exports\RolesExport;
 use App\Exports\UsersExport;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -82,7 +83,7 @@ class ExportService
             );
         }
 
-        return $query->orderBy('name')->get();
+        return $query->orderByDesc('created_at')->get();
     }
 
     private function activeFiltersLabel(Request $request): string
@@ -192,7 +193,7 @@ class ExportService
             $query->where('name', $name);
         }
 
-        return $query->orderBy('name')->get();
+        return $query->orderByDesc('created_at')->get();
     }
 
     private function activeRoleFiltersLabel(Request $request): string
@@ -263,6 +264,97 @@ class ExportService
                     $role->permissions->count(),
                     $role->permissions->pluck('name')->join(', ') ?: '—',
                     $role->created_at?->format('d/m/Y') ?? '—',
+                ]);
+            }
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // ── PERMISOS ─────────────────────────────────────────────────────────
+
+    private function resolvePermissionsQuery(Request $request): \Illuminate\Support\Collection
+    {
+        $query = Permission::with('roles')->orderBy('name');
+
+        if ($module = $request->input('module')) {
+            $query->where('name', 'like', $module . '.%');
+        }
+        if ($search = $request->input('search')) {
+            $query->where(fn ($q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhere('label', 'like', "%{$search}%")
+            );
+        }
+
+        return $query->get();
+    }
+
+    private function activePermissionsFiltersLabel(Request $request): string
+    {
+        $parts = [];
+        if ($v = $request->input('module')) $parts[] = "Módulo: {$v}";
+        if ($v = $request->input('search')) $parts[] = "Búsqueda: \"{$v}\"";
+        return implode('  ·  ', $parts);
+    }
+
+    public function exportPermissionsPdf(Request $request): Response
+    {
+        $permissions = $this->resolvePermissionsQuery($request);
+        $branding    = $this->branding();
+        $filters     = $this->activePermissionsFiltersLabel($request);
+
+        $pdf = Pdf::loadView('admin.exports.permissions-pdf', array_merge($branding, [
+            'permissions' => $permissions,
+            'filters'     => $filters,
+            'orientation' => 'portrait',
+        ]));
+
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->set_option('dpi', 150);
+        $pdf->set_option('enable_php', false);
+
+        return $pdf->download('permisos_' . now()->format('Ymd_His') . '.pdf');
+    }
+
+    public function exportPermissionsExcel(Request $request): BinaryFileResponse
+    {
+        $permissions = $this->resolvePermissionsQuery($request);
+        $branding    = $this->branding();
+        $color       = ltrim($branding['primaryColor'], '#');
+
+        return Excel::download(
+            new \App\Exports\PermissionsExport($permissions, $color, $branding['siteName'], $branding['companyName']),
+            'permisos_' . now()->format('Ymd_His') . '.xlsx'
+        );
+    }
+
+    public function exportPermissionsCsv(Request $request): StreamedResponse
+    {
+        $permissions = $this->resolvePermissionsQuery($request);
+        $filename    = 'permisos_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($permissions) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            fputcsv($handle, ['Nombre técnico', 'Label', 'Módulo', 'Acción', 'Roles asignados', 'Fecha']);
+
+            foreach ($permissions as $p) {
+                $parts = explode('.', $p->name);
+                fputcsv($handle, [
+                    $p->name,
+                    $p->label ?? $p->name,
+                    $parts[0] ?? '',
+                    $parts[1] ?? '',
+                    $p->roles->pluck('name')->join(', ') ?: '—',
+                    $p->created_at?->format('d/m/Y') ?? '—',
                 ]);
             }
             fclose($handle);

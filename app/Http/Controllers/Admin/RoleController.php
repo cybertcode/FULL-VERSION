@@ -66,7 +66,7 @@ class RoleController extends BaseAdminController
         $filtered = $total;
 
         $rows = $query
-            ->orderBy('name')
+            ->orderByDesc('users.created_at')
             ->offset($request->input('start', 0))
             ->limit($request->input('length', 10))
             ->get()
@@ -78,6 +78,7 @@ class RoleController extends BaseAdminController
                 'cargo'           => $u->perfil?->cargo,
                 'role'            => $u->roles->first()?->name ?? '—',
                 'last_login_at'   => $u->last_login_at?->diffForHumans() ?? null,
+                'created_at'      => $u->created_at->format('d/m/Y'),
                 'status'          => $u->status?->value,
                 'status_label'    => $u->status?->label(),
                 'status_class'    => $u->status?->badgeClass(),
@@ -153,6 +154,38 @@ class RoleController extends BaseAdminController
     {
         $this->authorize('viewAny', Role::class);
         return $this->exportService->exportRolesCsv($request);
+    }
+
+    public function bulkAssign(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', Role::class);
+
+        $request->validate([
+            'user_ids'   => 'required|array|min:1|max:100',
+            'user_ids.*' => 'integer|exists:users,id',
+            'role'       => 'required|string|exists:roles,name',
+        ]);
+
+        ['assigned' => $assigned, 'skipped' => $skipped] = $this->roleService->bulkAssignRole(
+            $request->input('user_ids'),
+            $request->input('role')
+        );
+
+        return response()->json([
+            'message' => "Rol asignado a {$assigned} usuario(s)." . ($skipped ? " {$skipped} omitido(s) (Super-Admin)." : ''),
+            'assigned' => $assigned,
+            'skipped'  => $skipped,
+        ]);
+    }
+
+    public function roleChangeHistory(Role $role): JsonResponse
+    {
+        $this->authorize('viewAny', Role::class);
+
+        return response()->json([
+            'role'    => $role->name,
+            'history' => $this->roleService->roleChangeHistory($role),
+        ]);
     }
 
     public function destroy(Role $role): RedirectResponse

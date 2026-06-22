@@ -18,6 +18,8 @@
 @endsection
 
 @section('admin-content')
+
+<x-breadcrumb :items="[['label' => 'Mi Perfil']]" />
 @php
   use Illuminate\Support\Facades\Storage;
   $perfil = $user->perfil;

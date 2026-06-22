@@ -65,6 +65,8 @@ Route::middleware([
         Route::get('roles/usuarios/data',              [RoleController::class, 'usersData'])->name('roles.users.data');
         Route::patch('roles/usuarios/{user}/asignar',  [RoleController::class, 'assignRole'])->name('roles.users.assign');
         Route::get('roles/usuarios/{user}/historial',  [RoleController::class, 'roleHistory'])->name('roles.users.history');
+        Route::post('roles/usuarios/asignar-masivo',   [RoleController::class, 'bulkAssign'])->name('roles.users.bulk-assign');
+        Route::get('roles/{role}/historial-cambios',   [RoleController::class, 'roleChangeHistory'])->name('roles.change-history');
 
         Route::resource('roles', RoleController::class)
             ->only(['index', 'store', 'update', 'destroy'])
@@ -77,8 +79,11 @@ Route::middleware([
             ]);
 
         // ── Permisos ──────────────────────────────────────────────────
-        Route::get('permisos/data', [PermissionController::class, 'data'])->name('permissions.data');
-        Route::get('permisos', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::get('permisos/data',           [PermissionController::class, 'data'])->name('permissions.data');
+        Route::get('permisos/exportar/pdf',   [PermissionController::class, 'exportPdf'])->name('permissions.export.pdf');
+        Route::get('permisos/exportar/excel', [PermissionController::class, 'exportExcel'])->name('permissions.export.excel');
+        Route::get('permisos/exportar/csv',   [PermissionController::class, 'exportCsv'])->name('permissions.export.csv');
+        Route::get('permisos',                [PermissionController::class, 'index'])->name('permissions.index');
 
         // ── Mi Perfil ─────────────────────────────────────────────────
         Route::get('mi-perfil', [ProfileController::class, 'show'])->name('profile.show');
