@@ -107,7 +107,8 @@ window.addEventListener('load', function () {
     opts = opts || {};
     return Swal.fire({
       title            : opts.title       || '¿Estás seguro?',
-      text             : opts.text        || '',
+      text             : opts.html ? undefined : (opts.text || ''),
+      html             : opts.html        || undefined,
       icon             : opts.icon        || 'warning',
       showCancelButton : true,
       confirmButtonText: opts.confirmText || 'Sí, continuar',

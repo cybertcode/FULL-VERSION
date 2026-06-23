@@ -237,7 +237,7 @@
       <thead>
         <tr>
           <th></th>
-          <th></th>
+          <th><input type="checkbox" id="dtUsersCheckAll" class="form-check-input mt-0" title="Seleccionar todos"></th>
           <th>Usuario</th>
           <th>Cargo / Área</th>
           <th>Teléfono</th>
@@ -251,6 +251,17 @@
     </table>
   </div>
 </div>
+
+{{-- ─── Leyenda ─────────────────────────────────────────────────────────────── --}}
+@php
+$legendItems = [
+  ['icon' => 'tabler-checkbox',          'color' => 'primary',   'text' => 'Marca el <strong class="text-body">checkbox</strong> de cada fila para seleccionar usuarios y ejecutar acciones masivas.'],
+  ['icon' => 'tabler-adjustments',       'color' => 'info',      'text' => 'Usa los <strong class="text-body">filtros avanzados</strong> para acotar por estado, rol, fecha de ingreso o verificación.'],
+  ['icon' => 'tabler-file-export',       'color' => 'success',   'text' => 'Los botones de <strong class="text-body">Exportar</strong> respetan los filtros activos y exportan todos los registros coincidentes.'],
+  ['icon' => 'tabler-shield-exclamation','color' => 'warning',   'text' => 'Los usuarios con rol <strong class="text-body">Super-Admin</strong> no pueden ser eliminados ni modificados masivamente.'],
+];
+@endphp
+<x-table-legend :items="$legendItems" />
 
 {{-- ─── Offcanvas filtros avanzados ────────────────────────────────────────── --}}
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasFilters">
@@ -488,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function () {
         className: 'control',
         searchable: false,
         orderable: false,
-        responsivePriority: 5,
+        responsivePriority: 1,
         targets: 0,
         render: () => ''
       },
@@ -496,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
         targets: 1,
         orderable: false,
         searchable: false,
-        responsivePriority: 4,
+        responsivePriority: 1,
         render: () => '<input type="checkbox" class="dt-checkboxes form-check-input">'
       },
       {
@@ -683,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     ],
-    select: { style: 'multi', selector: 'td:nth-child(2)' },
+    select: { style: 'multi', selector: 'td:nth-child(1), td:nth-child(2)' },
     order: [[2, 'asc']],
     responsive: {
       details: {
@@ -693,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function () {
         type: 'column',
         renderer: function (api, rowIdx, columns) {
           const data = columns
-            .filter(col => col.title !== '')
+            .filter(col => col.columnIndex > 1 && col.title !== '' && !col.title.includes('<input'))
             .map(col => `<tr><td>${col.title}:</td><td>${col.data}</td></tr>`)
             .join('');
           if (!data) return false;
@@ -755,15 +766,13 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     displayLength: 10,
     language: {
-      search: '',
-      lengthMenu: '_MENU_',
-      infoEmpty: 'No hay usuarios',
-      zeroRecords: 'No se encontraron usuarios',
-      paginate: {
-        first:    '<i class="icon-base ti tabler-chevrons-left scaleX-n1-rtl icon-18px"></i>',
-        last:     '<i class="icon-base ti tabler-chevrons-right scaleX-n1-rtl icon-18px"></i>',
-        next:     '<i class="icon-base ti tabler-chevron-right scaleX-n1-rtl icon-18px"></i>',
-        previous: '<i class="icon-base ti tabler-chevron-left scaleX-n1-rtl icon-18px"></i>'
+      info:         'Mostrando _START_–_END_ de _TOTAL_ usuarios',
+      infoEmpty:    'No hay usuarios registrados',
+      infoFiltered: '(filtrado de _MAX_ usuarios en total)',
+      zeroRecords:  'No se encontraron usuarios con estos filtros',
+      emptyTable:   'No hay usuarios en el sistema',
+      select: {
+        rows: { _: '%d usuarios seleccionados', 0: '', 1: '1 usuario seleccionado' }
       }
     },
     initComplete: () => document.querySelectorAll('.dt-buttons .btn').forEach(b => b.classList.remove('btn-secondary'))
@@ -936,21 +945,84 @@ document.addEventListener('DOMContentLoaded', function () {
   const bulkCount = document.getElementById('bulkCount');
 
   function updateBulkBar() {
-    const selected = dt.rows({ selected: true }).count();
-    if (bulkBar) {
-      bulkBar.classList.toggle('d-none', selected === 0);
-      if (bulkCount) bulkCount.textContent = selected;
-    }
+    const rows    = dt.rows({ selected: true }).data().toArray();
+    const count   = rows.length;
+
+    if (!bulkBar) return;
+    bulkBar.classList.toggle('d-none', count === 0);
+    if (bulkCount) bulkCount.textContent = count;
+    if (count === 0) return;
+
+    const statuses   = rows.map(r => r.status);
+    const hasActive  = statuses.includes('active');
+    const hasInactive= statuses.includes('inactive');
+    const hasBanned  = statuses.includes('banned');
+    const hasDeleted = rows.some(r => r.deleted_at);
+    const hasLiving  = rows.some(r => !r.deleted_at);
+
+    const show = (action, visible) => {
+      const btn = bulkBar.querySelector(`[data-action="${action}"]`);
+      if (btn) btn.classList.toggle('d-none', !visible);
+    };
+
+    show('activate',     hasInactive || hasBanned);
+    show('deactivate',   hasActive);
+    show('ban',          hasActive || hasInactive);
+    show('verify_email', hasLiving);
+    show('restore',      hasDeleted);
+    show('delete',       hasLiving);
+    show('force_delete', true);
   }
 
-  dt.on('select deselect draw', updateBulkBar);
-
-  // Fallback: delegación en el DOM por si DataTables no dispara deselect a tiempo
-  dtUsersTable.addEventListener('change', function (e) {
-    if (e.target.classList.contains('dt-checkboxes')) {
-      setTimeout(updateBulkBar, 50);
-    }
+  // Cuando DataTable selecciona/deselecciona → sincronizar el checkbox visual
+  dt.on('select', function (e, dt2, type, indexes) {
+    if (type !== 'row') return;
+    dt2.rows(indexes).nodes().each(function (row) {
+      const cb = row.querySelector('.dt-checkboxes');
+      if (cb) cb.checked = true;
+    });
+    updateBulkBar();
   });
+  dt.on('deselect', function (e, dt2, type, indexes) {
+    if (type !== 'row') return;
+    dt2.rows(indexes).nodes().each(function (row) {
+      const cb = row.querySelector('.dt-checkboxes');
+      if (cb) cb.checked = false;
+    });
+    updateBulkBar();
+  });
+  // Al redibujar (nueva página, filtro) → limpiar checkboxes visuales huérfanos
+  dt.on('draw', function () {
+    dtUsersTable.querySelectorAll('.dt-checkboxes').forEach(cb => { cb.checked = false; });
+    updateBulkBar();
+  });
+
+  // Click directo en el checkbox de fila → toggle select en DataTable
+  dtUsersTable.addEventListener('click', function (e) {
+    const cb = e.target.closest('.dt-checkboxes');
+    if (!cb) return;
+    e.stopPropagation();
+    const tr = cb.closest('tr');
+    if (!tr) return;
+    const row = dt.row(tr);
+    if (row.count() === 0) return;
+    if (row.selected()) { row.deselect(); } else { row.select(); }
+  });
+
+  // Checkbox "seleccionar todos" en el header
+  const dtUsersCheckAll = document.getElementById('dtUsersCheckAll');
+  if (dtUsersCheckAll) {
+    dtUsersCheckAll.addEventListener('change', function () {
+      if (this.checked) { dt.rows().select(); } else { dt.rows().deselect(); }
+    });
+    // Actualizar estado indeterminate del header al cambiar selección
+    dt.on('select deselect draw', function () {
+      const total    = dt.rows().count();
+      const selected = dt.rows({ selected: true }).count();
+      dtUsersCheckAll.checked       = total > 0 && selected === total;
+      dtUsersCheckAll.indeterminate = selected > 0 && selected < total;
+    });
+  }
 
   const actionLabels = {
     activate    : 'activar',

@@ -172,6 +172,17 @@
   </div>
 </div>
 
+{{-- ─── Leyenda ─────────────────────────────────────────────────────────────── --}}
+@php
+$legendItems = [
+  ['icon' => 'tabler-layout-grid',  'color' => 'primary',   'text' => 'Usa los botones de <strong class="text-body">módulo</strong> del encabezado para filtrar permisos por área del sistema.'],
+  ['icon' => 'tabler-eye',          'color' => 'info',      'text' => 'Haz clic en cualquier fila para abrir el <strong class="text-body">detalle</strong> con los roles que tienen ese permiso asignado.'],
+  ['icon' => 'tabler-file-export',  'color' => 'success',   'text' => 'Los botones de <strong class="text-body">Exportar</strong> respetan el módulo y el término de búsqueda activos.'],
+  ['icon' => 'tabler-lock',         'color' => 'secondary', 'text' => 'Los permisos son <strong class="text-body">solo lectura</strong>. Se crean y gestionan desde el código de la aplicación.'],
+];
+@endphp
+<x-table-legend :items="$legendItems" />
+
 @endsection
 
 @section('admin-page-script')
@@ -306,21 +317,11 @@ document.addEventListener('DOMContentLoaded', function () {
       bottomEnd: 'paging'
     },
     language: {
-      paginate: {
-        next:     '<i class="icon-base ti tabler-chevron-right scaleX-n1-rtl icon-18px"></i>',
-        previous: '<i class="icon-base ti tabler-chevron-left scaleX-n1-rtl icon-18px"></i>',
-        first:    '<i class="icon-base ti tabler-chevrons-left icon-18px"></i>',
-        last:     '<i class="icon-base ti tabler-chevrons-right icon-18px"></i>',
-      },
-      info:            'Mostrando _START_ a _END_ de _TOTAL_ permisos',
-      infoFiltered:    '(filtrado de _MAX_ permisos en total)',
-      infoEmpty:       'Mostrando 0 a 0 de 0 permisos',
-      search:          'Buscar:',
-      lengthMenu:      'Mostrar _MENU_',
-      zeroRecords:     'No se encontraron permisos',
-      emptyTable:      'No hay permisos registrados',
-      loadingRecords:  'Cargando...',
-      processing:      'Procesando...',
+      info:         'Mostrando _START_–_END_ de _TOTAL_ permisos',
+      infoFiltered: '(filtrado de _MAX_ permisos en total)',
+      infoEmpty:    'Sin permisos disponibles',
+      zeroRecords:  'No se encontraron permisos con estos filtros',
+      emptyTable:   'No hay permisos registrados en el sistema',
     },
     responsive: {
       details: {

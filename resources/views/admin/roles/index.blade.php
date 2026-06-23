@@ -219,33 +219,6 @@
             </select>
           </div>
           <div class="col-12 col-sm-4 col-lg-6 d-flex justify-content-sm-end align-items-center gap-2 flex-wrap">
-            <span class="text-muted small d-none d-lg-inline">
-              <i class="icon-base ti tabler-info-circle icon-14px me-1"></i>
-              <strong>Super-Admin</strong> no es modificable desde aquí.
-            </span>
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="exportRolesBtn" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="icon-base ti tabler-upload me-1 icon-sm"></i>
-                <span class="d-none d-sm-inline-block">Exportar</span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportRolesBtn">
-                <li>
-                  <a class="dropdown-item" href="javascript:void(0)" onclick="exportRolesProfesional('pdf')">
-                    <i class="icon-base ti tabler-file-type-pdf me-2 text-danger"></i>PDF
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="javascript:void(0)" onclick="exportRolesProfesional('excel')">
-                    <i class="icon-base ti tabler-file-spreadsheet me-2 text-success"></i>Excel
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="javascript:void(0)" onclick="exportRolesProfesional('csv')">
-                    <i class="icon-base ti tabler-file-text me-2 text-info"></i>CSV
-                  </a>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
@@ -278,6 +251,7 @@
             <button id="bulkAssignBtn" class="btn btn-sm btn-primary" disabled>
               <i class="icon-base ti tabler-users-group me-1 icon-sm"></i>Aplicar
             </button>
+            <span id="bulkRoleHint"></span>
           </div>
           <button id="bulkClearBtn" class="btn btn-sm btn-outline-secondary ms-auto">
             <i class="icon-base ti tabler-x me-1 icon-sm"></i>Cancelar
@@ -286,7 +260,19 @@
       </div>
     </div>
   </div>
+
 </div>
+
+{{-- ─── Leyenda ─────────────────────────────────────────────────────────────── --}}
+@php
+$legendItems = [
+  ['icon' => 'tabler-checkbox',    'color' => 'primary',   'text' => 'Marca el <strong class="text-body">checkbox</strong> de cada fila para seleccionar varios usuarios y asignarles un rol de forma masiva en un solo paso.'],
+  ['icon' => 'tabler-user-edit',   'color' => 'warning',   'text' => 'Usa el selector <strong class="text-body">Rol actual</strong> en cada fila para cambiar el rol de forma individual sin salir de esta vista.'],
+  ['icon' => 'tabler-history',     'color' => 'info',      'text' => 'El ícono de <strong class="text-body">historial</strong> muestra todos los cambios de rol anteriores del usuario con fecha y responsable.'],
+  ['icon' => 'tabler-shield-lock', 'color' => 'secondary', 'text' => 'Los usuarios con rol <strong class="text-body">Super-Admin</strong> no pueden ser modificados ni reasignados desde esta vista.'],
+];
+@endphp
+<x-table-legend :items="$legendItems" />
 
 {{-- ─── Modal Historial de rol ──────────────────────────────────────────────── --}}
 <div class="modal fade" id="roleHistoryModal" tabindex="-1" aria-hidden="true">
@@ -566,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function () {
         searchable: false,
         responsivePriority: 6,
         render: (d, t, full) =>
-          `<input type="checkbox" class="form-check-input row-checkbox mt-0" data-user-id="${full.id}">`
+          `<input type="checkbox" class="form-check-input row-checkbox mt-0" data-user-id="${full.id}" data-current-role="${full.role ?? ''}">`
       },
       // Col 2: usuario
       {
@@ -682,40 +668,19 @@ document.addEventListener('DOMContentLoaded', function () {
               text: '<i class="icon-base ti tabler-upload me-1 icon-sm"></i><span class="d-none d-sm-inline-block">Exportar</span>',
               buttons: [
                 {
-                  extend: 'print', title: 'Asignación de Roles',
-                  text: '<i class="icon-base ti tabler-printer me-2"></i>Imprimir',
+                  text: '<i class="icon-base ti tabler-file-type-pdf me-2 text-danger"></i>PDF',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } },
-                  customize: win => {
-                    win.document.body.style.color = config.colors.headingColor;
-                    win.document.body.style.backgroundColor = config.colors.bodyBg;
-                    const t = win.document.body.querySelector('table');
-                    if (t) { t.classList.add('compact'); t.style.color = 'inherit'; }
-                  }
+                  action: () => exportRolesProfesional('pdf')
                 },
                 {
-                  extend: 'csv', title: 'Asignación de Roles',
-                  text: '<i class="icon-base ti tabler-file-text me-2"></i>CSV',
+                  text: '<i class="icon-base ti tabler-file-spreadsheet me-2 text-success"></i>Excel',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
+                  action: () => exportRolesProfesional('excel')
                 },
                 {
-                  extend: 'excel', title: 'Asignación de Roles',
-                  text: '<i class="icon-base ti tabler-file-spreadsheet me-2"></i>Excel',
+                  text: '<i class="icon-base ti tabler-file-text me-2 text-info"></i>CSV',
                   className: 'dropdown-item',
-                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
-                },
-                {
-                  extend: 'pdf', title: 'Asignación de Roles',
-                  text: '<i class="icon-base ti tabler-file-code-2 me-2"></i>PDF',
-                  className: 'dropdown-item',
-                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
-                },
-                {
-                  extend: 'copy', title: 'Asignación de Roles',
-                  text: '<i class="icon-base ti tabler-copy me-2"></i>Copiar',
-                  className: 'dropdown-item',
-                  exportOptions: { columns: [2, 3, 4, 5, 6], format: { body: exportBody } }
+                  action: () => exportRolesProfesional('csv')
                 },
               ]
             }]
@@ -729,10 +694,13 @@ document.addEventListener('DOMContentLoaded', function () {
       bottomEnd: 'paging'
     },
     language: {
-      infoEmpty: 'Sin usuarios', zeroRecords: 'Sin resultados',
-      paginate: {
-        next:     '<i class="icon-base ti tabler-chevron-right scaleX-n1-rtl icon-18px"></i>',
-        previous: '<i class="icon-base ti tabler-chevron-left scaleX-n1-rtl icon-18px"></i>'
+      info:         'Mostrando _START_–_END_ de _TOTAL_ usuarios',
+      infoEmpty:    'No hay usuarios registrados',
+      infoFiltered: '(filtrado de _MAX_ usuarios en total)',
+      zeroRecords:  'No se encontraron usuarios con estos filtros',
+      emptyTable:   'No hay usuarios en el sistema',
+      select: {
+        rows: { _: '%d usuarios seleccionados', 0: '', 1: '1 usuario seleccionado' }
       }
     },
     responsive: {
@@ -997,13 +965,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateBulkBar() {
     const checked = document.querySelectorAll('.row-checkbox:checked');
-    if (checked.length > 0) {
-      bulkBar.classList.remove('d-none');
-      bulkCount.textContent = checked.length;
-    } else {
-      bulkBar.classList.add('d-none');
+    const count   = checked.length;
+
+    bulkBar.classList.toggle('d-none', count === 0);
+    if (count === 0) return;
+
+    bulkCount.textContent = count;
+
+    const targetRole    = bulkRoleSel.value;
+    const selectedRoles = [...checked].map(cb => cb.dataset.currentRole ?? '');
+    const allSameRole   = targetRole && selectedRoles.every(r => r === targetRole);
+
+    // Hint visual cuando el rol ya está asignado a todos
+    const hint = bulkBar.querySelector('#bulkRoleHint');
+    if (hint) {
+      hint.textContent  = allSameRole ? 'Todos ya tienen este rol.' : '';
+      hint.className    = allSameRole ? 'text-warning small' : '';
     }
-    bulkAssignBtn.disabled = (checked.length === 0 || !bulkRoleSel.value);
+
+    bulkAssignBtn.disabled = (count === 0 || !targetRole || allSameRole);
   }
 
   // Checkbox "seleccionar todos" en header (solo los visibles en la página actual)
@@ -1042,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     confirmAction({
       title:       '¿Asignar rol masivo?',
-      text:        `Se asignará el rol <strong>${role}</strong> a ${ids.length} usuario(s). Los Super-Admin serán omitidos.`,
+      html:        `Se asignará el rol <strong>${role}</strong> a ${ids.length} usuario(s). Los Super-Admin serán omitidos.`,
       confirmText: 'Sí, asignar',
       isDanger:    false,
       onConfirm: () => {
@@ -1146,18 +1126,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-// ── Exportación profesional roles — scope global para onclick ────────────
+// ── Exportación usuarios de la tabla (respeta filtros rol + estado) ──────
 function exportRolesProfesional(formato) {
   const params = new URLSearchParams({
     role:   document.getElementById('filterRoleTable')?.value   ?? '',
     status: document.getElementById('filterStatusTable')?.value ?? '',
+    search: document.querySelector('.dt-search input')?.value?.trim() ?? '',
   });
   for (const [k, v] of [...params]) { if (!v) params.delete(k); }
 
   const urls = {
-    pdf  : '{{ route("admin.roles.export.pdf") }}',
-    excel: '{{ route("admin.roles.export.excel") }}',
-    csv  : '{{ route("admin.roles.export.csv") }}',
+    pdf  : '{{ route("admin.users.export.pdf") }}',
+    excel: '{{ route("admin.users.export.excel") }}',
+    csv  : '{{ route("admin.users.export.csv") }}',
   };
   showToast('info', `Preparando ${formato.toUpperCase()}… se descargará en breve.`);
   window.open(urls[formato] + (params.toString() ? '?' + params.toString() : ''), '_blank');
