@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -88,6 +89,9 @@ Route::middleware([
         // ── Mi Perfil ─────────────────────────────────────────────────
         Route::get('mi-perfil', [ProfileController::class, 'show'])->name('profile.show');
         Route::put('mi-perfil', [ProfileController::class, 'update'])->name('profile.update');
+
+        // ── Buscador global ───────────────────────────────────────────
+        Route::get('buscar', SearchController::class)->name('search');
 
         // ── Configuración ─────────────────────────────────────────────
         Route::get('configuracion', [SettingController::class, 'index'])->name('settings.index');
