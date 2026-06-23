@@ -1,12 +1,11 @@
 @php
-use Illuminate\Support\Facades\Route;
 $configData = Helper::appClasses();
 $customizerHidden = 'customizer-hide';
 @endphp
 
 @extends('layouts/blankLayout')
 
-@section('title', 'Two Steps Verifications')
+@section('title', 'Verificación en dos pasos')
 
 @section('page-style')
 @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
@@ -21,63 +20,116 @@ $customizerHidden = 'customizer-hide';
   </a>
   <!-- /Logo -->
   <div class="authentication-inner row m-0">
-    <!-- /Left Text -->
+    <!-- Ilustración izquierda -->
     <div class="d-none d-xl-flex col-xl-8 p-0">
       <div class="auth-cover-bg d-flex justify-content-center align-items-center">
         <img src="{{ asset('assets/img/illustrations/auth-two-step-illustration-' . $configData['theme'] . '.png') }}"
-          alt="auth-two-steps-cover" class="my-5 auth-illustration"
+          alt="dos-pasos" class="my-5 auth-illustration"
           data-app-light-img="illustrations/auth-two-step-illustration-light.png"
           data-app-dark-img="illustrations/auth-two-step-illustration-dark.png" />
         <img src="{{ asset('assets/img/illustrations/bg-shape-image-' . $configData['theme'] . '.png') }}"
-          alt="auth-two-steps-cover" class="platform-bg" data-app-light-img="illustrations/bg-shape-image-light.png"
+          alt="" class="platform-bg"
+          data-app-light-img="illustrations/bg-shape-image-light.png"
           data-app-dark-img="illustrations/bg-shape-image-dark.png" />
       </div>
     </div>
-    <!-- /Left Text -->
+    <!-- /Ilustración izquierda -->
 
-    <!-- Two Steps Verification -->
+    <!-- Verificación dos pasos -->
     <div class="d-flex col-12 col-xl-4 align-items-center authentication-bg p-6 p-sm-12">
-      <div class="w-px-400 mx-auto mt-12 mt-5">
-        <h4 class="mb-1">Two Step Verification 💬</h4>
+      <div class="w-px-400 mx-auto mt-12 pt-5">
+        <h4 class="mb-1">Verificación en dos pasos 💬</h4>
+
         <div x-data="{ recovery: false }">
-          <div class="text-start mb-6" x-show="! recovery">
-            Please confirm access to your account by entering the authentication code provided by your
-            authenticator
-            application.
+
+          <p class="mb-6" x-show="! recovery">
+            Ingresa el código de 6 dígitos generado por tu aplicación de autenticación.
+          </p>
+          <p class="mb-6" x-show="recovery">
+            Ingresa uno de tus códigos de recuperación de emergencia.
+          </p>
+
+          @if ($errors->any())
+          <div class="alert alert-danger mb-4 rounded" role="alert">
+            <ul class="mb-0 ps-3">
+              @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+              @endforeach
+            </ul>
           </div>
-          <div class="text-start mb-6" x-show="recovery">
-            Please confirm access to your account by entering one of your emergency recovery codes.
-          </div>
-          <x-validation-errors class="mb-1" />
+          @endif
+
           <form method="POST" action="{{ route('two-factor.login') }}">
             @csrf
+
+            {{-- Código TOTP --}}
             <div class="mb-6" x-show="! recovery">
-              <x-label class="form-label" value="{{ __('Code') }}" />
-              <x-input class="{{ $errors->has('code') ? 'is-invalid' : '' }}" type="text" inputmode="numeric"
-                name="code" autofocus x-ref="code" autocomplete="one-time-code" />
-              <x-input-error for="code"></x-input-error>
+              <label for="code" class="form-label">Código de autenticación</label>
+              <input
+                type="text"
+                id="code"
+                name="code"
+                class="form-control @error('code') is-invalid @enderror"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                x-ref="code"
+                autofocus
+                placeholder="000000" />
+              @error('code')
+              <span class="invalid-feedback" role="alert"><span class="fw-medium">{{ $message }}</span></span>
+              @enderror
             </div>
-            <div class="mb-5" x-show="recovery">
-              <x-label class="form-label" value="{{ __('Recovery Code') }}" />
-              <x-input class="{{ $errors->has('recovery_code') ? 'is-invalid' : '' }}" type="text" name="recovery_code"
-                x-ref="recovery_code" autocomplete="one-time-code" />
-              <x-input-error for="recovery_code"></x-input-error>
+
+            {{-- Código de recuperación --}}
+            <div class="mb-6" x-show="recovery" x-cloak>
+              <label for="recovery_code" class="form-label">Código de recuperación</label>
+              <input
+                type="text"
+                id="recovery_code"
+                name="recovery_code"
+                class="form-control @error('recovery_code') is-invalid @enderror"
+                autocomplete="one-time-code"
+                x-ref="recovery_code"
+                placeholder="xxxx-xxxx-xxxx" />
+              @error('recovery_code')
+              <span class="invalid-feedback" role="alert"><span class="fw-medium">{{ $message }}</span></span>
+              @enderror
             </div>
-            <div class="d-flex justify-content-end gap-2">
-              <div x-show="! recovery" x-on:click="recovery = true; $nextTick(() => { $refs.recovery_code.focus()})">
-                <button type="button" class="btn btn-outline-secondary">Use a recovery code</button>
+
+            <div class="d-flex flex-column gap-2">
+              <button type="submit" class="btn btn-primary d-grid w-100">Verificar e ingresar</button>
+
+              <div x-show="! recovery">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary d-grid w-100"
+                  x-on:click="recovery = true; $nextTick(() => { $refs.recovery_code.focus() })">
+                  Usar código de recuperación
+                </button>
               </div>
-              <div x-cloak x-show="recovery" x-on:click="recovery = false; $nextTick(() => { $refs.code.focus() })">
-                <button type="button" class="btn btn-outline-secondary">Use an authentication
-                  code</button>
+              <div x-show="recovery" x-cloak>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary d-grid w-100"
+                  x-on:click="recovery = false; $nextTick(() => { $refs.code.focus() })">
+                  Usar código de autenticación
+                </button>
               </div>
-              <x-button class="px-3">Log in</x-button>
             </div>
           </form>
+
+          <div class="text-center mt-4">
+            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+              @csrf
+              <button type="submit" class="btn btn-link text-body-secondary p-0 small">
+                Cerrar sesión
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-    <!-- / Two Steps Verification -->
+    <!-- /Verificación dos pasos -->
   </div>
 </div>
 @endsection

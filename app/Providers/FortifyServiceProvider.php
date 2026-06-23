@@ -21,22 +21,18 @@ use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
+    public function register(): void {}
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        // Sobreescribir las vistas que Jetstream registra con Inertia (este proyecto usa Livewire/Blade)
-        Fortify::twoFactorChallengeView(fn () => view('auth.two-factor-challenge'));
+        // Registro explícito de todas las vistas de autenticación
+        Fortify::loginView(fn () => view('auth.login'));
+        Fortify::registerView(fn () => view('auth.register'));
+        Fortify::requestPasswordResetLinkView(fn () => view('auth.forgot-password'));
+        Fortify::resetPasswordView(fn ($request) => view('auth.reset-password', ['request' => $request]));
+        Fortify::verifyEmailView(fn () => view('auth.verify-email'));
         Fortify::confirmPasswordView(fn () => view('auth.confirm-password'));
+        Fortify::twoFactorChallengeView(fn () => view('auth.two-factor-challenge'));
 
         Fortify::authenticateThrough(function () {
             return [

@@ -73,7 +73,13 @@ return [
     |
     */
 
-    'home' => '/',
+    'home' => '/admin',
+
+    'redirects' => [
+        'login'          => '/admin',
+        'logout'         => '/',
+        'password-reset' => '/login',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -164,7 +170,7 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        // Features::emailVerification(),
+        Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
         Features::twoFactorAuthentication([
