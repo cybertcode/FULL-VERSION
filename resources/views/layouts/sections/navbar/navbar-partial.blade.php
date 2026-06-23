@@ -132,7 +132,7 @@ use Illuminate\Support\Facades\Route;
               <span class="dropdown-shortcuts-icon rounded-circle mb-3">
                 <i class="icon-base ti tabler-device-desktop-analytics icon-26px text-heading"></i>
               </span>
-              <a href="{{ url('/') }}" class="stretched-link">Panel</a>
+              <a href="{{ route('admin.dashboard') }}" class="stretched-link">Panel</a>
               <small>Inicio</small>
             </div>
             <div class="dropdown-shortcuts-item col">

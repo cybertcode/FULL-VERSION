@@ -180,9 +180,9 @@ Route::get('/pages/misc-not-authorized', [MiscNotAuthorized::class, 'index'])->n
 // Panel protegido — requiere autenticación
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
 
-  // Dashboard
-  Route::get('/', [Analytics::class, 'index'])->name('dashboard-analytics');
-  Route::get('/dashboard/analytics', [Analytics::class, 'index']);
+  // Dashboard Vuexy demo (solo para referencia de plantilla)
+  Route::get('/dashboard/analytics', [Analytics::class, 'index'])->name('dashboard-analytics');
+  Route::get('/dashboard/analytics/demo', [Analytics::class, 'index']);
   Route::get('/dashboard/crm', [Crm::class, 'index'])->name('dashboard-crm');
 
   // Layouts

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
@@ -20,6 +21,9 @@ Route::middleware([
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+        // ── Dashboard ─────────────────────────────────────────────────
+        Route::get('/', DashboardController::class)->name('dashboard');
 
         // ── Usuarios ──────────────────────────────────────────────────
         Route::get('usuarios/data',          [UserController::class, 'data'])->name('users.data');
