@@ -4,7 +4,7 @@
     {
       "url": "/",
       "icon": "menu-icon icon-base ti tabler-smart-home",
-      "name": "Dashboard",
+      "name": "Panel",
       "slug": "dashboard-analytics"
     },
     { "menuHeader": "Administración" },
@@ -22,8 +22,7 @@
       "icon": "menu-icon icon-base ti tabler-shield-lock",
       "slug": "admin-roles",
       "submenu": [
-        { "url": "admin/roles",     "name": "Roles",    "slug": "admin-roles-index" },
-        { "url": "admin/permisos", "name": "Permisos", "slug": "admin-permissions-index" }
+        { "url": "admin/roles", "name": "Roles y permisos", "slug": "admin-roles-index" }
       ]
     },
     { "menuHeader": "Sistema" },

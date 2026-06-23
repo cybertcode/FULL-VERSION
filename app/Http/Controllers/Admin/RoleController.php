@@ -55,6 +55,8 @@ class RoleController extends BaseAdminController
             $query->where('status', $status);
         }
 
+        $total = (clone $query)->count();
+
         if ($search = $request->input('search.value')) {
             $query->where(fn ($q) => $q
                 ->where('name', 'like', "%{$search}%")
@@ -62,8 +64,7 @@ class RoleController extends BaseAdminController
             );
         }
 
-        $total    = (clone $query)->count();
-        $filtered = $total;
+        $filtered = (clone $query)->count();
 
         $rows = $query
             ->orderByDesc('users.created_at')
