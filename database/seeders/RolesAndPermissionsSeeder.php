@@ -44,6 +44,13 @@ class RolesAndPermissionsSeeder extends Seeder
         // ── Dashboard ────────────────────────────────────────────────────
         'dashboard.view'      => 'Ver dashboard',
         'dashboard.viewStats' => 'Ver estadísticas del dashboard',
+
+        // ── Gestor de archivos ───────────────────────────────────────────
+        'files.viewAny' => 'Ver gestor de archivos',
+        'files.upload'  => 'Subir archivos',
+        'files.delete'  => 'Eliminar archivos',
+        'files.rename'  => 'Renombrar archivos y carpetas',
+        'files.folder'  => 'Crear carpetas',
     ];
 
     public function run(): void
@@ -71,6 +78,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'settings.view',
             'activitylog.viewAny',
             'dashboard.view', 'dashboard.viewStats',
+            'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
         ]);
 
         // Editor — acceso básico

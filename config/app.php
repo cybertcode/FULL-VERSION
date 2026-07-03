@@ -128,6 +128,8 @@ return [
     'aliases' => [
         // Other aliases...
         'Helper' => App\Helpers\Helpers::class,
+        // Requerido por unisharp/laravel-filemanager (usa \File:: facade)
+        'File'   => Illuminate\Support\Facades\File::class,
     ],
 
 ];

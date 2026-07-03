@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
@@ -96,6 +97,9 @@ Route::middleware([
 
         // ── Buscador global ───────────────────────────────────────────
         Route::get('buscar', SearchController::class)->name('search');
+
+        // ── Gestor de archivos ────────────────────────────────────────
+        Route::get('archivos', [FileManagerController::class, 'index'])->name('files.index');
 
         // ── Configuración ─────────────────────────────────────────────
         Route::get('configuracion', [SettingController::class, 'index'])->name('settings.index');

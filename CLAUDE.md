@@ -295,6 +295,28 @@ return redirect()->back()->with('flash', [
 ]);
 ```
 
+## Gestor de Archivos (LFM) y componente x-lfm-input
+
+**UniSharp Laravel FileManager v2** — biblioteca central de medios en `/admin/archivos` (iframe sobre `/admin/archivos/fm`).
+
+- Config en `config/lfm.php`: disco `public`, carpetas `imagenes/` y `documentos/`, carpeta privada por usuario + `compartido`, ejecutables bloqueados.
+- Protegido por permiso granular `files.viewAny` (middleware en config, NO por rol).
+- Vistas publicadas (restyled Vuexy) en `resources/views/vendor/laravel-filemanager/`; traducciones en `resources/lang/vendor/laravel-filemanager/es/lfm.php`.
+- ⚠️ En Blade, NUNCA escribir `<x-nombre>` dentro de comentarios JS/HTML — Blade lo compila como componente real (ParseError).
+
+### Selector reutilizable `<x-lfm-input>`
+
+`resources/views/components/lfm-input.blade.php` — abre el LFM como popup y guarda la **URL pública** del archivo en un input de texto (readonly). Incluye vista previa para imágenes, botón quitar, soporte `old()`, `@error`, y oculta el botón Explorar si el usuario no tiene `files.viewAny`. El JS va inline con `@once` (no depende de secciones del layout).
+
+```blade
+<x-lfm-input name="foto" type="image" label="Imagen destacada" :value="$post->foto" required
+  help="Elige una imagen de la biblioteca o sube una nueva." />
+<x-lfm-input name="documento" type="file" label="Adjunto PDF" />
+```
+
+- `type`: `image` | `file`. El backend debe validar con `['url' o 'string', 'max:2048']` — recibe una URL, no un archivo.
+- Uso recomendado: contenido editorial/reutilizable (banners, posts, adjuntos). Para uploads estructurales ligados a un registro (avatares, logos de settings) seguir usando `<input type="file">` + ImageService.
+
 ## Vistas del panel (admin)
 
 Las vistas admin extienden `admin/layouts/master` — **NO** `layouts/layoutMaster` directamente.
