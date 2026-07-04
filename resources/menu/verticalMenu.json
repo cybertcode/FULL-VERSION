@@ -5,24 +5,27 @@
       "url": "admin",
       "icon": "menu-icon icon-base ti tabler-smart-home",
       "name": "Panel",
-      "slug": "admin.dashboard"
+      "slug": "admin.dashboard",
+      "permission": "dashboard.view"
     },
     { "menuHeader": "Administración" },
     {
       "name": "Usuarios",
       "icon": "menu-icon icon-base ti tabler-users",
       "slug": "admin.users",
+      "permission": "users.viewAny",
       "submenu": [
-        { "url": "admin/usuarios",       "name": "Todos los usuarios", "slug": "admin.users.index" },
-        { "url": "admin/usuarios/crear", "name": "Nuevo usuario",      "slug": "admin.users.create" }
+        { "url": "admin/usuarios",       "name": "Todos los usuarios", "slug": "admin.users.index", "permission": "users.viewAny" },
+        { "url": "admin/usuarios/crear", "name": "Nuevo usuario",      "slug": "admin.users.create", "permission": "users.create" }
       ]
     },
     {
       "name": "Roles y Permisos",
       "icon": "menu-icon icon-base ti tabler-shield-lock",
       "slug": "admin.roles",
+      "permission": "roles.viewAny",
       "submenu": [
-        { "url": "admin/roles", "name": "Roles y permisos", "slug": "admin.roles.index" }
+        { "url": "admin/roles", "name": "Roles y permisos", "slug": "admin.roles.index", "permission": "roles.viewAny" }
       ]
     },
     { "menuHeader": "Sistema" },
@@ -30,7 +33,22 @@
       "url": "admin/archivos",
       "icon": "menu-icon icon-base ti tabler-folder-open",
       "name": "Archivos",
-      "slug": "admin.files.index"
+      "slug": "admin.files.index",
+      "permission": "files.viewAny"
+    },
+    {
+      "url": "admin/auditoria",
+      "icon": "menu-icon icon-base ti tabler-history",
+      "name": "Auditoría",
+      "slug": "admin.activity.index",
+      "permission": "activitylog.viewAny"
+    },
+    {
+      "url": "admin/logs",
+      "icon": "menu-icon icon-base ti tabler-file-text",
+      "name": "Logs del servidor",
+      "slug": "admin.logs.index",
+      "permission": "logs.view"
     },
     {
       "url": "admin/mi-perfil",
@@ -42,7 +60,8 @@
       "url": "admin/configuracion",
       "icon": "menu-icon icon-base ti tabler-settings",
       "name": "Configuración",
-      "slug": "admin.settings.index"
+      "slug": "admin.settings.index",
+      "permission": "settings.view"
     },
     { "menuHeader": "Plantilla Vuexy" },
     {

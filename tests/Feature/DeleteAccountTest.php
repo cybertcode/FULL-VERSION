@@ -25,7 +25,8 @@ class DeleteAccountTest extends TestCase
             ->set('password', 'password')
             ->call('deleteUser');
 
-        $this->assertNull($user->fresh());
+        // El modelo User usa SoftDeletes — la cuenta queda eliminada lógicamente
+        $this->assertSoftDeleted('users', ['id' => $user->id]);
     }
 
     public function test_correct_password_must_be_provided_before_account_can_be_deleted(): void

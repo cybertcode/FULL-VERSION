@@ -386,6 +386,8 @@ Definidos en JSON:
 
 El `slug` de cada item debe coincidir exactamente con el `name` de la ruta para el active-state.
 
+**Filtro por permisos**: cada item acepta una clave opcional `"permission": "users.viewAny"` — el item solo se muestra si el usuario tiene ese permiso (Super-Admin pasa siempre). El filtrado ocurre en `MenuServiceProvider` (View composer, render time). Items sin `permission` son visibles para cualquier autenticado. Padres sin URL se ocultan si todos sus hijos quedan ocultos; los `menuHeader` huérfanos también.
+
 ### Asset pipeline Vite
 
 - JS por página: `resources/assets/js/app-*.js`
@@ -558,10 +560,25 @@ Creadas con el estilo Vuexy:
 
 ---
 
-## Próximos módulos a desarrollar
+## Módulos del boilerplate (completados)
 
-- [ ] CRUD Usuarios (`Admin/UserController`)
-- [ ] CRUD Roles y Permisos (`Admin/RoleController`)
-- [ ] Dashboard base con stats
-- [ ] Activity Log (`spatie/laravel-activitylog`)
-- [ ] Settings del sistema (tabla clave-valor)
+- [x] CRUD Usuarios (`Admin/UserController`) — avatar, perfil, exports, bulk actions
+- [x] CRUD Roles y Permisos (`Admin/RoleController`)
+- [x] Dashboard con stats, gráfica ApexCharts (registros/mes) y actividad reciente (`DashboardService`)
+- [x] Auditoría — visor de Activity Log en `/admin/auditoria` con filtros, modal detalle y export CSV (`ActivityLogService`)
+- [x] Settings del sistema (tabla clave-valor, 9 grupos) — autorizado con `settings.view/edit/testMail/runArtisan`
+- [x] Notificaciones — canal database, dropdown navbar real, página `/admin/notificaciones`, `App\Notifications\SystemNotification` genérica (title, message, icon, color, url)
+- [x] Gestor de Archivos LFM + `<x-lfm-input>`
+- [x] Log Viewer en `/admin/logs` (permiso `logs.view`, solo Super-Admin por defecto)
+- [x] Correos con marca — header con logo de settings, botones #1340A0, español vía laravel-lang
+- [x] Landing frontend `/` — consume branding de settings (logo, nombre, empresa, redes)
+- [x] Menú filtrado por permisos (clave `"permission"` en JSON)
+- [x] Tests Feature de todos los módulos (168 en verde)
+
+## Gotchas importantes
+
+- **Lang path**: la app usa `resources/lang` (NO `lang/` raíz — Vuexy legacy). Paquetes que publiquen en `lang/` deben moverse a `resources/lang` o las traducciones JSON no cargan.
+- **Blade en comentarios**: nunca escribir `<x-componente>` en comentarios JS/HTML dentro de Blade — se compila como componente real (ParseError).
+- **SQLite en tests**: no usar `DATE_FORMAT` ni SQL específico de MySQL en queries de services — agrupar en PHP (Collection `countBy`).
+- **User usa SoftDeletes**: en tests, `assertSoftDeleted` en vez de `assertNull($user->fresh())`.
+- **`name` del usuario**: es nullable y se construye desde el perfil (`Perfil::buildName`) — no validarlo como requerido.

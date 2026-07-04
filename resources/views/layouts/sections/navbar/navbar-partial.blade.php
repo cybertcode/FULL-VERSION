@@ -181,12 +181,19 @@ use Illuminate\Support\Facades\Route;
     <!-- Quick links -->
 
     <!-- Notification -->
+    @auth
+    @php
+      $navbarUnreadCount    = Auth::user()->unreadNotifications()->count();
+      $navbarNotifications  = Auth::user()->notifications()->latest()->take(8)->get();
+    @endphp
     <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
       <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
         href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
         <span class="position-relative">
           <i class="icon-base ti tabler-bell icon-22px text-heading"></i>
-          <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+          @if($navbarUnreadCount > 0)
+            <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+          @endif
         </span>
       </a>
       <ul class="dropdown-menu dropdown-menu-end p-0">
@@ -194,40 +201,72 @@ use Illuminate\Support\Facades\Route;
           <div class="dropdown-header d-flex align-items-center py-3">
             <h6 class="mb-0 me-auto">Notificaciones</h6>
             <div class="d-flex align-items-center h6 mb-0">
-              <a href="javascript:void(0)" class="dropdown-notifications-all p-2 btn btn-icon" data-bs-toggle="tooltip"
-                data-bs-placement="top" title="Marcar todas como leídas"><i
-                  class="icon-base ti tabler-mail-opened text-heading"></i></a>
+              @if($navbarUnreadCount > 0)
+                <span class="badge bg-label-primary me-2">{{ $navbarUnreadCount }} nueva{{ $navbarUnreadCount === 1 ? '' : 's' }}</span>
+                <form method="POST" action="{{ route('admin.notifications.read-all') }}" class="d-inline">
+                  @csrf
+                  <button type="submit" class="p-2 btn btn-icon" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Marcar todas como leídas">
+                    <i class="icon-base ti tabler-mail-opened text-heading"></i>
+                  </button>
+                </form>
+              @endif
             </div>
           </div>
         </li>
         <li class="dropdown-notifications-list scrollable-container">
           <ul class="list-group list-group-flush">
-            <li class="list-group-item list-group-item-action dropdown-notifications-item">
-              <div class="d-flex">
+            @forelse($navbarNotifications as $notification)
+            <li class="list-group-item list-group-item-action dropdown-notifications-item {{ $notification->read_at ? 'marked-as-read' : '' }}">
+              <a href="{{ route('admin.notifications.read', $notification->id) }}" class="d-flex text-decoration-none text-body">
                 <div class="flex-shrink-0 me-3">
                   <div class="avatar">
-                    <span class="avatar-initial rounded-circle bg-label-primary">
-                      <i class="icon-base ti tabler-bell icon-22px"></i>
+                    <span class="avatar-initial rounded-circle bg-label-{{ $notification->data['color'] ?? 'primary' }}">
+                      <i class="icon-base ti {{ $notification->data['icon'] ?? 'tabler-bell' }} icon-22px"></i>
                     </span>
                   </div>
                 </div>
                 <div class="flex-grow-1">
-                  <h6 class="small mb-1">Sin notificaciones nuevas</h6>
+                  <h6 class="small mb-1 {{ $notification->read_at ? '' : 'fw-semibold' }}">{{ $notification->data['title'] ?? 'Notificación' }}</h6>
+                  <small class="mb-1 d-block text-body">{{ \Illuminate\Support\Str::limit($notification->data['message'] ?? '', 70) }}</small>
+                  <small class="text-body-secondary">{{ $notification->created_at->diffForHumans() }}</small>
+                </div>
+                @unless($notification->read_at)
+                  <div class="flex-shrink-0 dropdown-notifications-actions align-self-center">
+                    <span class="badge badge-dot bg-primary"></span>
+                  </div>
+                @endunless
+              </a>
+            </li>
+            @empty
+            <li class="list-group-item dropdown-notifications-item">
+              <div class="d-flex">
+                <div class="flex-shrink-0 me-3">
+                  <div class="avatar">
+                    <span class="avatar-initial rounded-circle bg-label-primary">
+                      <i class="icon-base ti tabler-bell-off icon-22px"></i>
+                    </span>
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="small mb-1">Sin notificaciones</h6>
                   <small class="mb-1 d-block text-body">Las notificaciones del sistema aparecerán aquí.</small>
                 </div>
               </div>
             </li>
+            @endforelse
           </ul>
         </li>
         <li class="border-top">
           <div class="d-grid p-4">
-            <a class="btn btn-primary btn-sm d-flex" href="javascript:void(0);">
+            <a class="btn btn-primary btn-sm d-flex justify-content-center" href="{{ route('admin.notifications.index') }}">
               <small class="align-middle">Ver todas las notificaciones</small>
             </a>
           </div>
         </li>
       </ul>
     </li>
+    @endauth
     <!--/ Notification -->
     <!-- User -->
     <li class="nav-item navbar-dropdown dropdown-user dropdown">

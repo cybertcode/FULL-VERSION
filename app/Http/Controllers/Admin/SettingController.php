@@ -24,6 +24,8 @@ class SettingController extends BaseAdminController
 
     public function index(): View
     {
+        $this->authorize('settings.view');
+
         $systemInfo = $this->getSystemInfo();
 
         return view('admin.settings.index', compact('systemInfo'));
@@ -31,6 +33,8 @@ class SettingController extends BaseAdminController
 
     public function update(UpdateSettingRequest $request, string $group): RedirectResponse
     {
+        $this->authorize('settings.edit');
+
         $data = $request->except(['_token', '_method']);
 
         $fileFields = [
@@ -91,6 +95,8 @@ class SettingController extends BaseAdminController
 
     public function testMail(Request $request): JsonResponse
     {
+        $this->authorize('settings.testMail');
+
         $request->validate(['email' => ['required', 'email']]);
 
         $email = $request->string('email')->toString();
@@ -112,6 +118,8 @@ class SettingController extends BaseAdminController
 
     public function runArtisan(Request $request): JsonResponse
     {
+        $this->authorize('settings.runArtisan');
+
         $allowed = [
             'optimize:clear', 'config:cache', 'route:cache', 'view:cache',
             'config:clear', 'cache:clear', 'view:clear', 'route:clear',

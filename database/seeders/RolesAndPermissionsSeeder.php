@@ -51,6 +51,9 @@ class RolesAndPermissionsSeeder extends Seeder
         'files.delete'  => 'Eliminar archivos',
         'files.rename'  => 'Renombrar archivos y carpetas',
         'files.folder'  => 'Crear carpetas',
+
+        // ── Logs del servidor ────────────────────────────────────────────
+        'logs.view' => 'Ver logs del servidor',
     ];
 
     public function run(): void

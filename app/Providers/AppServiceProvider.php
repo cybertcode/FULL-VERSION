@@ -26,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
 
             View::share('appSettings', $settings->all());
 
+            // Nombre de la app — usado en asuntos y pies de correos
+            if ($siteName = $settings->get('site_name')) {
+                Config::set('app.name', $siteName);
+            }
+
             // Timezone
             if ($tz = $settings->get('timezone')) {
                 Config::set('app.timezone', $tz);

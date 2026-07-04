@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -100,6 +102,21 @@ Route::middleware([
 
         // ── Gestor de archivos ────────────────────────────────────────
         Route::get('archivos', [FileManagerController::class, 'index'])->name('files.index');
+
+        // ── Notificaciones ────────────────────────────────────────────
+        Route::get('notificaciones', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notificaciones/{id}/leer', [NotificationController::class, 'markRead'])->name('notifications.read');
+        Route::post('notificaciones/leer-todas', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+        Route::delete('notificaciones/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
+        // ── Auditoría ─────────────────────────────────────────────────
+        Route::get('auditoria/exportar/csv', [ActivityLogController::class, 'exportCsv'])->name('activity.export.csv');
+        Route::get('auditoria', [ActivityLogController::class, 'index'])->name('activity.index');
+
+        // ── Logs del servidor (rap2hpoutre/laravel-log-viewer) ────────
+        Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index'])
+            ->middleware('permission:logs.view')
+            ->name('logs.index');
 
         // ── Configuración ─────────────────────────────────────────────
         Route::get('configuracion', [SettingController::class, 'index'])->name('settings.index');

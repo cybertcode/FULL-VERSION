@@ -64,6 +64,14 @@ class UserService
             ->event('created')
             ->log("Usuario '{$user->name}' creado.");
 
+        $user->notify(new \App\Notifications\SystemNotification(
+            title: 'Bienvenido a ' . setting('site_name', config('app.name')),
+            message: 'Tu cuenta fue creada correctamente. Completa tu perfil para empezar.',
+            icon: 'tabler-confetti',
+            color: 'success',
+            url: route('admin.profile.show'),
+        ));
+
         return $user;
     }
 

@@ -139,7 +139,7 @@ class UserControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [])
-            ->assertSessionHasErrors(['name', 'email', 'password', 'status', 'role']);
+            ->assertSessionHasErrors(['email', 'password', 'status', 'role']);
     }
 
     public function test_store_validates_unique_email(): void
@@ -250,7 +250,11 @@ class UserControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->put(route('admin.users.update', $target), [
-                'name'   => 'Nombre Actualizado',
+                // El name se construye desde el perfil (Perfil::buildName)
+                'perfil' => [
+                    'apellido_paterno' => 'Actualizado',
+                    'nombres'          => 'Nombre',
+                ],
                 'email'  => 'actualizado@test.com',
                 'phone'  => '+51 911 222 333',
                 'status' => UserStatus::Active->value,
@@ -258,12 +262,10 @@ class UserControllerTest extends AdminTestCase
             ])
             ->assertRedirect(route('admin.users.index'));
 
-        $this->assertDatabaseHas('users', [
-            'id'    => $target->id,
-            'name'  => 'Nombre Actualizado',
-            'email' => 'actualizado@test.com',
-            'phone' => '+51 911 222 333',
-        ]);
+        $target->refresh();
+        $this->assertSame('actualizado@test.com', $target->email);
+        $this->assertSame('+51 911 222 333', $target->phone);
+        $this->assertStringContainsString('Actualizado', $target->name);
     }
 
     public function test_update_changes_role(): void

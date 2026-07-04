@@ -57,6 +57,8 @@ abstract class AdminTestCase extends TestCase
             'settings.view', 'settings.edit', 'settings.testMail', 'settings.runArtisan',
             'activitylog.viewAny', 'activitylog.export',
             'dashboard.view', 'dashboard.viewStats',
+            'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
+            'logs.view',
         ];
 
         foreach ($permissions as $name) {
@@ -72,6 +74,7 @@ abstract class AdminTestCase extends TestCase
             'settings.view',
             'activitylog.viewAny',
             'dashboard.view', 'dashboard.viewStats',
+            'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
         ]);
 
         $editor = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);

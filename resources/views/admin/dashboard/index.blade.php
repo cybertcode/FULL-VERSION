@@ -4,6 +4,14 @@
 
 @section('title', 'Panel principal')
 
+@section('admin-vendor-style')
+  @vite(['resources/assets/vendor/libs/apex-charts/apex-charts.scss'])
+@endsection
+
+@section('admin-vendor-script')
+  @vite(['resources/assets/vendor/libs/apex-charts/apexcharts.js'])
+@endsection
+
 @section('admin-content')
 
 <div class="row g-4 mb-4">
@@ -33,91 +41,125 @@
     </div>
   </div>
 
-  @can('users.viewAny')
   {{-- Stats rápidas --}}
-  @php
-    $totalUsers   = \App\Models\User::count();
-    $activeUsers  = \App\Models\User::where('status', \App\Enums\UserStatus::Active)->count();
-    $bannedUsers  = \App\Models\User::where('status', \App\Enums\UserStatus::Banned)->count();
-    $totalRoles   = \Spatie\Permission\Models\Role::count();
-  @endphp
-
+  @if($stats)
+  @foreach([
+    ['label' => 'Total usuarios',  'value' => $stats['total'],  'icon' => 'tabler-users',       'color' => 'primary', 'hint' => 'registrados en el sistema'],
+    ['label' => 'Usuarios activos','value' => $stats['active'], 'icon' => 'tabler-user-check',  'color' => 'success', 'hint' => ($stats['total'] > 0 ? round($stats['active'] / $stats['total'] * 100) : 0) . '% del total'],
+    ['label' => 'Bloqueados',      'value' => $stats['banned'], 'icon' => 'tabler-user-off',    'color' => 'danger',  'hint' => 'accesos restringidos'],
+    ['label' => 'Roles',           'value' => $stats['roles'],  'icon' => 'tabler-shield-lock', 'color' => 'warning', 'hint' => 'roles configurados'],
+  ] as $card)
   <div class="col-sm-6 col-xl-3">
     <div class="card">
       <div class="card-body">
         <div class="d-flex align-items-start justify-content-between">
           <div>
-            <span class="text-body-secondary d-block mb-1">Total usuarios</span>
-            <h4 class="mb-1">{{ number_format($totalUsers) }}</h4>
-            <small class="text-body-secondary">registrados en el sistema</small>
+            <span class="text-body-secondary d-block mb-1">{{ $card['label'] }}</span>
+            <h4 class="mb-1">{{ number_format($card['value']) }}</h4>
+            <small class="text-body-secondary">{{ $card['hint'] }}</small>
           </div>
           <div class="avatar">
-            <span class="avatar-initial rounded bg-label-primary">
-              <i class="icon-base ti tabler-users icon-26px"></i>
+            <span class="avatar-initial rounded bg-label-{{ $card['color'] }}">
+              <i class="icon-base ti {{ $card['icon'] }} icon-26px"></i>
             </span>
           </div>
         </div>
       </div>
     </div>
   </div>
+  @endforeach
+  @endif
 
-  <div class="col-sm-6 col-xl-3">
-    <div class="card">
+  {{-- Gráfica de registros + actividad reciente --}}
+  @if($chart || $recentActivity)
+  <div class="col-xl-8 col-12">
+    @if($chart)
+    <div class="card h-100">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="card-title mb-0">Usuarios registrados por mes</h5>
+        <span class="badge bg-label-primary">Últimos 12 meses</span>
+      </div>
       <div class="card-body">
-        <div class="d-flex align-items-start justify-content-between">
-          <div>
-            <span class="text-body-secondary d-block mb-1">Usuarios activos</span>
-            <h4 class="mb-1">{{ number_format($activeUsers) }}</h4>
-            <small class="text-success">{{ $totalUsers > 0 ? round($activeUsers / $totalUsers * 100) : 0 }}% del total</small>
-          </div>
-          <div class="avatar">
-            <span class="avatar-initial rounded bg-label-success">
-              <i class="icon-base ti tabler-user-check icon-26px"></i>
+        <div id="chart-registros"></div>
+      </div>
+    </div>
+    @endif
+  </div>
+  <div class="col-xl-4 col-12">
+    @if($recentActivity)
+    <div class="card h-100">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="card-title mb-0">Actividad reciente</h5>
+        @can('activitylog.viewAny')
+          <a href="{{ route('admin.activity.index') }}" class="btn btn-sm btn-label-primary">Ver todo</a>
+        @endcan
+      </div>
+      <ul class="list-group list-group-flush">
+        @forelse($recentActivity as $activity)
+        @php
+          $eventColors = ['created' => 'success', 'updated' => 'info', 'deleted' => 'danger', 'restored' => 'warning'];
+          $eventColor  = $eventColors[$activity->event] ?? 'secondary';
+        @endphp
+        <li class="list-group-item d-flex align-items-start gap-3 py-3">
+          <div class="avatar avatar-sm flex-shrink-0">
+            <span class="avatar-initial rounded-circle bg-label-{{ $eventColor }}">
+              <i class="icon-base ti tabler-activity icon-sm"></i>
             </span>
           </div>
-        </div>
+          <div class="flex-grow-1 overflow-hidden">
+            <p class="mb-0 small text-truncate">{{ $activity->description }}</p>
+            <small class="text-body-secondary">
+              {{ $activity->causer?->name ?? 'Sistema' }} · {{ $activity->created_at->diffForHumans() }}
+            </small>
+          </div>
+        </li>
+        @empty
+        <li class="list-group-item text-center text-muted py-4">Sin actividad registrada.</li>
+        @endforelse
+      </ul>
+    </div>
+    @endif
+  </div>
+  @endif
+
+  {{-- Últimos usuarios --}}
+  @if($recentUsers)
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="card-title mb-0">Últimos usuarios registrados</h5>
+        @can('users.viewAny')
+          <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-label-primary">Ver todos</a>
+        @endcan
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Registrado</th></tr>
+          </thead>
+          <tbody>
+            @foreach($recentUsers as $u)
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar avatar-sm">
+                    <span class="avatar-initial rounded-circle bg-label-primary">{{ mb_substr($u->name, 0, 1) }}</span>
+                  </div>
+                  <span class="fw-medium">{{ $u->name }}</span>
+                </div>
+              </td>
+              <td>{{ $u->email }}</td>
+              <td><span class="badge bg-label-secondary">{{ $u->roles->first()?->name ?? '—' }}</span></td>
+              <td>{!! statusBadge($u->status) !!}</td>
+              <td><small class="text-body-secondary">{{ $u->created_at->diffForHumans() }}</small></td>
+            </tr>
+            @endforeach
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
-
-  <div class="col-sm-6 col-xl-3">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex align-items-start justify-content-between">
-          <div>
-            <span class="text-body-secondary d-block mb-1">Bloqueados</span>
-            <h4 class="mb-1">{{ number_format($bannedUsers) }}</h4>
-            <small class="{{ $bannedUsers > 0 ? 'text-danger' : 'text-body-secondary' }}">accesos restringidos</small>
-          </div>
-          <div class="avatar">
-            <span class="avatar-initial rounded bg-label-danger">
-              <i class="icon-base ti tabler-user-off icon-26px"></i>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-sm-6 col-xl-3">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex align-items-start justify-content-between">
-          <div>
-            <span class="text-body-secondary d-block mb-1">Roles</span>
-            <h4 class="mb-1">{{ number_format($totalRoles) }}</h4>
-            <small class="text-body-secondary">roles configurados</small>
-          </div>
-          <div class="avatar">
-            <span class="avatar-initial rounded bg-label-warning">
-              <i class="icon-base ti tabler-shield-lock icon-26px"></i>
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  @endcan
+  @endif
 
   {{-- Accesos rápidos --}}
   <div class="col-12">
@@ -169,6 +211,20 @@
           </div>
           @endcan
 
+          @can('activitylog.viewAny')
+          <div class="col-sm-6 col-md-4 col-xl-3">
+            <a href="{{ route('admin.activity.index') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
+              <span class="avatar avatar-sm bg-label-danger rounded">
+                <i class="icon-base ti tabler-history"></i>
+              </span>
+              <div>
+                <p class="mb-0 fw-medium">Auditoría</p>
+                <small class="text-body-secondary">Registro de actividad</small>
+              </div>
+            </a>
+          </div>
+          @endcan
+
           @can('settings.view')
           <div class="col-sm-6 col-md-4 col-xl-3">
             <a href="{{ route('admin.settings.index') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
@@ -201,4 +257,40 @@
 
 </div>
 
+@endsection
+
+@section('admin-page-script')
+@if($chart)
+<script>
+'use strict';
+
+document.addEventListener('DOMContentLoaded', function () {
+  const el = document.querySelector('#chart-registros');
+  if (!el || typeof ApexCharts === 'undefined') return;
+
+  const styles  = getComputedStyle(document.documentElement);
+  const primary = styles.getPropertyValue('--bs-primary').trim() || '#1340A0';
+
+  new ApexCharts(el, {
+    chart: { type: 'area', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
+    series: [{ name: 'Usuarios registrados', data: @json($chart['values']) }],
+    xaxis: {
+      categories: @json($chart['labels']),
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: { labels: { formatter: v => Math.round(v) } },
+    colors: [primary],
+    stroke: { curve: 'smooth', width: 3 },
+    fill: {
+      type: 'gradient',
+      gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 95] }
+    },
+    dataLabels: { enabled: false },
+    grid: { borderColor: styles.getPropertyValue('--bs-border-color').trim() || '#e6e6e8', strokeDashArray: 4 },
+    tooltip: { y: { formatter: v => v + ' usuario' + (v === 1 ? '' : 's') } }
+  }).render();
+});
+</script>
+@endif
 @endsection
