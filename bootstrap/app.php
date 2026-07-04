@@ -2,6 +2,7 @@
 
 use App\Exceptions\BusinessException;
 use App\Exceptions\UnauthorizedException;
+use App\Http\Middleware\BlockRegistrationMiddleware;
 use App\Http\Middleware\Enforce2FAMiddleware;
 use App\Http\Middleware\LocaleMiddleware;
 use App\Http\Middleware\MaintenanceModeMiddleware;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(LocaleMiddleware::class);
         $middleware->web(MaintenanceModeMiddleware::class);
+        $middleware->web(BlockRegistrationMiddleware::class);
         $middleware->web(Enforce2FAMiddleware::class);
         $middleware->web(TrackLastLoginMiddleware::class);
 

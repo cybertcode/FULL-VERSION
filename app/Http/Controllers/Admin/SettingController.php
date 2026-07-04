@@ -59,7 +59,10 @@ class SettingController extends BaseAdminController
         }
 
         // Checkboxes — si no vienen en el request, guardar como 0
-        $booleanFields = ['maintenance_mode', 'force_2fa', 'captcha_enabled'];
+        $booleanFields = [
+            'maintenance_mode', 'force_2fa', 'captcha_enabled', 'registration_enabled',
+            'password_require_mixed', 'password_require_numbers', 'password_require_symbols', 'password_check_breach',
+        ];
         foreach ($booleanFields as $field) {
             if (\array_key_exists($field, $data)) {
                 $data[$field] = $request->boolean($field) ? '1' : '0';
@@ -191,7 +194,10 @@ class SettingController extends BaseAdminController
     {
         return match (true) {
             \in_array($field, ['maintenance_mode', 'maintenance_message', 'maintenance_ips'], true) => 'maintenance',
-            \in_array($field, ['force_2fa', 'captcha_enabled'], true) => 'security',
+            \in_array($field, [
+                'force_2fa', 'captcha_enabled', 'registration_enabled',
+                'password_require_mixed', 'password_require_numbers', 'password_require_symbols', 'password_check_breach',
+            ], true) => 'security',
             default => '',
         };
     }

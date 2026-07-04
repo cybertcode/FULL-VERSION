@@ -2,14 +2,20 @@
 
 namespace App\Providers;
 
+use App\Listeners\LogLoginAttempt;
+use App\Listeners\RememberTwoFactorDeviceOnLogin;
 use App\Services\Admin\SettingService;
 use Carbon\Carbon;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Events\ValidTwoFactorAuthenticationCodeProvided;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        Event::listen(Login::class, [LogLoginAttempt::class, 'handleLogin']);
+        Event::listen(Failed::class, [LogLoginAttempt::class, 'handleFailed']);
+        Event::listen(ValidTwoFactorAuthenticationCodeProvided::class, RememberTwoFactorDeviceOnLogin::class);
 
         if (Schema::hasTable('settings')) {
             $settings = app(SettingService::class);

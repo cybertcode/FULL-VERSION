@@ -14,6 +14,27 @@ trait PasswordValidationRules
      */
     protected function passwordRules(): array
     {
-        return ['required', 'string', Password::default(), 'confirmed'];
+        $min = (int) (function_exists('setting') ? setting('password_min_length', 8) : 8);
+        $requireMixed = function_exists('setting') ? (bool) setting('password_require_mixed', false) : false;
+        $requireNumbers = function_exists('setting') ? (bool) setting('password_require_numbers', false) : false;
+        $requireSymbols = function_exists('setting') ? (bool) setting('password_require_symbols', false) : false;
+        $uncompromised = function_exists('setting') ? (bool) setting('password_check_breach', false) : false;
+
+        $rule = Password::min(max($min, 6));
+
+        if ($requireMixed) {
+            $rule = $rule->mixedCase();
+        }
+        if ($requireNumbers) {
+            $rule = $rule->numbers();
+        }
+        if ($requireSymbols) {
+            $rule = $rule->symbols();
+        }
+        if ($uncompromised) {
+            $rule = $rule->uncompromised();
+        }
+
+        return ['required', 'string', $rule, 'confirmed'];
     }
 }

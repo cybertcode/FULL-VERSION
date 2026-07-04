@@ -94,7 +94,7 @@ $captchaSiteKey = config('services.recaptcha.site_key', setting('captcha_site_ke
             <button class="btn btn-primary d-grid w-100" type="submit">Iniciar sesión</button>
           </form>
 
-          @if(Route::has('register'))
+          @if(Route::has('register') && setting('registration_enabled', true))
           <p class="text-center">
             <span>¿No tienes cuenta?</span>
             <a href="{{ route('register') }}">Crear cuenta</a>

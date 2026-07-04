@@ -55,6 +55,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // ── Logs del servidor ────────────────────────────────────────────
         'logs.view' => 'Ver logs del servidor',
+
+        // ── Intentos de login ─────────────────────────────────────────────
+        'login-attempts.viewAny' => 'Ver intentos de inicio de sesión',
     ];
 
     public function run(): void
@@ -81,6 +84,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'roles.viewAny', 'roles.view',
             'settings.view',
             'activitylog.viewAny',
+            'login-attempts.viewAny',
             'dashboard.view', 'dashboard.viewStats',
             'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
         ]);

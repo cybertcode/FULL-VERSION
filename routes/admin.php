@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\ImpersonateController;
+use App\Http\Controllers\Admin\LoginAttemptController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -121,6 +122,9 @@ Route::middleware([
         // ── Auditoría ─────────────────────────────────────────────────
         Route::get('auditoria/exportar/csv', [ActivityLogController::class, 'exportCsv'])->name('activity.export.csv');
         Route::get('auditoria', [ActivityLogController::class, 'index'])->name('activity.index');
+
+        // ── Intentos de login ──────────────────────────────────────────
+        Route::get('intentos-login', [LoginAttemptController::class, 'index'])->name('login-attempts.index');
 
         // ── Logs del servidor (rap2hpoutre/laravel-log-viewer) ────────
         Route::get('logs', [LogViewerController::class, 'index'])

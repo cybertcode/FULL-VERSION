@@ -821,6 +821,20 @@
                       </div>
                     </div>
 
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded">
+                        <div>
+                          <h6 class="mb-1">Permitir registro público</h6>
+                          <p class="text-muted small mb-0">Si se desactiva, se oculta el enlace "Crear cuenta" y la ruta /register queda inaccesible.</p>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="registration_enabled" name="registration_enabled"
+                            role="switch" value="1" {{ old('registration_enabled', setting('registration_enabled', true)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="registration_enabled"></label>
+                        </div>
+                      </div>
+                    </div>
+
                     {{-- API keys — password toggle --}}
                     <div class="col-sm-6 form-password-toggle">
                       <label class="form-label" for="captcha_site_key">reCAPTCHA Site Key</label>
@@ -849,6 +863,84 @@
                           <i class="icon-base ti tabler-eye-off icon-sm"></i>
                         </span>
                         @error('captcha_secret_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <div class="card mb-6">
+                <h5 class="card-header">Política de contraseñas</h5>
+                <div class="card-body">
+                  <div class="row g-6">
+
+                    <div class="col-sm-4">
+                      <label class="form-label" for="password_min_length">Longitud mínima</label>
+                      <div class="input-group input-group-merge">
+                        <span class="input-group-text"><i class="icon-base ti tabler-ruler icon-sm"></i></span>
+                        <input type="number" id="password_min_length" name="password_min_length"
+                          class="form-control @error('password_min_length') is-invalid @enderror"
+                          value="{{ old('password_min_length', setting('password_min_length', 8)) }}"
+                          min="6" max="64" placeholder="8">
+                        <span class="input-group-text">caracteres</span>
+                        @error('password_min_length')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded">
+                        <div>
+                          <h6 class="mb-1">Exigir mayúsculas y minúsculas</h6>
+                          <p class="text-muted small mb-0">La contraseña debe combinar letras mayúsculas y minúsculas.</p>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="password_require_mixed" name="password_require_mixed"
+                            role="switch" value="1" {{ old('password_require_mixed', setting('password_require_mixed', false)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="password_require_mixed"></label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded">
+                        <div>
+                          <h6 class="mb-1">Exigir al menos un número</h6>
+                          <p class="text-muted small mb-0">La contraseña debe incluir al menos un dígito.</p>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="password_require_numbers" name="password_require_numbers"
+                            role="switch" value="1" {{ old('password_require_numbers', setting('password_require_numbers', false)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="password_require_numbers"></label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded">
+                        <div>
+                          <h6 class="mb-1">Exigir símbolo especial</h6>
+                          <p class="text-muted small mb-0">La contraseña debe incluir al menos un carácter especial (!@#$...).</p>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="password_require_symbols" name="password_require_symbols"
+                            role="switch" value="1" {{ old('password_require_symbols', setting('password_require_symbols', false)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="password_require_symbols"></label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded">
+                        <div>
+                          <h6 class="mb-1">Verificar contra filtraciones conocidas</h6>
+                          <p class="text-muted small mb-0">Rechaza contraseñas expuestas en filtraciones públicas (Have I Been Pwned, vía Laravel).</p>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="password_check_breach" name="password_check_breach"
+                            role="switch" value="1" {{ old('password_check_breach', setting('password_check_breach', false)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="password_check_breach"></label>
+                        </div>
                       </div>
                     </div>
 

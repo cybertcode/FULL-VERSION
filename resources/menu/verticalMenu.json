@@ -44,6 +44,13 @@
       "permission": "activitylog.viewAny"
     },
     {
+      "url": "admin/intentos-login",
+      "icon": "menu-icon icon-base ti tabler-shield-lock",
+      "name": "Intentos de login",
+      "slug": "admin.login-attempts.index",
+      "permission": "login-attempts.viewAny"
+    },
+    {
       "url": "admin/logs",
       "icon": "menu-icon icon-base ti tabler-file-text",
       "name": "Logs del servidor",

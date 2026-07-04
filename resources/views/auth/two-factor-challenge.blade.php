@@ -67,6 +67,13 @@ $customizerHidden = 'customizer-hide';
                 @enderror
               </div>
 
+              <div class="mb-6 ms-2" x-show="! recovery">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="remember_device" name="remember_device" value="1">
+                  <label class="form-check-label" for="remember_device">Recordar este dispositivo por 30 días</label>
+                </div>
+              </div>
+
               {{-- Código de recuperación --}}
               <div class="mb-6" x-show="recovery" x-cloak>
                 <label for="recovery_code" class="form-label">Código de recuperación</label>
