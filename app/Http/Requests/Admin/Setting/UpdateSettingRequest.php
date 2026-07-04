@@ -69,7 +69,13 @@ class UpdateSettingRequest extends FormRequest
             'login_lockout_minutes' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:1440'],
             'force_2fa' => ['sometimes', 'nullable', 'boolean'],
             'captcha_enabled' => ['sometimes', 'nullable', 'boolean'],
+            'registration_enabled' => ['sometimes', 'nullable', 'boolean'],
             'allowed_ips_admin' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'password_min_length' => ['sometimes', 'nullable', 'integer', 'min:6', 'max:64'],
+            'password_require_mixed' => ['sometimes', 'nullable', 'boolean'],
+            'password_require_numbers' => ['sometimes', 'nullable', 'boolean'],
+            'password_require_symbols' => ['sometimes', 'nullable', 'boolean'],
+            'password_check_breach' => ['sometimes', 'nullable', 'boolean'],
 
             // Mantenimiento
             'maintenance_mode' => ['sometimes', 'nullable', 'boolean'],
@@ -83,6 +89,17 @@ class UpdateSettingRequest extends FormRequest
             'recaptcha_site_key' => ['sometimes', 'nullable', 'string', 'max:255'],
             'recaptcha_secret_key' => ['sometimes', 'nullable', 'string', 'max:255'],
             'gtm_id' => ['sometimes', 'nullable', 'string', 'max:50'],
+
+            // Login social
+            'social_google_enabled' => ['sometimes', 'nullable', 'boolean'],
+            'social_google_client_id' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'social_google_client_secret' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'social_github_enabled' => ['sometimes', 'nullable', 'boolean'],
+            'social_github_client_id' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'social_github_client_secret' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'social_facebook_enabled' => ['sometimes', 'nullable', 'boolean'],
+            'social_facebook_client_id' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'social_facebook_client_secret' => ['sometimes', 'nullable', 'string', 'max:255'],
 
             // Apariencia
             'primary_color' => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
@@ -142,6 +159,7 @@ class UpdateSettingRequest extends FormRequest
             'login_max_attempts' => 'intentos máximos de login',
             'login_lockout_minutes' => 'tiempo de bloqueo',
             'allowed_ips_admin' => 'IPs permitidas',
+            'password_min_length' => 'longitud mínima de contraseña',
             // Mantenimiento
             'maintenance_message' => 'mensaje de mantenimiento',
             'maintenance_ips' => 'IPs con acceso en mantenimiento',
@@ -151,6 +169,13 @@ class UpdateSettingRequest extends FormRequest
             'meta_pixel_id' => 'Meta Pixel ID',
             'recaptcha_site_key' => 'reCAPTCHA site key',
             'recaptcha_secret_key' => 'reCAPTCHA secret key',
+            // Login social
+            'social_google_client_id' => 'Google Client ID',
+            'social_google_client_secret' => 'Google Client Secret',
+            'social_github_client_id' => 'GitHub Client ID',
+            'social_github_client_secret' => 'GitHub Client Secret',
+            'social_facebook_client_id' => 'Facebook Client ID',
+            'social_facebook_client_secret' => 'Facebook Client Secret',
             'gtm_id' => 'Google Tag Manager ID',
             // Apariencia
             'primary_color' => 'color primario',

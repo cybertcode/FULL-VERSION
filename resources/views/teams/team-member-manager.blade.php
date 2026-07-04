@@ -7,25 +7,25 @@ use Illuminate\Support\Facades\Gate;
   <!-- Add Team Member -->
   <x-form-section submit="addTeamMember">
     <x-slot name="title">
-      {{ __('Add Team Member') }}
+      Agregar miembro al equipo
     </x-slot>
 
     <x-slot name="description">
-      {{ __('Add a new team member to your team, allowing them to collaborate with you.') }}
+      Agrega un nuevo miembro a tu equipo para que pueda colaborar contigo.
     </x-slot>
 
     <x-slot name="form">
       <x-action-message on="saved">
-        {{ __('Added.') }}
+        Agregado.
       </x-action-message>
 
       <div class="mb-6">
-        {{ __('Please provide the email address of the person you would like to add to this team. The email address must be associated with an existing account.') }}
+        Ingresa el correo electrónico de la persona que deseas agregar a este equipo. El correo debe estar asociado a una cuenta existente.
       </div>
 
       <!-- Member Email -->
       <div class="mb-6">
-        <x-label class="form-label" for="email" value="{{ __('Email') }}" />
+        <x-label class="form-label" for="email" value="Correo electrónico" />
         <x-input id="name" type="email" class="{{ $errors->has('email') ? 'is-invalid' : '' }}"
           wire:model="addTeamMemberForm.email" />
         <x-input-error for="email" />
@@ -35,7 +35,7 @@ use Illuminate\Support\Facades\Gate;
       @if (count($this->roles) > 0)
       <div class="my-6">
         <div>
-          <x-label class="form-label" for="role" value="{{ __('Role') }}" />
+          <x-label class="form-label" for="role" value="Rol" />
 
           <input type="hidden" class="{{ $errors->has('role') ? 'is-invalid' : '' }}">
           <x-input-error for="role" />
@@ -70,7 +70,7 @@ use Illuminate\Support\Facades\Gate;
 
     <x-slot name="actions">
       <x-button>
-        {{ __('Add') }}
+        Agregar
       </x-button>
     </x-slot>
   </x-form-section>
@@ -82,24 +82,24 @@ use Illuminate\Support\Facades\Gate;
   <div class="mt-4">
     <x-action-section>
       <x-slot name="title">
-        {{ __('Pending Team Invitations') }}
+        Invitaciones pendientes
       </x-slot>
 
       <x-slot name="description">
-        {{ __('These people have been invited to your team and have been sent an invitation email. They may join the team by accepting the email invitation.') }}
+        Estas personas han sido invitadas a tu equipo y se les envió un correo de invitación. Podrán unirse al equipo aceptando la invitación.
       </x-slot>
 
       <x-slot name="content">
         @foreach ($team->teamInvitations as $invitation)
         <div class="d-flex align-items-center justify-content-between mt-2 mb-2">
-          <div class="___class_+?13___">{{ $invitation->email }}</div>
+          <div>{{ $invitation->email }}</div>
 
           <div class="d-flex align-items-center">
             @if (Gate::check('removeTeamMember', $team))
             <!-- Cancel Team Invitation -->
             <button class="btn btn-link text-danger text-decoration-none"
               wire:click="cancelTeamInvitation({{ $invitation->id }})">
-              {{ __('Cancel') }}
+              Cancelar
             </button>
             @endif
           </div>
@@ -116,11 +116,11 @@ use Illuminate\Support\Facades\Gate;
     <!-- Manage Team Members -->
     <x-action-section>
       <x-slot name="title">
-        {{ __('Team Members') }}
+        Miembros del equipo
       </x-slot>
 
       <x-slot name="description">
-        {{ __('All of the people that are part of this team.') }}
+        Todas las personas que forman parte de este equipo.
       </x-slot>
 
       <!-- Team Member List -->
@@ -149,14 +149,14 @@ use Illuminate\Support\Facades\Gate;
             <!-- Leave Team -->
             @if ($this->user->id === $user->id)
             <button class="btn btn-link text-danger text-decoration-none" wire:click="$toggle('confirmingLeavingTeam')">
-              {{ __('Leave') }}
+              Salir
             </button>
 
             <!-- Remove Team Member -->
             @elseif (Gate::check('removeTeamMember', $team))
             <button class="btn btn-link text-danger text-decoration-none"
               wire:click="confirmTeamMemberRemoval('{{ $user->id }}')">
-              {{ __('Remove') }}
+              Quitar
             </button>
             @endif
           </div>
@@ -170,7 +170,7 @@ use Illuminate\Support\Facades\Gate;
   <!-- Role Management Modal -->
   <x-dialog-modal wire:model.live="currentlyManagingRole">
     <x-slot name="title">
-      {{ __('Manage Role') }}
+      Administrar rol
     </x-slot>
 
     <x-slot name="content">
@@ -201,11 +201,11 @@ use Illuminate\Support\Facades\Gate;
 
     <x-slot name="footer">
       <x-secondary-button wire:click="stopManagingRole" wire:loading.attr="disabled">
-        {{ __('Cancel') }}
+        Cancelar
       </x-secondary-button>
 
       <x-button class="ms-2" wire:click="updateRole" wire:loading.attr="disabled">
-        {{ __('Save') }}
+        Guardar
       </x-button>
     </x-slot>
   </x-dialog-modal>
@@ -213,20 +213,20 @@ use Illuminate\Support\Facades\Gate;
   <!-- Leave Team Confirmation Modal -->
   <x-confirmation-modal wire:model.live="confirmingLeavingTeam">
     <x-slot name="title">
-      {{ __('Leave Team') }}
+      Salir del equipo
     </x-slot>
 
     <x-slot name="content">
-      {{ __('Are you sure you would like to leave this team?') }}
+      ¿Estás seguro de que deseas salir de este equipo?
     </x-slot>
 
     <x-slot name="footer">
       <x-secondary-button wire:click="$toggle('confirmingLeavingTeam')" wire:loading.attr="disabled">
-        {{ __('Cancel') }}
+        Cancelar
       </x-secondary-button>
 
       <x-danger-button class="ms-2" wire:click="leaveTeam" wire:loading.attr="disabled">
-        {{ __('Leave') }}
+        Salir
       </x-danger-button>
     </x-slot>
   </x-confirmation-modal>
@@ -234,20 +234,20 @@ use Illuminate\Support\Facades\Gate;
   <!-- Remove Team Member Confirmation Modal -->
   <x-confirmation-modal wire:model.live="confirmingTeamMemberRemoval">
     <x-slot name="title">
-      {{ __('Remove Team Member') }}
+      Quitar miembro del equipo
     </x-slot>
 
     <x-slot name="content">
-      {{ __('Are you sure you would like to remove this person from the team?') }}
+      ¿Estás seguro de que deseas quitar a esta persona del equipo?
     </x-slot>
 
     <x-slot name="footer">
       <x-secondary-button wire:click="$toggle('confirmingTeamMemberRemoval')" wire:loading.attr="disabled">
-        {{ __('Cancel') }}
+        Cancelar
       </x-secondary-button>
 
       <x-danger-button class="ms-2" wire:click="removeTeamMember" wire:loading.attr="disabled">
-        {{ __('Remove') }}
+        Quitar
       </x-danger-button>
     </x-slot>
   </x-confirmation-modal>

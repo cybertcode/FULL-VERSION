@@ -63,6 +63,7 @@ class SettingController extends BaseAdminController
         $booleanFields = [
             'maintenance_mode', 'force_2fa', 'captcha_enabled', 'registration_enabled',
             'password_require_mixed', 'password_require_numbers', 'password_require_symbols', 'password_check_breach',
+            'social_google_enabled', 'social_github_enabled', 'social_facebook_enabled',
         ];
         foreach ($booleanFields as $field) {
             if (\array_key_exists($field, $data)) {
@@ -102,7 +103,10 @@ class SettingController extends BaseAdminController
 
         $this->flashSuccess('Configuración guardada correctamente.');
 
-        $response = redirect()->route('admin.settings.index', ['tab' => $group]);
+        // '_tab' permite que un form comparta el grupo de datos de otro (ej. Login Social
+        // reutiliza el grupo 'integrations') pero regrese a su propia pestaña visual.
+        $tab = $request->string('_tab')->toString() ?: $group;
+        $response = redirect()->route('admin.settings.index', ['tab' => $tab]);
 
         // Al guardar apariencia, borrar el cookie del customizer de Vuexy para que el
         // color de settings tenga efecto inmediato (el cookie tiene prioridad sobre config)
@@ -276,6 +280,7 @@ class SettingController extends BaseAdminController
                 'force_2fa', 'captcha_enabled', 'registration_enabled',
                 'password_require_mixed', 'password_require_numbers', 'password_require_symbols', 'password_check_breach',
             ], true) => 'security',
+            \in_array($field, ['social_google_enabled', 'social_github_enabled', 'social_facebook_enabled'], true) => 'integrations',
             default => '',
         };
     }

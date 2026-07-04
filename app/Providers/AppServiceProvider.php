@@ -112,6 +112,33 @@ class AppServiceProvider extends ServiceProvider
             if ($mapsKey = $settings->get('google_maps_key')) {
                 Config::set('services.google_maps.key', $mapsKey);
             }
+
+            // Login social — Google
+            if ($googleId = $settings->get('social_google_client_id')) {
+                Config::set('services.google.client_id', $googleId);
+            }
+            if ($googleSecret = $settings->get('social_google_client_secret')) {
+                Config::set('services.google.client_secret', $googleSecret);
+            }
+            Config::set('services.google.redirect', url('/auth/social/google/callback'));
+
+            // Login social — GitHub
+            if ($githubId = $settings->get('social_github_client_id')) {
+                Config::set('services.github.client_id', $githubId);
+            }
+            if ($githubSecret = $settings->get('social_github_client_secret')) {
+                Config::set('services.github.client_secret', $githubSecret);
+            }
+            Config::set('services.github.redirect', url('/auth/social/github/callback'));
+
+            // Login social — Facebook
+            if ($facebookId = $settings->get('social_facebook_client_id')) {
+                Config::set('services.facebook.client_id', $facebookId);
+            }
+            if ($facebookSecret = $settings->get('social_facebook_client_secret')) {
+                Config::set('services.facebook.client_secret', $facebookSecret);
+            }
+            Config::set('services.facebook.redirect', url('/auth/social/facebook/callback'));
         }
 
         Vite::useStyleTagAttributes(function (?string $src, string $_url, ?array $_chunk, ?array $_manifest) {

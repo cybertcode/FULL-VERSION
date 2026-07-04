@@ -56,6 +56,7 @@
                 ['target' => 'mail',         'icon' => 'tabler-mail',          'label' => 'Correo'],
                 ['target' => 'regional',     'icon' => 'tabler-world',         'label' => 'Regional'],
                 ['target' => 'security',     'icon' => 'tabler-shield-lock',   'label' => 'Seguridad'],
+                ['target' => 'social-login', 'icon' => 'tabler-login-2',       'label' => 'Login Social'],
                 ['target' => 'maintenance',  'icon' => 'tabler-tool',          'label' => 'Mantenimiento'],
                 ['target' => 'integrations', 'icon' => 'tabler-plug',          'label' => 'Integraciones'],
                 ['target' => 'appearance',   'icon' => 'tabler-palette',       'label' => 'Apariencia'],
@@ -69,6 +70,10 @@
                 <span class="flex-grow-1">{{ $item['label'] }}</span>
                 @if($item['target'] === 'maintenance' && setting('maintenance_mode'))
                   <span class="badge bg-warning ms-auto" style="font-size:.65rem;">ON</span>
+                @endif
+                @if($item['target'] === 'social-login')
+                  @php $navSocialActiveCount = (setting('social_google_enabled') ? 1 : 0) + (setting('social_github_enabled') ? 1 : 0); @endphp
+                  <span class="badge bg-success ms-auto {{ $navSocialActiveCount > 0 ? '' : 'd-none' }}" style="font-size:.65rem;">{{ $navSocialActiveCount }} activo{{ $navSocialActiveCount > 1 ? 's' : '' }}</span>
                 @endif
                 <span class="badge bg-label-warning ms-auto d-none" data-dirty-badge="{{ $item['target'] }}" style="font-size:.6rem;">Sin guardar</span>
               </button>
@@ -803,6 +808,44 @@
                 </div>
               </div>
 
+              <div class="card mb-6 border-primary">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="avatar avatar-sm">
+                      <span class="avatar-initial rounded bg-label-primary">
+                        <i class="icon-base ti tabler-user-plus icon-sm"></i>
+                      </span>
+                    </div>
+                    <h5 class="mb-0">Registro de usuarios</h5>
+                  </div>
+                  @php $registrationEnabled = old('registration_enabled', setting('registration_enabled', true)); @endphp
+                  <span class="badge bg-label-{{ $registrationEnabled ? 'success' : 'secondary' }}">
+                    {{ $registrationEnabled ? 'Habilitado' : 'Deshabilitado' }}
+                  </span>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex align-items-start justify-content-between p-4 border rounded">
+                    <div>
+                      <h6 class="mb-1">Permitir que nuevos usuarios se registren públicamente</h6>
+                      <p class="text-muted small mb-0">
+                        Si se desactiva: se oculta el enlace "Crear cuenta" en la pantalla de login y la ruta <code>/register</code> queda inaccesible (error 404) para cualquier visitante.
+                        Los administradores siempre podrán seguir creando usuarios manualmente desde <strong>Usuarios → Crear</strong>.
+                      </p>
+                    </div>
+                    <div class="form-check form-switch ms-4 mt-1">
+                      <input class="form-check-input" type="checkbox" id="registration_enabled" name="registration_enabled"
+                        role="switch" value="1" {{ $registrationEnabled ? 'checked':'' }}>
+                      <label class="form-check-label" for="registration_enabled"></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer text-end">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="icon-base ti tabler-device-floppy me-1"></i> Guardar
+                  </button>
+                </div>
+              </div>
+
               <div class="card mb-6">
                 <h5 class="card-header">Autenticación y Verificación</h5>
                 <div class="card-body">
@@ -833,20 +876,6 @@
                           <input class="form-check-input" type="checkbox" id="captcha_enabled" name="captcha_enabled"
                             role="switch" value="1" {{ old('captcha_enabled', setting('captcha_enabled')) ? 'checked':'' }}>
                           <label class="form-check-label" for="captcha_enabled"></label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-12">
-                      <div class="d-flex align-items-start justify-content-between p-4 border rounded">
-                        <div>
-                          <h6 class="mb-1">Permitir registro público</h6>
-                          <p class="text-muted small mb-0">Si se desactiva, se oculta el enlace "Crear cuenta" y la ruta /register queda inaccesible.</p>
-                        </div>
-                        <div class="form-check form-switch ms-4 mt-1">
-                          <input class="form-check-input" type="checkbox" id="registration_enabled" name="registration_enabled"
-                            role="switch" value="1" {{ old('registration_enabled', setting('registration_enabled', true)) ? 'checked':'' }}>
-                          <label class="form-check-label" for="registration_enabled"></label>
                         </div>
                       </div>
                     </div>
@@ -962,6 +991,183 @@
             </form>
           </div>
 
+
+          {{-- ════════════════════════════════════════
+               TAB — LOGIN SOCIAL
+          ════════════════════════════════════════ --}}
+          <div class="tab-pane fade" id="tab-social-login" role="tabpanel">
+            <form action="{{ route('admin.settings.update', 'integrations') }}" method="POST">
+              @csrf @method('PUT')
+              <input type="hidden" name="_tab" value="social-login">
+
+              <div class="card mb-6">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="avatar avatar-sm">
+                      <span class="avatar-initial rounded bg-label-dark"><i class="icon-base ti tabler-login-2 icon-sm"></i></span>
+                    </div>
+                    <h5 class="mb-0">Iniciar sesión con redes sociales</h5>
+                  </div>
+                  @php $socialActiveCount = (setting('social_google_enabled') ? 1 : 0) + (setting('social_github_enabled') ? 1 : 0) + (setting('social_facebook_enabled') ? 1 : 0); @endphp
+                  <span class="badge bg-label-{{ $socialActiveCount > 0 ? 'success' : 'secondary' }}">
+                    {{ $socialActiveCount }} de 3 proveedores activos
+                  </span>
+                </div>
+                <div class="card-body">
+                  <p class="text-muted mb-6">
+                    Permite que los usuarios inicien sesión o se registren usando su cuenta de Google, GitHub o Facebook, sin necesidad de crear una contraseña.
+                    Si el registro público está deshabilitado (pestaña <strong>Seguridad</strong>), tampoco se podrán crear cuentas nuevas por esta vía —
+                    solo usuarios ya existentes podrán vincular su cuenta.
+                  </p>
+                  <div class="alert alert-info d-flex align-items-center mb-6" role="alert">
+                    <i class="icon-base ti tabler-info-circle icon-sm me-3 flex-shrink-0"></i>
+                    <div>
+                      URLs de callback a registrar en cada proveedor:<br>
+                      <code>{{ url('/auth/social/google/callback') }}</code> (Google) ·
+                      <code>{{ url('/auth/social/github/callback') }}</code> (GitHub) ·
+                      <code>{{ url('/auth/social/facebook/callback') }}</code> (Facebook)
+                    </div>
+                  </div>
+
+                  <div class="row g-6">
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                          <i class="icon-base ti tabler-brand-google-filled icon-md text-danger"></i>
+                          <div>
+                            <h6 class="mb-1">Google</h6>
+                            <p class="text-muted small mb-0">Permite iniciar sesión y registrarse con una cuenta de Google.</p>
+                          </div>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="social_google_enabled" name="social_google_enabled"
+                            role="switch" value="1" {{ old('social_google_enabled', setting('social_google_enabled', false)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="social_google_enabled"></label>
+                        </div>
+                      </div>
+                      <div class="row g-4">
+                        <div class="col-sm-6 form-password-toggle">
+                          <label class="form-label" for="social_google_client_id">Google Client ID</label>
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="icon-base ti tabler-key icon-sm"></i></span>
+                            <input type="password" id="social_google_client_id" name="social_google_client_id"
+                              class="form-control @error('social_google_client_id') is-invalid @enderror"
+                              value="{{ old('social_google_client_id', setting('social_google_client_id')) }}"
+                              placeholder="xxxxx.apps.googleusercontent.com" autocomplete="new-password">
+                            <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off icon-sm"></i></span>
+                            @error('social_google_client_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                          </div>
+                        </div>
+                        <div class="col-sm-6 form-password-toggle">
+                          <label class="form-label" for="social_google_client_secret">Google Client Secret</label>
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="icon-base ti tabler-lock icon-sm"></i></span>
+                            <input type="password" id="social_google_client_secret" name="social_google_client_secret"
+                              class="form-control @error('social_google_client_secret') is-invalid @enderror"
+                              value="{{ old('social_google_client_secret', setting('social_google_client_secret')) }}"
+                              placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" autocomplete="new-password">
+                            <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off icon-sm"></i></span>
+                            @error('social_google_client_secret')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                          <i class="icon-base ti tabler-brand-github-filled icon-md"></i>
+                          <div>
+                            <h6 class="mb-1">GitHub</h6>
+                            <p class="text-muted small mb-0">Permite iniciar sesión y registrarse con una cuenta de GitHub.</p>
+                          </div>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="social_github_enabled" name="social_github_enabled"
+                            role="switch" value="1" {{ old('social_github_enabled', setting('social_github_enabled', false)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="social_github_enabled"></label>
+                        </div>
+                      </div>
+                      <div class="row g-4">
+                        <div class="col-sm-6 form-password-toggle">
+                          <label class="form-label" for="social_github_client_id">GitHub Client ID</label>
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="icon-base ti tabler-key icon-sm"></i></span>
+                            <input type="password" id="social_github_client_id" name="social_github_client_id"
+                              class="form-control @error('social_github_client_id') is-invalid @enderror"
+                              value="{{ old('social_github_client_id', setting('social_github_client_id')) }}"
+                              placeholder="Iv1.xxxxxxxxxxxx" autocomplete="new-password">
+                            <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off icon-sm"></i></span>
+                            @error('social_github_client_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                          </div>
+                        </div>
+                        <div class="col-sm-6 form-password-toggle">
+                          <label class="form-label" for="social_github_client_secret">GitHub Client Secret</label>
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="icon-base ti tabler-lock icon-sm"></i></span>
+                            <input type="password" id="social_github_client_secret" name="social_github_client_secret"
+                              class="form-control @error('social_github_client_secret') is-invalid @enderror"
+                              value="{{ old('social_github_client_secret', setting('social_github_client_secret')) }}"
+                              placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" autocomplete="new-password">
+                            <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off icon-sm"></i></span>
+                            @error('social_github_client_secret')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="d-flex align-items-start justify-content-between p-4 border rounded mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                          <i class="icon-base ti tabler-brand-facebook-filled icon-md text-primary"></i>
+                          <div>
+                            <h6 class="mb-1">Facebook</h6>
+                            <p class="text-muted small mb-0">Permite iniciar sesión y registrarse con una cuenta de Facebook.</p>
+                          </div>
+                        </div>
+                        <div class="form-check form-switch ms-4 mt-1">
+                          <input class="form-check-input" type="checkbox" id="social_facebook_enabled" name="social_facebook_enabled"
+                            role="switch" value="1" {{ old('social_facebook_enabled', setting('social_facebook_enabled', false)) ? 'checked':'' }}>
+                          <label class="form-check-label" for="social_facebook_enabled"></label>
+                        </div>
+                      </div>
+                      <div class="row g-4">
+                        <div class="col-sm-6 form-password-toggle">
+                          <label class="form-label" for="social_facebook_client_id">Facebook Client ID (App ID)</label>
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="icon-base ti tabler-key icon-sm"></i></span>
+                            <input type="password" id="social_facebook_client_id" name="social_facebook_client_id"
+                              class="form-control @error('social_facebook_client_id') is-invalid @enderror"
+                              value="{{ old('social_facebook_client_id', setting('social_facebook_client_id')) }}"
+                              placeholder="1234567890123456" autocomplete="new-password">
+                            <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off icon-sm"></i></span>
+                            @error('social_facebook_client_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                          </div>
+                        </div>
+                        <div class="col-sm-6 form-password-toggle">
+                          <label class="form-label" for="social_facebook_client_secret">Facebook Client Secret (App Secret)</label>
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="icon-base ti tabler-lock icon-sm"></i></span>
+                            <input type="password" id="social_facebook_client_secret" name="social_facebook_client_secret"
+                              class="form-control @error('social_facebook_client_secret') is-invalid @enderror"
+                              value="{{ old('social_facebook_client_secret', setting('social_facebook_client_secret')) }}"
+                              placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" autocomplete="new-password">
+                            <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off icon-sm"></i></span>
+                            @error('social_facebook_client_secret')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer text-end">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="icon-base ti tabler-device-floppy me-1"></i> Guardar login social
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
 
           {{-- ════════════════════════════════════════
                TAB 7 — MANTENIMIENTO
@@ -1385,7 +1591,15 @@ window.addEventListener('load', function () {
 });
 
 // ── Tab: activar el que tiene errores, el guardado en sessionStorage, o el indicado en URL ──
-(function () {
+// Se espera a que 'bootstrap' (definido por el bundle JS de Vuexy) esté disponible, ya que este
+// script inline puede ejecutarse antes de que termine de cargar — de lo contrario la excepción
+// aborta también el registro de los listeners de guardado AJAX definidos más abajo.
+function whenBootstrapReady(callback) {
+  if (window.bootstrap) { callback(); return; }
+  window.addEventListener('load', callback, { once: true });
+}
+
+whenBootstrapReady(function () {
   var invalid = document.querySelector('.is-invalid');
   if (invalid) {
     var pane = invalid.closest('.tab-pane');
@@ -1397,7 +1611,7 @@ window.addEventListener('load', function () {
     var btn = document.querySelector('[data-bs-target="#tab-' + tab + '"]');
     if (btn) new bootstrap.Tab(btn).show();
   }
-})();
+});
 
 // Recordar el tab activo al cambiar de pestaña
 document.querySelectorAll('#settingsNavPills [data-bs-toggle="pill"]').forEach(function (btn) {
@@ -1408,13 +1622,40 @@ document.querySelectorAll('#settingsNavPills [data-bs-toggle="pill"]').forEach(f
 });
 
 // ── Guardado AJAX — cada form de settings se envía sin recargar la página ────
-document.querySelectorAll('#tab-branding form, #tab-seo form, #tab-company form, #tab-mail form, #tab-regional form, #tab-security form, #tab-maintenance form, #tab-integrations form, #tab-appearance form')
+document.querySelectorAll('#tab-branding form, #tab-seo form, #tab-company form, #tab-mail form, #tab-regional form, #tab-security form, #tab-social-login form, #tab-maintenance form, #tab-integrations form, #tab-appearance form')
   .forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       submitSettingsForm(form);
     });
   });
+
+// Tras guardar el tab de Login Social, refresca el badge del nav-pill y el badge del header ("N activo(s)")
+function refreshSocialLoginBadge(form) {
+  if (!form.closest('#tab-social-login')) return;
+
+  var googleOn = form.querySelector('#social_google_enabled')?.checked;
+  var githubOn = form.querySelector('#social_github_enabled')?.checked;
+  var facebookOn = form.querySelector('#social_facebook_enabled')?.checked;
+  var count = (googleOn ? 1 : 0) + (githubOn ? 1 : 0) + (facebookOn ? 1 : 0);
+
+  var navBadge = document.querySelector('[data-bs-target="#tab-social-login"] .badge');
+  if (navBadge) {
+    if (count > 0) {
+      navBadge.textContent = count + ' activo' + (count > 1 ? 's' : '');
+      navBadge.classList.remove('d-none');
+    } else {
+      navBadge.classList.add('d-none');
+    }
+  }
+
+  var headerBadge = form.closest('.card')?.querySelector('.card-header .badge');
+  if (headerBadge) {
+    headerBadge.textContent = count + ' de 3 proveedores activos';
+    headerBadge.classList.toggle('bg-label-success', count > 0);
+    headerBadge.classList.toggle('bg-label-secondary', count === 0);
+  }
+}
 
 function submitSettingsForm(form) {
   var submitBtn = form.querySelector('button[type="submit"]');
@@ -1467,6 +1708,7 @@ function submitSettingsForm(form) {
     form.querySelectorAll('input[type="file"]').forEach(function (input) { input.value = ''; });
 
     markFormClean(form);
+    refreshSocialLoginBadge(form);
     showToast('success', res.body.message || 'Configuración guardada correctamente.');
   })
   .catch(function () {

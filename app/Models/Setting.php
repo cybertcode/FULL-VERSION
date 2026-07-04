@@ -28,7 +28,10 @@ class Setting extends Model
     const GROUP_REGIONAL = 'regional';
 
     // Claves sensibles que se guardan encriptadas en BD
-    const ENCRYPTED_KEYS = ['mail_password', 'recaptcha_secret_key'];
+    const ENCRYPTED_KEYS = [
+        'mail_password', 'recaptcha_secret_key',
+        'social_google_client_secret', 'social_github_client_secret', 'social_facebook_client_secret',
+    ];
 
     protected function isEncryptedKey(): bool
     {

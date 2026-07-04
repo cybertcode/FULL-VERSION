@@ -4,6 +4,9 @@ $configData = Helper::appClasses();
 $customizerHidden = 'customizer-hide';
 $captchaEnabled = setting('captcha_enabled', false);
 $captchaSiteKey = config('services.recaptcha.site_key', setting('recaptcha_site_key', ''));
+$googleEnabled = setting('social_google_enabled', false);
+$githubEnabled = setting('social_github_enabled', false);
+$facebookEnabled = setting('social_facebook_enabled', false);
 @endphp
 
 @extends('layouts/blankLayout')
@@ -101,24 +104,29 @@ $captchaSiteKey = config('services.recaptcha.site_key', setting('recaptcha_site_
           </p>
           @endif
 
+          @if($googleEnabled || $githubEnabled || $facebookEnabled)
           <div class="divider my-6">
-            <div class="divider-text">o</div>
+            <div class="divider-text">o continúa con</div>
           </div>
 
-          <div class="d-flex justify-content-center">
-            <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-facebook me-1_5">
-              <i class="icon-base ti tabler-brand-facebook-filled icon-20px"></i>
-            </a>
-            <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-twitter me-1_5">
-              <i class="icon-base ti tabler-brand-twitter-filled icon-20px"></i>
-            </a>
-            <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-github me-1_5">
-              <i class="icon-base ti tabler-brand-github-filled icon-20px"></i>
-            </a>
-            <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-google-plus">
+          <div class="d-flex justify-content-center gap-2">
+            @if($googleEnabled)
+            <a href="{{ route('social.redirect', 'google') }}" class="btn btn-icon rounded-circle btn-text-google-plus" title="Iniciar sesión con Google">
               <i class="icon-base ti tabler-brand-google-filled icon-20px"></i>
             </a>
+            @endif
+            @if($githubEnabled)
+            <a href="{{ route('social.redirect', 'github') }}" class="btn btn-icon rounded-circle btn-text-github" title="Iniciar sesión con GitHub">
+              <i class="icon-base ti tabler-brand-github-filled icon-20px"></i>
+            </a>
+            @endif
+            @if($facebookEnabled)
+            <a href="{{ route('social.redirect', 'facebook') }}" class="btn btn-icon rounded-circle btn-text-facebook" title="Iniciar sesión con Facebook">
+              <i class="icon-base ti tabler-brand-facebook-filled icon-20px"></i>
+            </a>
+            @endif
           </div>
+          @endif
         </div>
       </div>
     </div>

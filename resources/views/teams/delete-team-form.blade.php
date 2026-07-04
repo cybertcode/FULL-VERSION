@@ -3,39 +3,39 @@ use Illuminate\Support\Facades\Gate;
 @endphp
 <x-action-section>
   <x-slot name="title">
-    {{ __('Delete Team') }}
+    Eliminar equipo
   </x-slot>
 
   <x-slot name="description">
-    {{ __('Permanently delete this team.') }}
+    Elimina este equipo de forma permanente.
   </x-slot>
 
   <x-slot name="content">
     <p class="text-body-secondary">
-      {{ __('Once a team is deleted, all of its resources and data will be permanently deleted. Before deleting this team, please download any data or information regarding this team that you wish to retain.') }}
+      Una vez eliminado un equipo, todos sus recursos y datos se eliminarán de forma permanente. Antes de eliminar este equipo, descarga cualquier dato o información que desees conservar.
     </p>
 
     <x-danger-button wire:click="$toggle('confirmingTeamDeletion')" wire:loading.attr="disabled">
-      {{ __('Delete Team') }}
+      Eliminar equipo
     </x-danger-button>
 
     <!-- Delete Team Confirmation Modal -->
     <x-confirmation-modal wire:model.live="confirmingTeamDeletion">
       <x-slot name="title">
-        {{ __('Delete Team') }}
+        Eliminar equipo
       </x-slot>
 
       <x-slot name="content">
-        {{ __('Are you sure you want to delete this team? Once a team is deleted, all of its resources and data will be permanently deleted.') }}
+        ¿Estás seguro de que deseas eliminar este equipo? Una vez eliminado, todos sus recursos y datos se eliminarán de forma permanente.
       </x-slot>
 
       <x-slot name="footer">
         <x-secondary-button wire:click="$toggle('confirmingTeamDeletion')" wire:loading.attr="disabled">
-          {{ __('Cancel') }}
+          Cancelar
         </x-secondary-button>
 
         <x-danger-button wire:click="deleteTeam" wire:loading.attr="disabled">
-          {{ __('Delete Team') }}
+          Eliminar equipo
         </x-danger-button>
       </x-slot>
     </x-confirmation-modal>

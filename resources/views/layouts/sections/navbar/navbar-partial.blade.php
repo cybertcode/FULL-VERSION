@@ -299,6 +299,49 @@ use Illuminate\Support\Facades\Route;
             <i class="icon-base ti tabler-user me-3 icon-md"></i><span class="align-middle">Mi Perfil</span>
           </a>
         </li>
+        @if (Laravel\Jetstream\Jetstream::hasTeamFeatures() && Auth::user()?->currentTeam)
+        <li>
+          <a class="dropdown-item" href="{{ route('teams.show', Auth::user()->currentTeam) }}">
+            <i class="icon-base ti tabler-users-group me-3 icon-md"></i><span class="align-middle">Mi Equipo</span>
+          </a>
+        </li>
+        @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
+        <li>
+          <a class="dropdown-item" href="{{ route('teams.create') }}">
+            <i class="icon-base ti tabler-users-plus me-3 icon-md"></i><span class="align-middle">Crear nuevo equipo</span>
+          </a>
+        </li>
+        @endcan
+        @if (Auth::user()->allTeams()->count() > 1)
+        <li>
+          <div class="dropdown-divider my-1 mx-n2"></div>
+        </li>
+        <li>
+          <h6 class="dropdown-header">Cambiar de equipo</h6>
+        </li>
+        @foreach (Auth::user()->allTeams() as $team)
+        <li>
+          <form method="POST" action="{{ route('current-team.update') }}" id="switch-team-form-{{ $team->id }}">
+            @method('PUT')
+            @csrf
+            <input type="hidden" name="team_id" value="{{ $team->id }}">
+            <a class="dropdown-item" href="#"
+              onclick="event.preventDefault(); document.getElementById('switch-team-form-{{ $team->id }}').submit();">
+              @if (Auth::user()->isCurrentTeam($team))
+              <i class="icon-base ti tabler-circle-check-filled me-3 icon-md text-success"></i>
+              @else
+              <i class="icon-base ti tabler-circle me-3 icon-md"></i>
+              @endif
+              <span class="align-middle">{{ $team->name }}</span>
+            </a>
+          </form>
+        </li>
+        @endforeach
+        @endif
+        @endif
+        <li>
+          <div class="dropdown-divider my-1 mx-n2"></div>
+        </li>
         <li>
           <a class="dropdown-item" href="{{ route('admin.settings.index') }}">
             <i class="icon-base ti tabler-settings me-3 icon-md"></i><span class="align-middle">Configuración</span>

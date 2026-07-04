@@ -3,16 +3,16 @@ use Illuminate\Support\Facades\Gate;
 @endphp
 <x-form-section submit="createTeam">
   <x-slot name="title">
-    {{ __('Team Details') }}
+    Datos del equipo
   </x-slot>
 
   <x-slot name="description">
-    {{ __('Create a new team to collaborate with others on projects.') }}
+    Crea un nuevo equipo para colaborar con otras personas en proyectos.
   </x-slot>
 
   <x-slot name="form">
     <div class="mb-6">
-      <x-label class="form-label" value="{{ __('Team Owner') }}" />
+      <x-label class="form-label" value="Propietario del equipo" />
 
       <div class="d-flex justify-content-start align-items-center user-name">
         <div class="avatar me-4"><img src="{{ $this->user->profile_photo_url }}" alt="{{ $this->user->name }}"
@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Gate;
     </div>
 
     <div class="mb-6">
-      <x-label class="form-label" for="name" value="{{ __('Team Name') }}" />
+      <x-label class="form-label" for="name" value="Nombre del equipo" />
       <x-input id="name" type="text" class="{{ $errors->has('name') ? 'is-invalid' : '' }}" wire:model="state.name"
         autofocus />
       <x-input-error for="name" />
@@ -34,7 +34,7 @@ use Illuminate\Support\Facades\Gate;
 
   <x-slot name="actions">
     <x-button>
-      {{ __('Create') }}
+      Crear
     </x-button>
   </x-slot>
 </x-form-section>

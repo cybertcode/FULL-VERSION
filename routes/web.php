@@ -41,6 +41,7 @@ use App\Http\Controllers\apps\UserViewBilling;
 use App\Http\Controllers\apps\UserViewConnections;
 use App\Http\Controllers\apps\UserViewNotifications;
 use App\Http\Controllers\apps\UserViewSecurity;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\authentications\ForgotPasswordBasic;
 use App\Http\Controllers\authentications\ForgotPasswordCover;
 use App\Http\Controllers\authentications\LoginBasic;
@@ -161,6 +162,10 @@ use Illuminate\Support\Facades\Route;
 
 // Locale (público)
 Route::get('/lang/{locale}', [LanguageController::class, 'swap']);
+
+// Login social (público — Google / GitHub vía Socialite)
+Route::get('/auth/social/{provider}/redirect', [SocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('/auth/social/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
 // Front Pages (público — no requieren autenticación)
 Route::get('/front-pages/landing', [Landing::class, 'index'])->name('front-pages-landing');
