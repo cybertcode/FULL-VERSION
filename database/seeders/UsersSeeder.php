@@ -21,7 +21,7 @@ class UsersSeeder extends Seeder
         // ── Eliminados lógicamente ────────────────────────────────────────────
         // ~10 usuarios con SoftDelete para probar la restauración
 
-        $roles  = ['admin', 'editor', 'user'];
+        $roles = ['admin', 'editor', 'user'];
         $counts = ['admin' => 10, 'editor' => 20, 'user' => 70];
 
         foreach ($counts as $role => $total) {
@@ -31,13 +31,13 @@ class UsersSeeder extends Seeder
                 /** @var User $user */
                 $user = User::factory()->withPersonalTeam()->create([
                     'password' => $password,
-                    'status'   => $status->value,
+                    'status' => $status->value,
                 ]);
 
                 $user->assignRole($role);
 
                 // Crear perfil (80% con perfil completo, 20% básico/sin datos)
-                $factory = (new PerfilFactory())->for($user);
+                $factory = (new PerfilFactory)->for($user);
                 if (fake()->boolean(20)) {
                     $factory->basico()->create();
                 } else {
@@ -51,11 +51,11 @@ class UsersSeeder extends Seeder
             ->withPersonalTeam()
             ->create([
                 'password' => $password,
-                'status'   => UserStatus::Inactive->value,
+                'status' => UserStatus::Inactive->value,
             ])
             ->each(function (User $user) {
                 $user->assignRole('user');
-                (new PerfilFactory())->for($user)->basico()->create();
+                (new PerfilFactory)->for($user)->basico()->create();
                 $user->delete(); // SoftDelete
             });
 
@@ -66,8 +66,13 @@ class UsersSeeder extends Seeder
     {
         $pct = ($i / $total) * 100;
 
-        if ($pct <= 70) return UserStatus::Active;
-        if ($pct <= 90) return UserStatus::Inactive;
+        if ($pct <= 70) {
+            return UserStatus::Active;
+        }
+        if ($pct <= 90) {
+            return UserStatus::Inactive;
+        }
+
         return UserStatus::Banned;
     }
 }

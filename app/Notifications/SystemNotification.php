@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 /**
@@ -17,7 +18,7 @@ use Illuminate\Notifications\Notification;
  *       url: route('admin.profile.show'),
  *   ));
  */
-class SystemNotification extends Notification
+class SystemNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -27,8 +28,7 @@ class SystemNotification extends Notification
         public string $icon = 'tabler-bell',
         public string $color = 'primary',
         public ?string $url = null,
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -38,11 +38,11 @@ class SystemNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'title'   => $this->title,
+            'title' => $this->title,
             'message' => $this->message,
-            'icon'    => $this->icon,
-            'color'   => $this->color,
-            'url'     => $this->url,
+            'icon' => $this->icon,
+            'color' => $this->color,
+            'url' => $this->url,
         ];
     }
 }

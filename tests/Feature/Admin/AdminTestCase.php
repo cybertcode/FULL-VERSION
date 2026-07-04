@@ -3,10 +3,11 @@
 namespace Tests\Feature\Admin;
 
 use App\Enums\UserStatus;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 abstract class AdminTestCase extends TestCase
@@ -14,7 +15,9 @@ abstract class AdminTestCase extends TestCase
     use RefreshDatabase;
 
     protected User $superAdmin;
+
     protected User $admin;
+
     protected User $plainUser;
 
     protected function setUp(): void
@@ -24,22 +27,22 @@ abstract class AdminTestCase extends TestCase
         $this->seedRolesAndPermissions();
 
         $this->superAdmin = User::factory()->withPersonalTeam()->create([
-            'name'   => 'Super Admin',
-            'email'  => 'superadmin@test.com',
+            'name' => 'Super Admin',
+            'email' => 'superadmin@test.com',
             'status' => UserStatus::Active->value,
         ]);
         $this->superAdmin->assignRole('Super-Admin');
 
         $this->admin = User::factory()->withPersonalTeam()->create([
-            'name'   => 'Admin User',
-            'email'  => 'admin@test.com',
+            'name' => 'Admin User',
+            'email' => 'admin@test.com',
             'status' => UserStatus::Active->value,
         ]);
         $this->admin->assignRole('admin');
 
         $this->plainUser = User::factory()->withPersonalTeam()->create([
-            'name'   => 'Plain User',
-            'email'  => 'user@test.com',
+            'name' => 'Plain User',
+            'email' => 'user@test.com',
             'status' => UserStatus::Active->value,
         ]);
         $this->plainUser->assignRole('user');
@@ -47,7 +50,7 @@ abstract class AdminTestCase extends TestCase
 
     protected function seedRolesAndPermissions(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
             'users.viewAny', 'users.view', 'users.create', 'users.edit',
@@ -99,4 +102,3 @@ abstract class AdminTestCase extends TestCase
         return $this->actingAs($this->plainUser);
     }
 }
-

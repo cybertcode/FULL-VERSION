@@ -18,6 +18,7 @@ class ProfileController extends BaseAdminController
     public function show(): View
     {
         $user = auth()->user()->load('perfil', 'roles');
+
         return view('admin.profile.show', compact('user'));
     }
 
@@ -35,9 +36,9 @@ class ProfileController extends BaseAdminController
         ) ?: $user->name;
 
         $payload = [
-            'name'     => $name,
+            'name' => $name,
             'username' => $data['username'] ?? $user->username,
-            'phone'    => $data['phone'] ?? null,
+            'phone' => $data['phone'] ?? null,
         ];
 
         if ($request->hasFile('avatar')) {

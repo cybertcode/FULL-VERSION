@@ -15,9 +15,13 @@ class Setting extends Model
     protected $fillable = ['key', 'value', 'group'];
 
     // Grupos disponibles de configuración
-    const GROUP_BRANDING  = 'branding';
-    const GROUP_SEO       = 'seo';
-    const GROUP_COMPANY   = 'company';
-    const GROUP_MAIL      = 'mail';
-    const GROUP_REGIONAL  = 'regional';
+    const GROUP_BRANDING = 'branding';
+
+    const GROUP_SEO = 'seo';
+
+    const GROUP_COMPANY = 'company';
+
+    const GROUP_MAIL = 'mail';
+
+    const GROUP_REGIONAL = 'regional';
 }

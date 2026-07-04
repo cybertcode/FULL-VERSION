@@ -3,11 +3,13 @@
 namespace App\Services\Admin;
 
 use App\Models\Setting;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class SettingService
 {
     const CACHE_KEY = 'app_settings';
+
     const CACHE_TTL = 86400; // 24 horas
 
     /**
@@ -22,7 +24,7 @@ class SettingService
     /**
      * Retorna todas las settings como colección key→value.
      */
-    public function all(): \Illuminate\Support\Collection
+    public function all(): Collection
     {
         return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
             return Setting::all()->pluck('value', 'key');
@@ -32,7 +34,7 @@ class SettingService
     /**
      * Retorna settings agrupadas por group.
      */
-    public function grouped(): \Illuminate\Support\Collection
+    public function grouped(): Collection
     {
         return Setting::all()->groupBy('group');
     }

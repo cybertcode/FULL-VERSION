@@ -20,8 +20,8 @@ class SearchController extends BaseAdminController
         ['name' => 'Configuración — Correo',    'icon' => 'tabler-mail-cog',          'url' => '/admin/configuracion',   'section' => 'Módulos'],
         ['name' => 'Configuración — Seguridad', 'icon' => 'tabler-lock-cog',          'url' => '/admin/configuracion',   'section' => 'Módulos'],
         ['name' => 'Configuración — SEO',       'icon' => 'tabler-seo',               'url' => '/admin/configuracion',   'section' => 'Módulos'],
-        ['name' => 'Configuración — Apariencia','icon' => 'tabler-palette',           'url' => '/admin/configuracion',   'section' => 'Módulos'],
-        ['name' => 'Configuración — Integraciones','icon' => 'tabler-plug-connected', 'url' => '/admin/configuracion',   'section' => 'Módulos'],
+        ['name' => 'Configuración — Apariencia', 'icon' => 'tabler-palette',           'url' => '/admin/configuracion',   'section' => 'Módulos'],
+        ['name' => 'Configuración — Integraciones', 'icon' => 'tabler-plug-connected', 'url' => '/admin/configuracion',   'section' => 'Módulos'],
     ];
 
     public function __invoke(Request $request): JsonResponse
@@ -61,12 +61,12 @@ class SearchController extends BaseAdminController
                 ->get()
                 ->each(function (User $u) use (&$results) {
                     $results[] = [
-                        'name'       => $u->name,
-                        'subtitle'   => $u->email,
-                        'icon'       => 'tabler-user',
+                        'name' => $u->name,
+                        'subtitle' => $u->email,
+                        'icon' => 'tabler-user',
                         'avatar_url' => $u->avatar_url,
-                        'url'        => route('admin.users.show', $u),
-                        'section'    => 'Usuarios',
+                        'url' => route('admin.users.show', $u),
+                        'section' => 'Usuarios',
                     ];
                 });
         }
@@ -78,10 +78,10 @@ class SearchController extends BaseAdminController
                 ->get()
                 ->each(function (Role $r) use (&$results) {
                     $results[] = [
-                        'name'    => $r->name,
-                        'subtitle'=> 'Rol del sistema',
-                        'icon'    => 'tabler-shield',
-                        'url'     => route('admin.roles.index'),
+                        'name' => $r->name,
+                        'subtitle' => 'Rol del sistema',
+                        'icon' => 'tabler-shield',
+                        'url' => route('admin.roles.index'),
                         'section' => 'Roles',
                     ];
                 });

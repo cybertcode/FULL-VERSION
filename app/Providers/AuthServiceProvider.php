@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Gate;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        User::class       => UserPolicy::class,
-        Role::class       => RolePolicy::class,
+        User::class => UserPolicy::class,
+        Role::class => RolePolicy::class,
         Permission::class => PermissionPolicy::class,
     ];
 

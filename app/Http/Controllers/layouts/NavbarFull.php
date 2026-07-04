@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 
 class NavbarFull extends Controller
 {
-  public function index()
-  {
-    return view('content.layouts-example.layouts-navbar-full');
-  }
+    public function index()
+    {
+        return view('content.layouts-example.layouts-navbar-full');
+    }
 }

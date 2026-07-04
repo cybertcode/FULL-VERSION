@@ -24,7 +24,7 @@ trait HasFilters
         }
 
         // Ordenamiento
-        $sortBy  = $request->get('sort_by', $this->defaultSort ?? 'created_at');
+        $sortBy = $request->get('sort_by', $this->defaultSort ?? 'created_at');
         $sortDir = $request->get('sort_dir', 'desc');
 
         if (in_array($sortDir, ['asc', 'desc'])) {

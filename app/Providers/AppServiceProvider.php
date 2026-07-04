@@ -3,12 +3,13 @@
 namespace App\Providers;
 
 use App\Services\Admin\SettingService;
+use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -80,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
 
             // Carbon locale — sincronizar con el idioma del sistema
             if ($lang = $settings->get('default_language')) {
-                \Carbon\Carbon::setLocale($lang);
+                Carbon::setLocale($lang);
             }
 
             // Color primario — settings siempre tiene precedencia si no hay cookie activa del customizer
@@ -110,9 +111,10 @@ class AppServiceProvider extends ServiceProvider
                         ? 'template-customizer-core-css'
                         : (preg_match("/(resources\/assets\/vendor\/scss\/(rtl\/)?theme)-?.*/i", $src)
                             ? 'template-customizer-theme-css'
-                            : '')
+                            : ''),
                 ];
             }
+
             return [];
         });
     }

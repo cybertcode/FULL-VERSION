@@ -23,13 +23,13 @@ class CreateUser
         ) ?: ($data['name'] ?? 'Sin nombre');
 
         $user = User::create([
-            'name'     => $name,
+            'name' => $name,
             'username' => $data['username'] ?? null,
-            'email'    => $data['email'],
-            'phone'    => $data['phone'] ?? null,
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
             'password' => Hash::make($data['password']),
-            'status'   => $data['status'] ?? UserStatus::Active->value,
-            'avatar'   => $avatar
+            'status' => $data['status'] ?? UserStatus::Active->value,
+            'avatar' => $avatar
                 ? $this->imageService->store($avatar, 'uploads/users', null, 85, 400)
                 : null,
         ]);
@@ -39,7 +39,7 @@ class CreateUser
         }
 
         if (! empty($data['perfil'])) {
-            $perfilData = array_filter($data['perfil'], fn($v) => $v !== null && $v !== '');
+            $perfilData = array_filter($data['perfil'], fn ($v) => $v !== null && $v !== '');
             if (! empty($perfilData)) {
                 $user->perfil()->create($perfilData);
             }

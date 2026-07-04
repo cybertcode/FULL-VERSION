@@ -34,7 +34,7 @@ class MaintenanceModeMiddleware
 
         // Solo logout y rutas de assets están siempre permitidas
         // El settings del admin también para que el Super-Admin pueda desactivar mantenimiento
-        if ($request->routeIs('logout', 'admin.settings.*')) {
+        if ($request->routeIs('logout', 'admin.settings.*', 'admin.impersonate.leave')) {
             return $next($request);
         }
 

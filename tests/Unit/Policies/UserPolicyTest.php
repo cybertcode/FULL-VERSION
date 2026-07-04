@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Policies;
 
-use App\Enums\UserStatus;
+use App\Models\Role;
 use App\Models\User;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use App\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class UserPolicyTest extends TestCase
@@ -15,15 +15,18 @@ class UserPolicyTest extends TestCase
     use RefreshDatabase;
 
     private UserPolicy $policy;
+
     private User $superAdmin;
+
     private User $adminUser;
+
     private User $plainUser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $perms = [
             'users.viewAny', 'users.view', 'users.create', 'users.edit',
@@ -50,15 +53,15 @@ class UserPolicyTest extends TestCase
         $this->plainUser = User::factory()->withPersonalTeam()->create();
         $this->plainUser->assignRole('user');
 
-        $this->policy = new UserPolicy();
+        $this->policy = new UserPolicy;
     }
 
-    public function test_viewAny_granted_with_permission(): void
+    public function test_view_any_granted_with_permission(): void
     {
         $this->assertTrue($this->policy->viewAny($this->adminUser));
     }
 
-    public function test_viewAny_denied_without_permission(): void
+    public function test_view_any_denied_without_permission(): void
     {
         $this->assertFalse($this->policy->viewAny($this->plainUser));
     }
@@ -127,21 +130,20 @@ class UserPolicyTest extends TestCase
         $this->assertFalse($this->policy->restore($this->plainUser, $target));
     }
 
-    public function test_forceDelete_granted_with_permission_on_other(): void
+    public function test_force_delete_granted_with_permission_on_other(): void
     {
         $target = User::factory()->withPersonalTeam()->create();
         $this->assertTrue($this->policy->forceDelete($this->adminUser, $target));
     }
 
-    public function test_forceDelete_denied_on_own_account(): void
+    public function test_force_delete_denied_on_own_account(): void
     {
         $this->assertFalse($this->policy->forceDelete($this->adminUser, $this->adminUser));
     }
 
-    public function test_forceDelete_denied_without_permission(): void
+    public function test_force_delete_denied_without_permission(): void
     {
         $target = User::factory()->withPersonalTeam()->create();
         $this->assertFalse($this->policy->forceDelete($this->plainUser, $target));
     }
 }
-

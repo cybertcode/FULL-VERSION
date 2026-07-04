@@ -23,11 +23,11 @@ class UpdateRole
             // Privilege escalation: editor no puede asignar permisos que él no tiene
             // (exento si es Super-Admin — Gate::before ya lo cubre, pero doble seguridad)
             if ($editor && ! $editor->hasRole('Super-Admin')) {
-                $editorPerms  = $editor->getAllPermissions()->pluck('name');
-                $forbidden    = $requested->diff($editorPerms);
+                $editorPerms = $editor->getAllPermissions()->pluck('name');
+                $forbidden = $requested->diff($editorPerms);
                 if ($forbidden->isNotEmpty()) {
                     throw new BusinessException(
-                        'No puedes asignar permisos que tú mismo no posees: ' . $forbidden->join(', ') . '.'
+                        'No puedes asignar permisos que tú mismo no posees: '.$forbidden->join(', ').'.'
                     );
                 }
             }
@@ -39,4 +39,3 @@ class UpdateRole
         return $role->load('permissions');
     }
 }
-

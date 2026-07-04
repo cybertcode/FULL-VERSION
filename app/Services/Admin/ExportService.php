@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Exports\PermissionsExport;
 use App\Exports\RolesExport;
 use App\Exports\UsersExport;
 use App\Models\Permission;
@@ -17,15 +18,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportService
 {
-
     private function branding(): array
     {
         $logoBase64 = null;
-        $logoMime   = 'image/png';
-        $logoPath   = setting('site_logo');
+        $logoMime = 'image/png';
+        $logoPath = setting('site_logo');
 
         if ($logoPath) {
-            $fullPath = storage_path('app/public/' . $logoPath);
+            $fullPath = storage_path('app/public/'.$logoPath);
             if (file_exists($fullPath)) {
                 $mime = mime_content_type($fullPath);
                 // dompdf no soporta webp — convertir a PNG con GD
@@ -38,23 +38,23 @@ class ExportService
                     $logoMime = 'image/png';
                 } elseif (in_array($mime, ['image/png', 'image/jpeg', 'image/gif'])) {
                     $logoBase64 = base64_encode(file_get_contents($fullPath));
-                    $logoMime   = $mime;
+                    $logoMime = $mime;
                 }
             }
         }
 
         return [
-            'primaryColor'   => setting('primary_color', '#7367F0'),
-            'siteName'       => setting('site_name', 'Mi Sistema'),
-            'companyName'    => setting('company_name', 'Mi Empresa S.A.C.'),
+            'primaryColor' => setting('primary_color', '#7367F0'),
+            'siteName' => setting('site_name', 'Mi Sistema'),
+            'companyName' => setting('company_name', 'Mi Empresa S.A.C.'),
             'companyAddress' => setting('company_address', ''),
-            'companyPhone'   => setting('company_phone', ''),
-            'companyEmail'   => setting('company_email', ''),
-            'companyRuc'     => setting('company_ruc', ''),
+            'companyPhone' => setting('company_phone', ''),
+            'companyEmail' => setting('company_email', ''),
+            'companyRuc' => setting('company_ruc', ''),
             'companyWebsite' => setting('company_website', ''),
-            'logoBase64'     => $logoBase64,
-            'logoMime'       => $logoMime,
-            'dateFormat'     => setting('date_format', 'd/m/Y'),
+            'logoBase64' => $logoBase64,
+            'logoMime' => $logoMime,
+            'dateFormat' => setting('date_format', 'd/m/Y'),
         ];
     }
 
@@ -89,28 +89,41 @@ class ExportService
     private function activeFiltersLabel(Request $request): string
     {
         $parts = [];
-        if ($v = $request->input('role'))       $parts[] = "Rol: {$v}";
-        if ($v = $request->input('status'))     $parts[] = "Estado: {$v}";
-        if ($v = $request->input('area'))       $parts[] = "Área: {$v}";
-        if ($request->input('verificado') === '1') $parts[] = 'Email verificado';
-        if ($request->input('verificado') === '0') $parts[] = 'Sin verificar';
-        if ($v = $request->input('search'))     $parts[] = "Busqueda: \"{$v}\"";
+        if ($v = $request->input('role')) {
+            $parts[] = "Rol: {$v}";
+        }
+        if ($v = $request->input('status')) {
+            $parts[] = "Estado: {$v}";
+        }
+        if ($v = $request->input('area')) {
+            $parts[] = "Área: {$v}";
+        }
+        if ($request->input('verificado') === '1') {
+            $parts[] = 'Email verificado';
+        }
+        if ($request->input('verificado') === '0') {
+            $parts[] = 'Sin verificar';
+        }
+        if ($v = $request->input('search')) {
+            $parts[] = "Busqueda: \"{$v}\"";
+        }
+
         return implode('  ·  ', $parts);
     }
 
     public function exportUsersPdf(Request $request): Response
     {
-        $users       = $this->resolveUsersQuery($request);
-        $branding    = $this->branding();
-        $filters     = $this->activeFiltersLabel($request);
+        $users = $this->resolveUsersQuery($request);
+        $branding = $this->branding();
+        $filters = $this->activeFiltersLabel($request);
 
         // Orientación automática: landscape si hay muchos registros o se solicita
         $forceOrient = $request->input('orientation');
         $orientation = $forceOrient ?: ($users->count() > 30 ? 'landscape' : 'portrait');
 
         $pdf = Pdf::loadView('admin.exports.users-pdf', array_merge($branding, [
-            'users'       => $users,
-            'filters'     => $filters,
+            'users' => $users,
+            'filters' => $filters,
             'orientation' => $orientation,
         ]));
 
@@ -118,43 +131,43 @@ class ExportService
         $pdf->set_option('dpi', 150);
         $pdf->set_option('enable_php', false);
 
-        $filename = 'usuarios_' . now()->format('Ymd_His') . '.pdf';
+        $filename = 'usuarios_'.now()->format('Ymd_His').'.pdf';
 
         return $pdf->download($filename);
     }
 
     public function exportUsersExcel(Request $request): BinaryFileResponse
     {
-        $users    = $this->resolveUsersQuery($request);
+        $users = $this->resolveUsersQuery($request);
         $branding = $this->branding();
-        $color    = ltrim($branding['primaryColor'], '#');
+        $color = ltrim($branding['primaryColor'], '#');
 
-        $export   = new UsersExport(
-            users:       $users,
+        $export = new UsersExport(
+            users: $users,
             primaryColor: $color,
-            siteName:    $branding['siteName'],
+            siteName: $branding['siteName'],
             companyName: $branding['companyName'],
         );
 
-        $filename = 'usuarios_' . now()->format('Ymd_His') . '.xlsx';
+        $filename = 'usuarios_'.now()->format('Ymd_His').'.xlsx';
 
         return Excel::download($export, $filename);
     }
 
     public function exportUsersCsv(Request $request): StreamedResponse
     {
-        $users    = $this->resolveUsersQuery($request);
-        $filename = 'usuarios_' . now()->format('Ymd_His') . '.csv';
+        $users = $this->resolveUsersQuery($request);
+        $filename = 'usuarios_'.now()->format('Ymd_His').'.csv';
 
         $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
         $callback = function () use ($users) {
             $handle = fopen('php://output', 'w');
             // BOM para Excel en Windows
-            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($handle, [
                 'Nombre', 'Email', 'Usuario', 'Rol', 'Cargo', 'Área',
@@ -199,61 +212,68 @@ class ExportService
     private function activeRoleFiltersLabel(Request $request): string
     {
         $parts = [];
-        if ($v = $request->input('role'))   $parts[] = "Rol: {$v}";
-        if ($v = $request->input('status')) $parts[] = "Estado: {$v}";
-        if ($v = $request->input('search')) $parts[] = "Búsqueda: \"{$v}\"";
+        if ($v = $request->input('role')) {
+            $parts[] = "Rol: {$v}";
+        }
+        if ($v = $request->input('status')) {
+            $parts[] = "Estado: {$v}";
+        }
+        if ($v = $request->input('search')) {
+            $parts[] = "Búsqueda: \"{$v}\"";
+        }
+
         return implode('  ·  ', $parts);
     }
 
     public function exportRolesPdf(Request $request): Response
     {
-        $roles    = $this->resolveRolesQuery($request);
+        $roles = $this->resolveRolesQuery($request);
         $branding = $this->branding();
-        $filters  = $this->activeRoleFiltersLabel($request);
+        $filters = $this->activeRoleFiltersLabel($request);
 
         // Con usuarios detallados si son pocos roles (portrait), si no landscape
         $orientation = $roles->count() > 5 ? 'landscape' : 'portrait';
-        $showUsers   = $request->boolean('with_users', true);
+        $showUsers = $request->boolean('with_users', true);
 
         $pdf = Pdf::loadView('admin.exports.roles-pdf', array_merge($branding, [
-            'roles'       => $roles,
-            'filters'     => $filters,
+            'roles' => $roles,
+            'filters' => $filters,
             'orientation' => $orientation,
-            'showUsers'   => $showUsers,
+            'showUsers' => $showUsers,
         ]));
 
         $pdf->setPaper('A4', $orientation);
         $pdf->set_option('dpi', 150);
         $pdf->set_option('enable_php', false);
 
-        return $pdf->download('roles_' . now()->format('Ymd_His') . '.pdf');
+        return $pdf->download('roles_'.now()->format('Ymd_His').'.pdf');
     }
 
     public function exportRolesExcel(Request $request): BinaryFileResponse
     {
-        $roles    = $this->resolveRolesQuery($request);
+        $roles = $this->resolveRolesQuery($request);
         $branding = $this->branding();
-        $color    = ltrim($branding['primaryColor'], '#');
+        $color = ltrim($branding['primaryColor'], '#');
 
         return Excel::download(
             new RolesExport($roles, $color, $branding['siteName'], $branding['companyName']),
-            'roles_' . now()->format('Ymd_His') . '.xlsx'
+            'roles_'.now()->format('Ymd_His').'.xlsx'
         );
     }
 
     public function exportRolesCsv(Request $request): StreamedResponse
     {
-        $roles    = $this->resolveRolesQuery($request);
-        $filename = 'roles_' . now()->format('Ymd_His') . '.csv';
+        $roles = $this->resolveRolesQuery($request);
+        $filename = 'roles_'.now()->format('Ymd_His').'.csv';
 
         $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
         $callback = function () use ($roles) {
             $handle = fopen('php://output', 'w');
-            \fprintf($handle, \chr(0xEF) . \chr(0xBB) . \chr(0xBF));
+            \fprintf($handle, \chr(0xEF).\chr(0xBB).\chr(0xBF));
 
             fputcsv($handle, ['Rol', 'Usuarios asignados', 'Permisos', 'Permisos detalle', 'Creado']);
 
@@ -274,12 +294,12 @@ class ExportService
 
     // ── PERMISOS ─────────────────────────────────────────────────────────
 
-    private function resolvePermissionsQuery(Request $request): \Illuminate\Support\Collection
+    private function resolvePermissionsQuery(Request $request): Collection
     {
         $query = Permission::with('roles')->orderBy('name');
 
         if ($module = $request->input('module')) {
-            $query->where('name', 'like', $module . '.%');
+            $query->where('name', 'like', $module.'.%');
         }
         if ($search = $request->input('search')) {
             $query->where(fn ($q) => $q
@@ -294,20 +314,25 @@ class ExportService
     private function activePermissionsFiltersLabel(Request $request): string
     {
         $parts = [];
-        if ($v = $request->input('module')) $parts[] = "Módulo: {$v}";
-        if ($v = $request->input('search')) $parts[] = "Búsqueda: \"{$v}\"";
+        if ($v = $request->input('module')) {
+            $parts[] = "Módulo: {$v}";
+        }
+        if ($v = $request->input('search')) {
+            $parts[] = "Búsqueda: \"{$v}\"";
+        }
+
         return implode('  ·  ', $parts);
     }
 
     public function exportPermissionsPdf(Request $request): Response
     {
         $permissions = $this->resolvePermissionsQuery($request);
-        $branding    = $this->branding();
-        $filters     = $this->activePermissionsFiltersLabel($request);
+        $branding = $this->branding();
+        $filters = $this->activePermissionsFiltersLabel($request);
 
         $pdf = Pdf::loadView('admin.exports.permissions-pdf', array_merge($branding, [
             'permissions' => $permissions,
-            'filters'     => $filters,
+            'filters' => $filters,
             'orientation' => 'portrait',
         ]));
 
@@ -315,34 +340,34 @@ class ExportService
         $pdf->set_option('dpi', 150);
         $pdf->set_option('enable_php', false);
 
-        return $pdf->download('permisos_' . now()->format('Ymd_His') . '.pdf');
+        return $pdf->download('permisos_'.now()->format('Ymd_His').'.pdf');
     }
 
     public function exportPermissionsExcel(Request $request): BinaryFileResponse
     {
         $permissions = $this->resolvePermissionsQuery($request);
-        $branding    = $this->branding();
-        $color       = ltrim($branding['primaryColor'], '#');
+        $branding = $this->branding();
+        $color = ltrim($branding['primaryColor'], '#');
 
         return Excel::download(
-            new \App\Exports\PermissionsExport($permissions, $color, $branding['siteName'], $branding['companyName']),
-            'permisos_' . now()->format('Ymd_His') . '.xlsx'
+            new PermissionsExport($permissions, $color, $branding['siteName'], $branding['companyName']),
+            'permisos_'.now()->format('Ymd_His').'.xlsx'
         );
     }
 
     public function exportPermissionsCsv(Request $request): StreamedResponse
     {
         $permissions = $this->resolvePermissionsQuery($request);
-        $filename    = 'permisos_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'permisos_'.now()->format('Ymd_His').'.csv';
 
         $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
         $callback = function () use ($permissions) {
             $handle = fopen('php://output', 'w');
-            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($handle, ['Nombre técnico', 'Label', 'Módulo', 'Acción', 'Roles asignados', 'Fecha']);
 

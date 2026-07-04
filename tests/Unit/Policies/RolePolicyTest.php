@@ -2,11 +2,12 @@
 
 namespace Tests\Unit\Policies;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Policies\RolePolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use App\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class RolePolicyTest extends TestCase
@@ -14,16 +15,20 @@ class RolePolicyTest extends TestCase
     use RefreshDatabase;
 
     private RolePolicy $policy;
+
     private User $adminUser;
+
     private User $plainUser;
+
     private Role $customRole;
+
     private Role $superAdminRole;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $perms = [
             'roles.viewAny', 'roles.view', 'roles.create',
@@ -49,15 +54,15 @@ class RolePolicyTest extends TestCase
         $this->plainUser = User::factory()->withPersonalTeam()->create();
         $this->plainUser->assignRole('user');
 
-        $this->policy = new RolePolicy();
+        $this->policy = new RolePolicy;
     }
 
-    public function test_viewAny_granted_with_permission(): void
+    public function test_view_any_granted_with_permission(): void
     {
         $this->assertTrue($this->policy->viewAny($this->adminUser));
     }
 
-    public function test_viewAny_denied_without_permission(): void
+    public function test_view_any_denied_without_permission(): void
     {
         $this->assertFalse($this->policy->viewAny($this->plainUser));
     }
@@ -125,19 +130,18 @@ class RolePolicyTest extends TestCase
         $this->assertFalse($this->policy->delete($this->plainUser, $this->customRole));
     }
 
-    public function test_assignPermissions_granted_on_custom_role(): void
+    public function test_assign_permissions_granted_on_custom_role(): void
     {
         $this->assertTrue($this->policy->assignPermissions($this->adminUser, $this->customRole));
     }
 
-    public function test_assignPermissions_denied_on_super_admin_role(): void
+    public function test_assign_permissions_denied_on_super_admin_role(): void
     {
         $this->assertFalse($this->policy->assignPermissions($this->adminUser, $this->superAdminRole));
     }
 
-    public function test_assignPermissions_denied_without_permission(): void
+    public function test_assign_permissions_denied_without_permission(): void
     {
         $this->assertFalse($this->policy->assignPermissions($this->plainUser, $this->customRole));
     }
 }
-

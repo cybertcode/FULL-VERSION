@@ -71,8 +71,11 @@ php artisan lang:add {locale}   # publica archivos en lang/{locale}/
 
 ```bash
 ./vendor/bin/pint                   # PHP code style (Laravel Pint)
+./vendor/bin/phpstan analyse --memory-limit=512M  # Análisis estático (Larastan nivel 5)
 php artisan test                    # PHPUnit
 php artisan permission:cache-reset  # limpiar cache de permisos Spatie
+php artisan backup:run              # backup manual (BD + archivos)
+php artisan schedule:list           # ver tareas programadas (backups, prune tokens)
 ```
 
 ---
@@ -541,6 +544,8 @@ Creadas con el estilo Vuexy:
 | `laravel/sanctum` | ^4.0 | API tokens |
 | `livewire/livewire` | ^3.6.4 | Componentes reactivos |
 | `spatie/laravel-permission` | ^6.25 | Roles y permisos |
+| `spatie/laravel-backup` | ^9.3 | Backups programados de BD + archivos |
+| `larastan/larastan` (dev) | ^3.10 | Análisis estático (PHPStan nivel 5) |
 | `pixinvent/vuexy-laravel-bootstrap-jetstream` | ^3.0 | Swap vistas Jetstream → Vuexy |
 
 ### JS destacados
@@ -567,13 +572,22 @@ Creadas con el estilo Vuexy:
 - [x] Dashboard con stats, gráfica ApexCharts (registros/mes) y actividad reciente (`DashboardService`)
 - [x] Auditoría — visor de Activity Log en `/admin/auditoria` con filtros, modal detalle y export CSV (`ActivityLogService`)
 - [x] Settings del sistema (tabla clave-valor, 9 grupos) — autorizado con `settings.view/edit/testMail/runArtisan`
-- [x] Notificaciones — canal database, dropdown navbar real, página `/admin/notificaciones`, `App\Notifications\SystemNotification` genérica (title, message, icon, color, url)
+- [x] Notificaciones — canal database, dropdown navbar real, página `/admin/notificaciones`, `App\Notifications\SystemNotification` genérica (title, message, icon, color, url), ahora `ShouldQueue` (se envía async)
 - [x] Gestor de Archivos LFM + `<x-lfm-input>`
 - [x] Log Viewer en `/admin/logs` (permiso `logs.view`, solo Super-Admin por defecto)
 - [x] Correos con marca — header con logo de settings, botones #1340A0, español vía laravel-lang
 - [x] Landing frontend `/` — consume branding de settings (logo, nombre, empresa, redes)
 - [x] Menú filtrado por permisos (clave `"permission"` en JSON)
 - [x] Tests Feature de todos los módulos (168 en verde)
+- [x] Backups (`spatie/laravel-backup`) — `config/backup.php`, excluye `storage/`, notifica a `BACKUP_NOTIFICATION_EMAIL`, schedule diario (`backup:clean` 01:00, `backup:run` 01:30, `backup:monitor` 02:00) en `routes/console.php`
+- [x] Logging con rotación — `LOG_STACK=daily` (14 días) en `.env`/`.env.example`, visible en Log Viewer
+- [x] API base — `routes/api.php` registrado en `bootstrap/app.php` bajo prefijo `api/v1` (antes NO se cargaba, bug corregido). `Api/V1/AuthController` (login/logout/me) con Sanctum tokens, `UserResource`
+- [x] CI — `.github/workflows/ci.yml`: Pint + Larastan + PHPUnit en cada push/PR a main/develop
+- [x] Larastan (PHPStan nivel 5) — `phpstan.neon` solo sobre código propio (excluye demos Vuexy rotas), `phpstan-baseline.neon` documenta 65 hallazgos preexistentes
+- [x] Impersonación de usuarios — permiso `users.impersonate`, `UserPolicy::impersonate()` (no self, no Super-Admin), `Admin/ImpersonateController` (`take`/`leave`), banner en `admin/layouts/master.blade.php`, botón en dropdown de `admin/users/index.blade.php`, excepción en `MaintenanceModeMiddleware` y `Enforce2FAMiddleware` para poder salir siempre
+- [x] Job de ejemplo — `App\Jobs\PruneExpiredApiTokens` (borra tokens Sanctum expirados), programado diario 03:00
+- [x] i18n balanceado — `resources/lang/en/actions.php` y `http-statuses.php` agregados (faltaban vs `es/`)
+- [x] Pint aplicado a todo el código propio (formato unificado, sin cambios de lógica)
 
 ## Gotchas importantes
 

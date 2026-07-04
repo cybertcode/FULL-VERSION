@@ -57,5 +57,18 @@
 @endsection
 
 @section('content')
+  @if (session('impersonator_id'))
+    <div class="alert alert-warning d-flex align-items-center justify-content-between mb-4" role="alert">
+      <span>
+        <i class="ti tabler-user-shield me-1"></i>
+        Estás navegando como <strong>{{ auth()->user()->name }}</strong>.
+      </span>
+      <form method="POST" action="{{ route('admin.impersonate.leave') }}" class="m-0">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-warning">Volver a mi sesión</button>
+      </form>
+    </div>
+  @endif
+
   @yield('admin-content')
 @endsection

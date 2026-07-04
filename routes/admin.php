@@ -2,15 +2,18 @@
 
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\FileManagerController;
+use App\Http\Controllers\Admin\ImpersonateController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Middleware\RestrictAdminIpMiddleware;
 use Illuminate\Support\Facades\Route;
+use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 
 // Verbos de rutas resource en español (aplica a todo este archivo)
 Route::resourceVerbs(['create' => 'crear', 'edit' => 'editar']);
@@ -19,7 +22,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    \App\Http\Middleware\RestrictAdminIpMiddleware::class,
+    RestrictAdminIpMiddleware::class,
 ])
     ->prefix('admin')
     ->name('admin.')
@@ -29,20 +32,20 @@ Route::middleware([
         Route::get('/', DashboardController::class)->name('dashboard');
 
         // ── Usuarios ──────────────────────────────────────────────────
-        Route::get('usuarios/data',          [UserController::class, 'data'])->name('users.data');
-        Route::get('usuarios/exportar/pdf',  [UserController::class, 'exportPdf'])->name('users.export.pdf');
-        Route::get('usuarios/exportar/excel',[UserController::class, 'exportExcel'])->name('users.export.excel');
-        Route::get('usuarios/exportar/csv',  [UserController::class, 'exportCsv'])->name('users.export.csv');
+        Route::get('usuarios/data', [UserController::class, 'data'])->name('users.data');
+        Route::get('usuarios/exportar/pdf', [UserController::class, 'exportPdf'])->name('users.export.pdf');
+        Route::get('usuarios/exportar/excel', [UserController::class, 'exportExcel'])->name('users.export.excel');
+        Route::get('usuarios/exportar/csv', [UserController::class, 'exportCsv'])->name('users.export.csv');
 
         Route::resource('usuarios', UserController::class)
             ->parameters(['usuarios' => 'user'])
             ->names([
-                'index'   => 'users.index',
-                'create'  => 'users.create',
-                'store'   => 'users.store',
-                'show'    => 'users.show',
-                'edit'    => 'users.edit',
-                'update'  => 'users.update',
+                'index' => 'users.index',
+                'create' => 'users.create',
+                'store' => 'users.store',
+                'show' => 'users.show',
+                'edit' => 'users.edit',
+                'update' => 'users.update',
                 'destroy' => 'users.destroy',
             ]);
 
@@ -66,32 +69,38 @@ Route::middleware([
         Route::post('usuarios/{user}/reset-password', [UserController::class, 'resetPassword'])
             ->name('users.reset-password');
 
+        Route::post('usuarios/{user}/impersonate', [ImpersonateController::class, 'take'])
+            ->name('users.impersonate');
+
+        Route::post('impersonate/salir', [ImpersonateController::class, 'leave'])
+            ->name('impersonate.leave');
+
         // ── Roles — rutas específicas ANTES del resource para evitar conflictos ──
-        Route::get('roles/exportar/pdf',               [RoleController::class, 'exportPdf'])->name('roles.export.pdf');
-        Route::get('roles/exportar/excel',             [RoleController::class, 'exportExcel'])->name('roles.export.excel');
-        Route::get('roles/exportar/csv',               [RoleController::class, 'exportCsv'])->name('roles.export.csv');
-        Route::get('roles/usuarios/data',              [RoleController::class, 'usersData'])->name('roles.users.data');
-        Route::patch('roles/usuarios/{user}/asignar',  [RoleController::class, 'assignRole'])->name('roles.users.assign');
-        Route::get('roles/usuarios/{user}/historial',  [RoleController::class, 'roleHistory'])->name('roles.users.history');
-        Route::post('roles/usuarios/asignar-masivo',   [RoleController::class, 'bulkAssign'])->name('roles.users.bulk-assign');
-        Route::get('roles/{role}/historial-cambios',   [RoleController::class, 'roleChangeHistory'])->name('roles.change-history');
+        Route::get('roles/exportar/pdf', [RoleController::class, 'exportPdf'])->name('roles.export.pdf');
+        Route::get('roles/exportar/excel', [RoleController::class, 'exportExcel'])->name('roles.export.excel');
+        Route::get('roles/exportar/csv', [RoleController::class, 'exportCsv'])->name('roles.export.csv');
+        Route::get('roles/usuarios/data', [RoleController::class, 'usersData'])->name('roles.users.data');
+        Route::patch('roles/usuarios/{user}/asignar', [RoleController::class, 'assignRole'])->name('roles.users.assign');
+        Route::get('roles/usuarios/{user}/historial', [RoleController::class, 'roleHistory'])->name('roles.users.history');
+        Route::post('roles/usuarios/asignar-masivo', [RoleController::class, 'bulkAssign'])->name('roles.users.bulk-assign');
+        Route::get('roles/{role}/historial-cambios', [RoleController::class, 'roleChangeHistory'])->name('roles.change-history');
 
         Route::resource('roles', RoleController::class)
             ->only(['index', 'store', 'update', 'destroy'])
             ->parameters(['roles' => 'role'])
             ->names([
-                'index'   => 'roles.index',
-                'store'   => 'roles.store',
-                'update'  => 'roles.update',
+                'index' => 'roles.index',
+                'store' => 'roles.store',
+                'update' => 'roles.update',
                 'destroy' => 'roles.destroy',
             ]);
 
         // ── Permisos ──────────────────────────────────────────────────
-        Route::get('permisos/data',           [PermissionController::class, 'data'])->name('permissions.data');
-        Route::get('permisos/exportar/pdf',   [PermissionController::class, 'exportPdf'])->name('permissions.export.pdf');
+        Route::get('permisos/data', [PermissionController::class, 'data'])->name('permissions.data');
+        Route::get('permisos/exportar/pdf', [PermissionController::class, 'exportPdf'])->name('permissions.export.pdf');
         Route::get('permisos/exportar/excel', [PermissionController::class, 'exportExcel'])->name('permissions.export.excel');
-        Route::get('permisos/exportar/csv',   [PermissionController::class, 'exportCsv'])->name('permissions.export.csv');
-        Route::get('permisos',                [PermissionController::class, 'index'])->name('permissions.index');
+        Route::get('permisos/exportar/csv', [PermissionController::class, 'exportCsv'])->name('permissions.export.csv');
+        Route::get('permisos', [PermissionController::class, 'index'])->name('permissions.index');
 
         // ── Mi Perfil ─────────────────────────────────────────────────
         Route::get('mi-perfil', [ProfileController::class, 'show'])->name('profile.show');
@@ -114,7 +123,7 @@ Route::middleware([
         Route::get('auditoria', [ActivityLogController::class, 'index'])->name('activity.index');
 
         // ── Logs del servidor (rap2hpoutre/laravel-log-viewer) ────────
-        Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index'])
+        Route::get('logs', [LogViewerController::class, 'index'])
             ->middleware('permission:logs.view')
             ->name('logs.index');
 

@@ -38,10 +38,10 @@ class SettingController extends BaseAdminController
         $data = $request->except(['_token', '_method']);
 
         $fileFields = [
-            'site_logo'      => ['maxWidth' => 600,  'quality' => 90],
+            'site_logo' => ['maxWidth' => 600,  'quality' => 90],
             'site_logo_dark' => ['maxWidth' => 600,  'quality' => 90],
-            'site_favicon'   => ['maxWidth' => 64,   'quality' => 90],
-            'seo_og_image'   => ['maxWidth' => 1200, 'quality' => 85],
+            'site_favicon' => ['maxWidth' => 64,   'quality' => 90],
+            'seo_og_image' => ['maxWidth' => 1200, 'quality' => 85],
         ];
 
         foreach ($fileFields as $field => $options) {
@@ -103,16 +103,16 @@ class SettingController extends BaseAdminController
 
         try {
             Mail::raw(
-                'Este es un correo de prueba enviado desde ' . setting('site_name', config('app.name')) . '. Si lo recibes, la configuración de correo funciona correctamente.',
+                'Este es un correo de prueba enviado desde '.setting('site_name', config('app.name')).'. Si lo recibes, la configuración de correo funciona correctamente.',
                 static function ($message) use ($email) {
                     $message->to($email)
-                        ->subject('Correo de prueba — ' . setting('site_name', config('app.name')));
+                        ->subject('Correo de prueba — '.setting('site_name', config('app.name')));
                 }
             );
 
-            return response()->json(['success' => true, 'message' => 'Correo enviado correctamente a ' . $email]);
+            return response()->json(['success' => true, 'message' => 'Correo enviado correctamente a '.$email]);
         } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 422);
+            return response()->json(['success' => false, 'message' => 'Error: '.$e->getMessage()], 422);
         }
     }
 
@@ -133,49 +133,50 @@ class SettingController extends BaseAdminController
 
         try {
             Artisan::call($command);
+
             return response()->json(['success' => true, 'message' => "Comando <code>{$command}</code> ejecutado correctamente."]);
         } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 422);
+            return response()->json(['success' => false, 'message' => 'Error: '.$e->getMessage()], 422);
         }
     }
 
     private function getSystemInfo(): array
     {
         $storagePath = storage_path();
-        $totalSpace  = @disk_total_space($storagePath);
-        $freeSpace   = @disk_free_space($storagePath);
+        $totalSpace = @disk_total_space($storagePath);
+        $freeSpace = @disk_free_space($storagePath);
 
         return [
-            'php_version'     => PHP_VERSION,
+            'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
-            'app_version'     => config('app.version', '1.0.0'),
-            'environment'     => app()->environment(),
-            'debug_mode'      => config('app.debug') ? 'Activado' : 'Desactivado',
-            'cache_driver'    => config('cache.default'),
-            'queue_driver'    => config('queue.default'),
-            'db_driver'       => config('database.default'),
-            'disk_total'      => $totalSpace ? $this->formatBytes((int) $totalSpace) : 'N/A',
-            'disk_free'       => $freeSpace  ? $this->formatBytes((int) $freeSpace)  : 'N/A',
-            'disk_used_pct'   => ($totalSpace && $freeSpace)
+            'app_version' => config('app.version', '1.0.0'),
+            'environment' => app()->environment(),
+            'debug_mode' => config('app.debug') ? 'Activado' : 'Desactivado',
+            'cache_driver' => config('cache.default'),
+            'queue_driver' => config('queue.default'),
+            'db_driver' => config('database.default'),
+            'disk_total' => $totalSpace ? $this->formatBytes((int) $totalSpace) : 'N/A',
+            'disk_free' => $freeSpace ? $this->formatBytes((int) $freeSpace) : 'N/A',
+            'disk_used_pct' => ($totalSpace && $freeSpace)
                 ? round((($totalSpace - $freeSpace) / $totalSpace) * 100, 1)
                 : 0,
-            'server_os'       => PHP_OS,
+            'server_os' => PHP_OS,
             'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'N/A',
-            'timezone'        => date_default_timezone_get(),
-            'locale'          => config('app.locale'),
+            'timezone' => date_default_timezone_get(),
+            'locale' => config('app.locale'),
         ];
     }
 
     private function applyMailConfig(array $data): void
     {
         $map = [
-            'mail_driver'       => 'mail.default',
-            'mail_host'         => 'mail.mailers.smtp.host',
-            'mail_port'         => 'mail.mailers.smtp.port',
-            'mail_encryption'   => 'mail.mailers.smtp.encryption',
-            'mail_username'     => 'mail.mailers.smtp.username',
-            'mail_password'     => 'mail.mailers.smtp.password',
-            'mail_from_name'    => 'mail.from.name',
+            'mail_driver' => 'mail.default',
+            'mail_host' => 'mail.mailers.smtp.host',
+            'mail_port' => 'mail.mailers.smtp.port',
+            'mail_encryption' => 'mail.mailers.smtp.encryption',
+            'mail_username' => 'mail.mailers.smtp.username',
+            'mail_password' => 'mail.mailers.smtp.password',
+            'mail_from_name' => 'mail.from.name',
             'mail_from_address' => 'mail.from.address',
         ];
 
@@ -190,7 +191,7 @@ class SettingController extends BaseAdminController
     {
         return match (true) {
             \in_array($field, ['maintenance_mode', 'maintenance_message', 'maintenance_ips'], true) => 'maintenance',
-            \in_array($field, ['force_2fa', 'captcha_enabled'], true)                               => 'security',
+            \in_array($field, ['force_2fa', 'captcha_enabled'], true) => 'security',
             default => '',
         };
     }
@@ -204,6 +205,7 @@ class SettingController extends BaseAdminController
             $bytes = (int) ($bytes / 1024);
             $i++;
         }
-        return $bytes . ' ' . $units[$i];
+
+        return $bytes.' '.$units[$i];
     }
 }

@@ -1,7 +1,10 @@
 <?php
 
+use App\Models\Role;
+use App\Models\User;
 use Spatie\Permission\DefaultTeamResolver;
 use Spatie\Permission\Models\Permission;
+
 return [
 
     'models' => [
@@ -15,7 +18,7 @@ return [
          * `Spatie\Permission\Contracts\Permission` contract.
          */
 
-        'permission' => \App\Models\Permission::class,
+        'permission' => App\Models\Permission::class,
 
         /*
          * When using the "HasRoles" trait from this package, we need to know which
@@ -26,9 +29,9 @@ return [
          * `Spatie\Permission\Contracts\Role` contract.
          */
 
-        'role' => \App\Models\Role::class,
+        'role' => Role::class,
 
-        'user' => \App\Models\User::class,
+        'user' => User::class,
 
     ],
 

@@ -2,8 +2,8 @@
 
 namespace App\Actions\Admin\Role;
 
-use Spatie\Permission\Models\Permission;
 use App\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class CreateRole
 {
@@ -19,4 +19,3 @@ class CreateRole
         return $role;
     }
 }
-

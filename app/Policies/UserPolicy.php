@@ -41,4 +41,11 @@ class UserPolicy
     {
         return $user->can('users.forceDelete') && $user->id !== $model->id;
     }
+
+    public function impersonate(User $user, User $model): bool
+    {
+        return $user->can('users.impersonate')
+            && $user->id !== $model->id
+            && ! $model->hasRole('Super-Admin');
+    }
 }

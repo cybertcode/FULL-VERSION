@@ -14,10 +14,10 @@ class DashboardService
         $total = User::count();
 
         return [
-            'total'  => $total,
+            'total' => $total,
             'active' => User::where('status', UserStatus::Active)->count(),
             'banned' => User::where('status', UserStatus::Banned)->count(),
-            'roles'  => Role::count(),
+            'roles' => Role::count(),
         ];
     }
 
@@ -35,7 +35,7 @@ class DashboardService
         $labels = [];
         $values = [];
         foreach (range(0, 11) as $i) {
-            $month    = $start->copy()->addMonths($i);
+            $month = $start->copy()->addMonths($i);
             $labels[] = ucfirst($month->isoFormat('MMM YY'));
             $values[] = (int) ($raw[$month->format('Y-m')] ?? 0);
         }

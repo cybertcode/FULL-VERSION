@@ -76,8 +76,8 @@ return [
     'home' => '/admin',
 
     'redirects' => [
-        'login'          => '/admin',
-        'logout'         => '/',
+        'login' => '/admin',
+        'logout' => '/',
         'password-reset' => '/login',
     ],
 

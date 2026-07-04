@@ -14,10 +14,10 @@ class DashboardController extends BaseAdminController
         $user = auth()->user();
 
         return view('admin.dashboard.index', [
-            'stats'          => $user->can('users.viewAny') ? $service->stats() : null,
-            'chart'          => $user->can('dashboard.viewStats') ? $service->registrationsPerMonth() : null,
+            'stats' => $user->can('users.viewAny') ? $service->stats() : null,
+            'chart' => $user->can('dashboard.viewStats') ? $service->registrationsPerMonth() : null,
             'recentActivity' => $user->can('activitylog.viewAny') ? $service->recentActivity() : null,
-            'recentUsers'    => $user->can('users.viewAny') ? $service->recentUsers() : null,
+            'recentUsers' => $user->can('users.viewAny') ? $service->recentUsers() : null,
         ]);
     }
 }

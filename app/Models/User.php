@@ -6,10 +6,10 @@ use App\Enums\UserStatus;
 use App\Traits\HasActive;
 use App\Traits\HasFilters;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -18,27 +18,27 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * @property string|null      $avatar
- * @property string           $profile_photo_url
- * @property string           $avatar_url
- * @property UserStatus|null  $status
- * @property string           $name
- * @property string|null      $username
- * @property string           $email
- * @property string|null      $phone
+ * @property string|null $avatar
+ * @property string $profile_photo_url
+ * @property string $avatar_url
+ * @property UserStatus|null $status
+ * @property string $name
+ * @property string|null $username
+ * @property string $email
+ * @property string|null $phone
  */
 class User extends Authenticatable
 {
+    use HasActive;
     use HasApiTokens;
     use HasFactory;
+    use HasFilters;
     use HasProfilePhoto;
     use HasRoles;
     use HasTeams;
     use Notifiable;
-    use TwoFactorAuthenticatable;
     use SoftDeletes;
-    use HasActive;
-    use HasFilters;
+    use TwoFactorAuthenticatable;
 
     protected $fillable = [
         'name',
@@ -71,9 +71,9 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'last_login_at'     => 'datetime',
-            'password'          => 'hashed',
-            'status'            => UserStatus::class,
+            'last_login_at' => 'datetime',
+            'password' => 'hashed',
+            'status' => UserStatus::class,
         ];
     }
 

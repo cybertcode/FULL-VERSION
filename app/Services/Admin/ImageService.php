@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Exceptions\BusinessException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Image\Image;
@@ -17,8 +18,8 @@ class ImageService
         int $maxSizeKb = 5120,
     ): string {
         if ($file->getSize() > $maxSizeKb * 1024) {
-            throw new \App\Exceptions\BusinessException(
-                "La imagen no debe superar los {$maxSizeKb}KB (" . round($maxSizeKb / 1024, 1) . "MB)."
+            throw new BusinessException(
+                "La imagen no debe superar los {$maxSizeKb}KB (".round($maxSizeKb / 1024, 1).'MB).'
             );
         }
 
@@ -33,7 +34,7 @@ class ImageService
         }
 
         // Guardar temporal
-        $tempPath     = $file->store('temp', 'public');
+        $tempPath = $file->store('temp', 'public');
         $absoluteTemp = Storage::disk('public')->path($tempPath);
 
         // Sanitizar el archivo con GD para eliminar perfiles ICC inválidos
@@ -41,8 +42,8 @@ class ImageService
         $this->sanitizeWithGd($absoluteTemp, $extension);
 
         // Ruta final WebP
-        $filename      = pathinfo($tempPath, PATHINFO_FILENAME) . '.webp';
-        $finalRelative = $folder . '/' . $filename;
+        $filename = pathinfo($tempPath, PATHINFO_FILENAME).'.webp';
+        $finalRelative = $folder.'/'.$filename;
         $absoluteFinal = Storage::disk('public')->path($finalRelative);
 
         // Asegurar que el directorio destino exista
@@ -84,9 +85,9 @@ class ImageService
 
         // Re-guardar en el mismo path — esto elimina el perfil ICC inválido
         match ($extension) {
-            'png'  => imagepng($gdImage, $absolutePath, 0),  // sin compresión extra — Spatie lo hará
+            'png' => imagepng($gdImage, $absolutePath, 0),  // sin compresión extra — Spatie lo hará
             'webp' => imagewebp($gdImage, $absolutePath, 100),
-            'gif'  => imagegif($gdImage, $absolutePath),
+            'gif' => imagegif($gdImage, $absolutePath),
             default => imagejpeg($gdImage, $absolutePath, 100), // JPG/JPEG máxima calidad — Spatie recomprimirá
         };
 

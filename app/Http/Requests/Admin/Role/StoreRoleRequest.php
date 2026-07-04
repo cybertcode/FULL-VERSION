@@ -15,9 +15,9 @@ class StoreRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => ['required', 'string', 'max:100', 'unique:roles,name'],
-            'description'   => ['nullable', 'string', 'max:200'],
-            'permissions'   => ['nullable', 'array'],
+            'name' => ['required', 'string', 'max:100', 'unique:roles,name'],
+            'description' => ['nullable', 'string', 'max:200'],
+            'permissions' => ['nullable', 'array'],
             'permissions.*' => ['string', Rule::exists('permissions', 'name')],
         ];
     }
@@ -25,7 +25,7 @@ class StoreRoleRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name'        => 'nombre del rol',
+            'name' => 'nombre del rol',
             'permissions' => 'permisos',
         ];
     }

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\UserStatus;
 use App\Http\Requests\Admin\Role\StoreRoleRequest;
 use App\Http\Requests\Admin\Role\UpdateRoleRequest;
 use App\Models\Role;
 use App\Models\User;
-use App\Enums\UserStatus;
 use App\Services\Admin\ExportService;
 use App\Services\Admin\RoleService;
 use Illuminate\Http\JsonResponse;
@@ -30,11 +30,11 @@ class RoleController extends BaseAdminController
     {
         $this->authorize('viewAny', Role::class);
 
-        $roles              = $this->roleService->all();
+        $roles = $this->roleService->all();
         $permissionsGrouped = $this->roleService->allPermissionsGrouped();
-        $riskStats          = $this->roleService->riskStats();
-        $assignableRoles    = $roles->where('name', '!=', 'Super-Admin')->pluck('name');
-        $statuses           = UserStatus::cases();
+        $riskStats = $this->roleService->riskStats();
+        $assignableRoles = $roles->where('name', '!=', 'Super-Admin')->pluck('name');
+        $statuses = UserStatus::cases();
 
         return view('admin.roles.index', compact('roles', 'permissionsGrouped', 'riskStats', 'assignableRoles', 'statuses'));
     }
@@ -72,27 +72,27 @@ class RoleController extends BaseAdminController
             ->limit($request->input('length', 10))
             ->get()
             ->map(fn (User $u) => [
-                'id'              => $u->id,
-                'name'            => $u->name,
-                'email'           => $u->email,
-                'avatar_url'      => $u->avatar_url,
-                'cargo'           => $u->perfil?->cargo,
-                'role'            => $u->roles->first()?->name ?? '—',
-                'last_login_at'   => $u->last_login_at?->diffForHumans() ?? null,
-                'created_at'      => $u->created_at->format('d/m/Y'),
-                'status'          => $u->status?->value,
-                'status_label'    => $u->status?->label(),
-                'status_class'    => $u->status?->badgeClass(),
-                'show_url'        => route('admin.users.show', $u),
-                'history_url'     => route('admin.roles.users.history', $u),
-                'assign_url'      => route('admin.roles.users.assign', $u),
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+                'avatar_url' => $u->avatar_url,
+                'cargo' => $u->perfil?->cargo,
+                'role' => $u->roles->first()?->name ?? '—',
+                'last_login_at' => $u->last_login_at?->diffForHumans() ?? null,
+                'created_at' => $u->created_at->format('d/m/Y'),
+                'status' => $u->status?->value,
+                'status_label' => $u->status?->label(),
+                'status_class' => $u->status?->badgeClass(),
+                'show_url' => route('admin.users.show', $u),
+                'history_url' => route('admin.roles.users.history', $u),
+                'assign_url' => route('admin.roles.users.assign', $u),
             ]);
 
         return response()->json([
-            'draw'            => (int) $request->input('draw', 1),
-            'recordsTotal'    => $total,
+            'draw' => (int) $request->input('draw', 1),
+            'recordsTotal' => $total,
             'recordsFiltered' => $filtered,
-            'data'            => $rows,
+            'data' => $rows,
         ]);
     }
 
@@ -104,7 +104,7 @@ class RoleController extends BaseAdminController
 
         $this->roleService->assignRole($user, $request->input('role'));
 
-        return response()->json(['message' => "Rol actualizado correctamente."]);
+        return response()->json(['message' => 'Rol actualizado correctamente.']);
     }
 
     public function roleHistory(User $user): JsonResponse
@@ -112,7 +112,7 @@ class RoleController extends BaseAdminController
         $this->authorize('view', $user);
 
         return response()->json([
-            'user'    => $user->name,
+            'user' => $user->name,
             'history' => $this->roleService->roleHistory($user),
         ]);
     }
@@ -142,18 +142,21 @@ class RoleController extends BaseAdminController
     public function exportPdf(Request $request): Response
     {
         $this->authorize('viewAny', Role::class);
+
         return $this->exportService->exportRolesPdf($request);
     }
 
     public function exportExcel(Request $request): BinaryFileResponse
     {
         $this->authorize('viewAny', Role::class);
+
         return $this->exportService->exportRolesExcel($request);
     }
 
     public function exportCsv(Request $request): StreamedResponse
     {
         $this->authorize('viewAny', Role::class);
+
         return $this->exportService->exportRolesCsv($request);
     }
 
@@ -162,9 +165,9 @@ class RoleController extends BaseAdminController
         $this->authorize('viewAny', Role::class);
 
         $request->validate([
-            'user_ids'   => 'required|array|min:1|max:100',
+            'user_ids' => 'required|array|min:1|max:100',
             'user_ids.*' => 'integer|exists:users,id',
-            'role'       => 'required|string|exists:roles,name',
+            'role' => 'required|string|exists:roles,name',
         ]);
 
         ['assigned' => $assigned, 'skipped' => $skipped] = $this->roleService->bulkAssignRole(
@@ -173,9 +176,9 @@ class RoleController extends BaseAdminController
         );
 
         return response()->json([
-            'message' => "Rol asignado a {$assigned} usuario(s)." . ($skipped ? " {$skipped} omitido(s) (Super-Admin)." : ''),
+            'message' => "Rol asignado a {$assigned} usuario(s).".($skipped ? " {$skipped} omitido(s) (Super-Admin)." : ''),
             'assigned' => $assigned,
-            'skipped'  => $skipped,
+            'skipped' => $skipped,
         ]);
     }
 
@@ -184,7 +187,7 @@ class RoleController extends BaseAdminController
         $this->authorize('viewAny', Role::class);
 
         return response()->json([
-            'role'    => $role->name,
+            'role' => $role->name,
             'history' => $this->roleService->roleChangeHistory($role),
         ]);
     }
@@ -200,4 +203,3 @@ class RoleController extends BaseAdminController
         return redirect()->route('admin.roles.index');
     }
 }
-

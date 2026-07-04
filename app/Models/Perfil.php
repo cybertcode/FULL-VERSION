@@ -21,11 +21,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $provincia
  * @property string|null $distrito
  * @property string|null $bio
- * @property bool        $datos_completos
+ * @property bool $datos_completos
  */
 class Perfil extends Model
 {
     use HasFactory;
+
     protected $table = 'perfiles';
 
     protected $fillable = [
@@ -61,9 +62,9 @@ class Perfil extends Model
     protected function casts(): array
     {
         return [
-            'fecha_nacimiento'     => 'date',
-            'fecha_ingreso'        => 'date',
-            'datos_completos'      => 'boolean',
+            'fecha_nacimiento' => 'date',
+            'fecha_ingreso' => 'date',
+            'datos_completos' => 'boolean',
             'perfil_completado_at' => 'datetime',
         ];
     }
@@ -80,6 +81,7 @@ class Perfil extends Model
             $this->apellido_materno,
             $this->nombres,
         ]);
+
         return implode(' ', $partes);
     }
 
@@ -90,6 +92,7 @@ class Perfil extends Model
             trim($apellidoMaterno ?? ''),
             trim($nombres ?? ''),
         ]);
+
         return implode(' ', $partes);
     }
 }

@@ -680,6 +680,19 @@ document.addEventListener('DOMContentLoaded', function () {
                    <i class="icon-base ti tabler-key icon-sm me-2 text-secondary"></i>Resetear contraseña
                  </a>` : '',
             @endcan
+            full.impersonate_url
+              ? `<form id="impersonate-user-${full.id}" action="${full.impersonate_url}" method="POST" class="d-none">
+                   <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                 </form>
+                 <a href="javascript:;" class="dropdown-item"
+                   onclick="confirmAction({
+                     title: 'Iniciar sesión como ${name}',
+                     text: 'Verás el panel exactamente como este usuario. Puedes volver a tu sesión en cualquier momento.',
+                     confirmText: 'Sí, continuar',
+                     onConfirm: () => document.getElementById('impersonate-user-${full.id}').submit()
+                   })">
+                   <i class="icon-base ti tabler-user-shield icon-sm me-2 text-primary"></i>Iniciar sesión como
+                 </a>` : '',
           ].filter(Boolean).join('');
 
           const dropdown = dropdownItems

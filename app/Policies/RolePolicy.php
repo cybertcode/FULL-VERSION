@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 
 class RolePolicy
 {
@@ -40,4 +40,3 @@ class RolePolicy
         return $user->can('roles.assignPermissions') && $role->name !== 'Super-Admin';
     }
 }
-

@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\Permission;
 use App\Models\User;
 
 class PermissionPolicy

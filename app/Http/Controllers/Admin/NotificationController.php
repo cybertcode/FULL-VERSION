@@ -19,7 +19,7 @@ class NotificationController extends BaseAdminController
 
         return view('admin.notifications.index', [
             'notifications' => $query->paginate(15)->withQueryString(),
-            'unreadCount'   => $request->user()->unreadNotifications()->count(),
+            'unreadCount' => $request->user()->unreadNotifications()->count(),
         ]);
     }
 
@@ -39,7 +39,7 @@ class NotificationController extends BaseAdminController
         $request->user()->unreadNotifications->markAsRead();
 
         return back()->with('flash', [
-            'type'    => 'success',
+            'type' => 'success',
             'message' => 'Todas las notificaciones fueron marcadas como leídas.',
         ]);
     }
@@ -49,7 +49,7 @@ class NotificationController extends BaseAdminController
         $request->user()->notifications()->findOrFail($id)->delete();
 
         return back()->with('flash', [
-            'type'    => 'success',
+            'type' => 'success',
             'message' => 'Notificación eliminada.',
         ]);
     }

@@ -4,6 +4,7 @@ namespace App\Actions\Admin\User;
 
 use App\Exceptions\BusinessException;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class ForceDeleteUser
 {
@@ -19,11 +20,11 @@ class ForceDeleteUser
 
         // Eliminar avatar y foto de perfil si existen
         if ($user->avatar) {
-            \Illuminate\Support\Facades\Storage::delete($user->avatar);
+            Storage::delete($user->avatar);
         }
 
         if ($user->perfil?->foto_perfil) {
-            \Illuminate\Support\Facades\Storage::delete($user->perfil->foto_perfil);
+            Storage::delete($user->perfil->foto_perfil);
         }
 
         $user->forceDelete();

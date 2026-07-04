@@ -10,7 +10,10 @@ use App\Actions\Admin\User\UpdateUser;
 use App\Actions\Admin\User\VerifyUserEmail;
 use App\Enums\UserStatus;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -19,17 +22,17 @@ use Illuminate\Support\Str;
 class UserService
 {
     public function __construct(
-        private readonly CreateUser    $createUser,
-        private readonly UpdateUser    $updateUser,
-        private readonly DeleteUser    $deleteUser,
+        private readonly CreateUser $createUser,
+        private readonly UpdateUser $updateUser,
+        private readonly DeleteUser $deleteUser,
         private readonly ForceDeleteUser $forceDeleteUser,
         private readonly VerifyUserEmail $verifyUserEmail,
-        private readonly BulkUserAction  $bulkUserAction,
+        private readonly BulkUserAction $bulkUserAction,
     ) {}
 
-    public function paginate(\Illuminate\Http\Request $request): LengthAwarePaginator
+    public function paginate(Request $request): LengthAwarePaginator
     {
-        /** @var \Illuminate\Database\Eloquent\Builder $query */
+        /** @var Builder $query */
         $query = User::query();
 
         return $query
@@ -44,11 +47,11 @@ class UserService
     public function stats(): array
     {
         return [
-            'total'      => User::count(),
-            'active'     => User::where('status', UserStatus::Active->value)->count(),
-            'inactive'   => User::where('status', UserStatus::Inactive->value)->count(),
-            'banned'     => User::where('status', UserStatus::Banned->value)->count(),
-            'verified'   => User::whereNotNull('email_verified_at')->count(),
+            'total' => User::count(),
+            'active' => User::where('status', UserStatus::Active->value)->count(),
+            'inactive' => User::where('status', UserStatus::Inactive->value)->count(),
+            'banned' => User::where('status', UserStatus::Banned->value)->count(),
+            'verified' => User::whereNotNull('email_verified_at')->count(),
             'sin_acceso' => User::where(fn ($q) => $q->whereNull('last_login_at')->orWhere('last_login_at', '<', now()->subDays(30)))->count(),
         ];
     }
@@ -64,8 +67,8 @@ class UserService
             ->event('created')
             ->log("Usuario '{$user->name}' creado.");
 
-        $user->notify(new \App\Notifications\SystemNotification(
-            title: 'Bienvenido a ' . setting('site_name', config('app.name')),
+        $user->notify(new SystemNotification(
+            title: 'Bienvenido a '.setting('site_name', config('app.name')),
             message: 'Tu cuenta fue creada correctamente. Completa tu perfil para empezar.',
             icon: 'tabler-confetti',
             color: 'success',
@@ -170,13 +173,13 @@ class UserService
 
         Mail::send([], [], function ($message) use ($user, $mensaje) {
             $message->to($user->email, $user->name)
-                ->subject('Tu contraseña ha sido restablecida — ' . config('app.name'))
+                ->subject('Tu contraseña ha sido restablecida — '.config('app.name'))
                 ->html(
-                    "<p>Hola <strong>{$user->name}</strong>,</p>" .
-                    "<p>Un administrador ha restablecido tu contraseña.</p>" .
-                    "<p>{$mensaje}</p>" .
-                    "<p>Por seguridad, te recomendamos cambiarla después de iniciar sesión.</p>" .
-                    "<p>— Equipo de Sistemas</p>"
+                    "<p>Hola <strong>{$user->name}</strong>,</p>".
+                    '<p>Un administrador ha restablecido tu contraseña.</p>'.
+                    "<p>{$mensaje}</p>".
+                    '<p>Por seguridad, te recomendamos cambiarla después de iniciar sesión.</p>'.
+                    '<p>— Equipo de Sistemas</p>'
                 );
         });
 

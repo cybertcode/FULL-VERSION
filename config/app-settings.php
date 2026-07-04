@@ -8,8 +8,8 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'name'     => env('APP_NAME', 'Mi Aplicación'),
-    'version'  => '1.0.0',
+    'name' => env('APP_NAME', 'Mi Aplicación'),
+    'version' => '1.0.0',
     'timezone' => env('APP_TIMEZONE', 'America/Lima'),
 
     /*
@@ -19,8 +19,8 @@ return [
     */
 
     'pagination' => [
-        'default'  => 15,
-        'options'  => [10, 15, 25, 50, 100],
+        'default' => 15,
+        'options' => [10, 15, 25, 50, 100],
     ],
 
     /*
@@ -29,7 +29,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'date_format'     => 'd/m/Y',
+    'date_format' => 'd/m/Y',
     'datetime_format' => 'd/m/Y H:i',
 
     /*
@@ -39,10 +39,10 @@ return [
     */
 
     'currency' => [
-        'symbol'   => env('APP_CURRENCY_SYMBOL', 'S/'),
+        'symbol' => env('APP_CURRENCY_SYMBOL', 'S/'),
         'decimals' => 2,
         'thousands_sep' => ',',
-        'decimal_sep'   => '.',
+        'decimal_sep' => '.',
     ],
 
     /*
@@ -52,10 +52,10 @@ return [
     */
 
     'uploads' => [
-        'max_size_kb'       => 5120,   // 5 MB
-        'allowed_images'    => ['jpg', 'jpeg', 'png', 'webp'],
+        'max_size_kb' => 5120,   // 5 MB
+        'allowed_images' => ['jpg', 'jpeg', 'png', 'webp'],
         'allowed_documents' => ['pdf', 'doc', 'docx', 'xls', 'xlsx'],
-        'disk'              => env('UPLOAD_DISK', 'public'),
+        'disk' => env('UPLOAD_DISK', 'public'),
     ],
 
 ];

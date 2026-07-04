@@ -86,7 +86,7 @@
     "sortablejs": "1.15.6",
     "spinkit": "2.0.1",
     "sweetalert2": "11.14.5",
-    "swiper": "11.1.15",
+    "swiper": "12.1.2",
     "timepicker": "1.14.1",
     "typeahead.js": "0.11.1"
   },
@@ -147,6 +147,10 @@
     "sass": "1.76.0"
   },
   "resolutions": {
+    "form-data": "4.0.4",
+    "picomatch": "2.3.2",
+    "immutable": "3.8.3",
+    "shell-quote": "1.8.4",
     "algoliasearch": "5.17.1",
     "@algolia/client-search": "5.17.1",
     "@algolia/autocomplete-plugin-algolia-insights": "1.18.1",

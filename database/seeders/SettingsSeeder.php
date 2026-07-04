@@ -59,7 +59,7 @@ class SettingsSeeder extends Seeder
             ['key' => 'currency_symbol',    'group' => 'regional', 'value' => 'S/'],
             ['key' => 'currency_decimals',  'group' => 'regional', 'value' => '2'],
             ['key' => 'default_language',   'group' => 'regional', 'value' => 'es'],
-            ['key' => 'pagination_per_page','group' => 'regional', 'value' => '15'],
+            ['key' => 'pagination_per_page', 'group' => 'regional', 'value' => '15'],
 
             // ── Seguridad ──────────────────────────────────────────────
             ['key' => 'session_lifetime',      'group' => 'security', 'value' => '120'],

@@ -33,16 +33,16 @@ class PermissionController extends BaseAdminController
         $query = Permission::with('roles')->orderBy('name');
 
         if ($module = $request->input('module')) {
-            $query->where('name', 'like', $module . '.%');
+            $query->where('name', 'like', $module.'.%');
         }
 
         $permissions = $query->get()->map(fn (Permission $p) => [
-            'id'         => $p->id,
-            'name'       => $p->name,
-            'label'      => $p->label ?? $p->name,
-            'module'     => explode('.', $p->name)[0],
-            'action'     => explode('.', $p->name)[1] ?? '',
-            'roles'      => $p->roles->pluck('name'),
+            'id' => $p->id,
+            'name' => $p->name,
+            'label' => $p->label ?? $p->name,
+            'module' => explode('.', $p->name)[0],
+            'action' => explode('.', $p->name)[1] ?? '',
+            'roles' => $p->roles->pluck('name'),
             'created_at' => $p->created_at?->format('d/m/Y'),
         ]);
 
@@ -52,18 +52,21 @@ class PermissionController extends BaseAdminController
     public function exportPdf(Request $request): Response
     {
         $this->authorize('viewAny', Permission::class);
+
         return $this->exportService->exportPermissionsPdf($request);
     }
 
     public function exportExcel(Request $request): BinaryFileResponse
     {
         $this->authorize('viewAny', Permission::class);
+
         return $this->exportService->exportPermissionsExcel($request);
     }
 
     public function exportCsv(Request $request): StreamedResponse
     {
         $this->authorize('viewAny', Permission::class);
+
         return $this->exportService->exportPermissionsCsv($request);
     }
 }

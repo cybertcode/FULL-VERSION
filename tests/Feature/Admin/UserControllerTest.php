@@ -51,7 +51,7 @@ class UserControllerTest extends AdminTestCase
             ->getJson(route('admin.users.data'));
 
         $response->assertOk()
-                 ->assertJsonStructure(['data' => [['id', 'name', 'email', 'role', 'status']]]);
+            ->assertJsonStructure(['data' => [['id', 'name', 'email', 'role', 'status']]]);
 
         $this->assertGreaterThanOrEqual(3, count($response->json('data')));
     }
@@ -102,18 +102,18 @@ class UserControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Nuevo Usuario',
-                'email'                 => 'nuevo@test.com',
-                'phone'                 => '+51 999 000 001',
-                'password'              => 'Password123',
+                'name' => 'Nuevo Usuario',
+                'email' => 'nuevo@test.com',
+                'phone' => '+51 999 000 001',
+                'password' => 'Password123',
                 'password_confirmation' => 'Password123',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'admin',
+                'status' => UserStatus::Active->value,
+                'role' => 'admin',
             ])
             ->assertRedirect(route('admin.users.index'));
 
         $this->assertDatabaseHas('users', [
-            'name'  => 'Nuevo Usuario',
+            'name' => 'Nuevo Usuario',
             'email' => 'nuevo@test.com',
             'phone' => '+51 999 000 001',
         ]);
@@ -123,12 +123,12 @@ class UserControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Usuario Con Rol',
-                'email'                 => 'conrol@test.com',
-                'password'              => 'Password123',
+                'name' => 'Usuario Con Rol',
+                'email' => 'conrol@test.com',
+                'password' => 'Password123',
                 'password_confirmation' => 'Password123',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'editor',
+                'status' => UserStatus::Active->value,
+                'role' => 'editor',
             ]);
 
         $user = User::where('email', 'conrol@test.com')->first();
@@ -146,12 +146,12 @@ class UserControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Duplicado',
-                'email'                 => $this->admin->email,
-                'password'              => 'Password123',
+                'name' => 'Duplicado',
+                'email' => $this->admin->email,
+                'password' => 'Password123',
                 'password_confirmation' => 'Password123',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'user',
+                'status' => UserStatus::Active->value,
+                'role' => 'user',
             ])
             ->assertSessionHasErrors(['email']);
     }
@@ -160,12 +160,12 @@ class UserControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Test',
-                'email'                 => 'test2@test.com',
-                'password'              => 'Password123',
+                'name' => 'Test',
+                'email' => 'test2@test.com',
+                'password' => 'Password123',
                 'password_confirmation' => 'OtherPassword',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'user',
+                'status' => UserStatus::Active->value,
+                'role' => 'user',
             ])
             ->assertSessionHasErrors(['password']);
     }
@@ -174,12 +174,12 @@ class UserControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Test',
-                'email'                 => 'test3@test.com',
-                'password'              => 'Password123',
+                'name' => 'Test',
+                'email' => 'test3@test.com',
+                'password' => 'Password123',
                 'password_confirmation' => 'Password123',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'rol-que-no-existe',
+                'status' => UserStatus::Active->value,
+                'role' => 'rol-que-no-existe',
             ])
             ->assertSessionHasErrors(['role']);
     }
@@ -190,13 +190,13 @@ class UserControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Test',
-                'email'                 => 'test4@test.com',
-                'password'              => 'Password123',
+                'name' => 'Test',
+                'email' => 'test4@test.com',
+                'password' => 'Password123',
                 'password_confirmation' => 'Password123',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'user',
-                'avatar'                => $file,
+                'status' => UserStatus::Active->value,
+                'role' => 'user',
+                'avatar' => $file,
             ])
             ->assertSessionHasErrors(['avatar']);
     }
@@ -205,12 +205,12 @@ class UserControllerTest extends AdminTestCase
     {
         $this->actingAsUser()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Infiltrado',
-                'email'                 => 'infiltrado@test.com',
-                'password'              => 'Password123',
+                'name' => 'Infiltrado',
+                'email' => 'infiltrado@test.com',
+                'password' => 'Password123',
                 'password_confirmation' => 'Password123',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'user',
+                'status' => UserStatus::Active->value,
+                'role' => 'user',
             ])
             ->assertForbidden();
     }
@@ -253,12 +253,12 @@ class UserControllerTest extends AdminTestCase
                 // El name se construye desde el perfil (Perfil::buildName)
                 'perfil' => [
                     'apellido_paterno' => 'Actualizado',
-                    'nombres'          => 'Nombre',
+                    'nombres' => 'Nombre',
                 ],
-                'email'  => 'actualizado@test.com',
-                'phone'  => '+51 911 222 333',
+                'email' => 'actualizado@test.com',
+                'phone' => '+51 911 222 333',
                 'status' => UserStatus::Active->value,
-                'role'   => 'editor',
+                'role' => 'editor',
             ])
             ->assertRedirect(route('admin.users.index'));
 
@@ -275,10 +275,10 @@ class UserControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->put(route('admin.users.update', $target), [
-                'name'   => $target->name,
-                'email'  => $target->email,
+                'name' => $target->name,
+                'email' => $target->email,
                 'status' => UserStatus::Active->value,
-                'role'   => 'editor',
+                'role' => 'editor',
             ]);
 
         $this->assertTrue($target->fresh()->hasRole('editor'));
@@ -294,10 +294,10 @@ class UserControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->put(route('admin.users.update', $target), [
-                'name'   => $target->name,
-                'email'  => $target->email,
+                'name' => $target->name,
+                'email' => $target->email,
                 'status' => UserStatus::Active->value,
-                'role'   => 'user',
+                'role' => 'user',
                 // sin password
             ]);
 
@@ -312,10 +312,10 @@ class UserControllerTest extends AdminTestCase
         // Mismo email del propio usuario — no debe fallar
         $this->actingAsSuperAdmin()
             ->put(route('admin.users.update', $target), [
-                'name'   => $target->name,
-                'email'  => $target->email,
+                'name' => $target->name,
+                'email' => $target->email,
                 'status' => UserStatus::Active->value,
-                'role'   => 'user',
+                'role' => 'user',
             ])
             ->assertRedirect(route('admin.users.index'));
     }
@@ -327,10 +327,10 @@ class UserControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->put(route('admin.users.update', $target), [
-                'name'   => $target->name,
-                'email'  => $this->admin->email, // email de otro usuario
+                'name' => $target->name,
+                'email' => $this->admin->email, // email de otro usuario
                 'status' => UserStatus::Active->value,
-                'role'   => 'user',
+                'role' => 'user',
             ])
             ->assertSessionHasErrors(['email']);
     }
@@ -341,10 +341,10 @@ class UserControllerTest extends AdminTestCase
 
         $this->actingAsUser()
             ->put(route('admin.users.update', $target), [
-                'name'   => 'Hack',
-                'email'  => 'hack@test.com',
+                'name' => 'Hack',
+                'email' => 'hack@test.com',
                 'status' => UserStatus::Active->value,
-                'role'   => 'user',
+                'role' => 'user',
             ])
             ->assertForbidden();
     }
@@ -432,13 +432,13 @@ class UserControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->post(route('admin.users.store'), [
-                'name'                  => 'Con Avatar',
-                'email'                 => 'avatar@test.com',
-                'password'              => 'Password123',
+                'name' => 'Con Avatar',
+                'email' => 'avatar@test.com',
+                'password' => 'Password123',
                 'password_confirmation' => 'Password123',
-                'status'                => UserStatus::Active->value,
-                'role'                  => 'user',
-                'avatar'                => $file,
+                'status' => UserStatus::Active->value,
+                'role' => 'user',
+                'avatar' => $file,
             ])
             ->assertRedirect(route('admin.users.index'));
 

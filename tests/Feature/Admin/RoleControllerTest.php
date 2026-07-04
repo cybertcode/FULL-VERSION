@@ -61,7 +61,7 @@ class RoleControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.roles.store'), [
-                'name'        => 'moderador',
+                'name' => 'moderador',
                 'permissions' => ['users.viewAny', 'users.view'],
             ])
             ->assertRedirect(route('admin.roles.index'));
@@ -99,7 +99,7 @@ class RoleControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->post(route('admin.roles.store'), [
-                'name'        => 'nuevo-rol',
+                'name' => 'nuevo-rol',
                 'permissions' => ['permiso.inventado'],
             ])
             ->assertSessionHasErrors(['permissions.0']);
@@ -134,7 +134,7 @@ class RoleControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->put(route('admin.roles.update', $role), [
-                'name'        => 'temporal-actualizado',
+                'name' => 'temporal-actualizado',
                 'permissions' => ['dashboard.view'],
             ])
             ->assertRedirect(route('admin.roles.index'));
@@ -150,7 +150,7 @@ class RoleControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->put(route('admin.roles.update', $role), [
-                'name'        => 'con-permisos',
+                'name' => 'con-permisos',
                 'permissions' => ['dashboard.view'],
             ]);
 
@@ -166,7 +166,7 @@ class RoleControllerTest extends AdminTestCase
 
         $this->actingAsSuperAdmin()
             ->put(route('admin.roles.update', $superAdminRole), [
-                'name'        => 'Super-Admin',
+                'name' => 'Super-Admin',
                 'permissions' => ['dashboard.view'],
             ])
             ->assertRedirect(); // BusinessException → redirect con error

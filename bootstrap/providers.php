@@ -1,9 +1,15 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\AuthServiceProvider;
+use App\Providers\FortifyServiceProvider;
+use App\Providers\JetstreamServiceProvider;
+use App\Providers\MenuServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\AuthServiceProvider::class,
-    App\Providers\JetstreamServiceProvider::class,
-    App\Providers\FortifyServiceProvider::class,
-    App\Providers\MenuServiceProvider::class,
+    AppServiceProvider::class,
+    AuthServiceProvider::class,
+    JetstreamServiceProvider::class,
+    FortifyServiceProvider::class,
+    MenuServiceProvider::class,
 ];

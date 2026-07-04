@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserStatus;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -27,22 +28,22 @@ class UserFactory extends Factory
     public function definition(): array
     {
         $firstName = fake('es_PE')->firstName();
-        $lastName  = fake('es_PE')->lastName();
+        $lastName = fake('es_PE')->lastName();
 
         return [
-            'name'                       => "{$firstName} {$lastName}",
-            'username'                   => Str::slug($firstName . '.' . $lastName . fake()->numerify('##')),
-            'email'                      => fake()->unique()->safeEmail(),
-            'email_verified_at'          => now(),
-            'password'                   => static::$password ??= Hash::make('password'),
-            'phone'                      => fake()->numerify('+51 9## ### ###'),
-            'status'                     => \App\Enums\UserStatus::Active->value,
-            'avatar'                     => null,
-            'two_factor_secret'          => null,
-            'two_factor_recovery_codes'  => null,
-            'remember_token'             => Str::random(10),
-            'profile_photo_path'         => null,
-            'current_team_id'            => null,
+            'name' => "{$firstName} {$lastName}",
+            'username' => Str::slug($firstName.'.'.$lastName.fake()->numerify('##')),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'phone' => fake()->numerify('+51 9## ### ###'),
+            'status' => UserStatus::Active->value,
+            'avatar' => null,
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'remember_token' => Str::random(10),
+            'profile_photo_path' => null,
+            'current_team_id' => null,
         ];
     }
 

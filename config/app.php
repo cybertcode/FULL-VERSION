@@ -1,5 +1,8 @@
 <?php
 
+use App\Helpers\Helpers;
+use Illuminate\Support\Facades\File;
+
 return [
 
     /*
@@ -127,9 +130,9 @@ return [
 
     'aliases' => [
         // Other aliases...
-        'Helper' => App\Helpers\Helpers::class,
+        'Helper' => Helpers::class,
         // Requerido por unisharp/laravel-filemanager (usa \File:: facade)
-        'File'   => Illuminate\Support\Facades\File::class,
+        'File' => File::class,
     ],
 
 ];

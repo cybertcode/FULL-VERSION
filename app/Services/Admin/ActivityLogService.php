@@ -21,9 +21,9 @@ class ActivityLogService
     public function stats(): array
     {
         return [
-            'total'   => Activity::count(),
-            'hoy'     => Activity::whereDate('created_at', today())->count(),
-            'semana'  => Activity::where('created_at', '>=', now()->subDays(7))->count(),
+            'total' => Activity::count(),
+            'hoy' => Activity::whereDate('created_at', today())->count(),
+            'semana' => Activity::where('created_at', '>=', now()->subDays(7))->count(),
             'actores' => Activity::whereNotNull('causer_id')->distinct('causer_id')->count('causer_id'),
         ];
     }
@@ -32,8 +32,8 @@ class ActivityLogService
     public function filterOptions(): array
     {
         return [
-            'modulos'  => Activity::whereNotNull('log_name')->distinct()->orderBy('log_name')->pluck('log_name'),
-            'eventos'  => Activity::whereNotNull('event')->distinct()->orderBy('event')->pluck('event'),
+            'modulos' => Activity::whereNotNull('log_name')->distinct()->orderBy('log_name')->pluck('log_name'),
+            'eventos' => Activity::whereNotNull('event')->distinct()->orderBy('event')->pluck('event'),
             'usuarios' => User::whereIn('id', Activity::whereNotNull('causer_id')->distinct()->pluck('causer_id'))
                 ->orderBy('name')
                 ->get(['id', 'name']),
@@ -43,17 +43,17 @@ class ActivityLogService
     public function exportCsv(Request $request): StreamedResponse
     {
         $activities = $this->buildQuery($request)->limit(10000)->get();
-        $filename   = 'auditoria_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'auditoria_'.now()->format('Ymd_His').'.csv';
 
         $headers = [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
         $callback = function () use ($activities) {
             $handle = fopen('php://output', 'w');
             // BOM para Excel en Windows
-            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($handle, ['Fecha', 'Usuario', 'Módulo', 'Evento', 'Descripción', 'Propiedades']);
 
@@ -83,7 +83,7 @@ class ActivityLogService
             ->when($request->filled('usuario'), fn ($q) => $q->where('causer_id', $request->input('usuario')))
             ->when($request->filled('desde'), fn ($q) => $q->whereDate('created_at', '>=', $request->input('desde')))
             ->when($request->filled('hasta'), fn ($q) => $q->whereDate('created_at', '<=', $request->input('hasta')))
-            ->when($request->filled('q'), fn ($q) => $q->where('description', 'like', '%' . $request->input('q') . '%'))
+            ->when($request->filled('q'), fn ($q) => $q->where('description', 'like', '%'.$request->input('q').'%'))
             ->latest();
     }
 }

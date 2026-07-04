@@ -23,11 +23,11 @@ class SettingControllerTest extends AdminTestCase
     {
         $this->actingAsSuperAdmin()
             ->put(route('admin.settings.update', 'regional'), [
-                'timezone'            => 'America/Lima',
-                'default_language'    => 'es',
-                'date_format'         => 'd/m/Y',
-                'currency_symbol'     => 'S/',
-                'currency_decimals'   => 2,
+                'timezone' => 'America/Lima',
+                'default_language' => 'es',
+                'date_format' => 'd/m/Y',
+                'currency_symbol' => 'S/',
+                'currency_decimals' => 2,
                 'pagination_per_page' => 15,
             ])
             ->assertRedirect();

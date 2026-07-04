@@ -15,6 +15,7 @@ class Enforce2FAMiddleware
         'two-factor.*',
         'logout',
         'password.confirm',
+        'admin.impersonate.leave',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -51,7 +52,7 @@ class Enforce2FAMiddleware
 
             return redirect()->route('profile.show')
                 ->with('flash', [
-                    'type'    => 'warning',
+                    'type' => 'warning',
                     'message' => 'El sistema requiere autenticación de dos factores. Actívalo en tu perfil para continuar.',
                 ]);
         }

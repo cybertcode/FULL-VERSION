@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Perfil;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -54,44 +53,44 @@ class PerfilFactory extends Factory
     public function definition(): array
     {
         $departamento = $this->faker->randomElement(self::$departamentos);
-        $dni          = $this->faker->unique()->numerify('########');
-        $sexo         = $this->faker->randomElement(['M', 'F']);
+        $dni = $this->faker->unique()->numerify('########');
+        $sexo = $this->faker->randomElement(['M', 'F']);
 
         return [
             // Identidad
-            'dni'              => $dni,
+            'dni' => $dni,
             'apellido_paterno' => $this->faker->lastName(),
             'apellido_materno' => $this->faker->lastName(),
             'fecha_nacimiento' => $this->faker->dateTimeBetween('-55 years', '-22 years')->format('Y-m-d'),
-            'sexo'             => $sexo,
-            'nacionalidad'     => 'Peruana',
+            'sexo' => $sexo,
+            'nacionalidad' => 'Peruana',
 
             // Laboral
-            'cargo'           => $this->faker->randomElement(self::$cargos),
-            'area'            => $this->faker->randomElement(self::$areas),
-            'fecha_ingreso'   => $this->faker->dateTimeBetween('-15 years', '-6 months')->format('Y-m-d'),
+            'cargo' => $this->faker->randomElement(self::$cargos),
+            'area' => $this->faker->randomElement(self::$areas),
+            'fecha_ingreso' => $this->faker->dateTimeBetween('-15 years', '-6 months')->format('Y-m-d'),
             'codigo_empleado' => $this->faker->unique()->numerify('EMP-####'),
 
             // Contacto
-            'telefono_celular'    => $this->faker->numerify('9########'),
-            'telefono_fijo'       => $this->faker->numerify('01-#######'),
-            'anexo'               => $this->faker->numerify('###'),
+            'telefono_celular' => $this->faker->numerify('9########'),
+            'telefono_fijo' => $this->faker->numerify('01-#######'),
+            'anexo' => $this->faker->numerify('###'),
             'email_institucional' => $this->faker->unique()->safeEmail(),
 
             // Ubicación
-            'direccion'    => $this->faker->streetAddress(),
-            'ubigeo'       => $this->faker->numerify('######'),
-            'distrito'     => $this->faker->city(),
-            'provincia'    => $this->faker->city(),
+            'direccion' => $this->faker->streetAddress(),
+            'ubigeo' => $this->faker->numerify('######'),
+            'distrito' => $this->faker->city(),
+            'provincia' => $this->faker->city(),
             'departamento' => $departamento,
 
             // Público
-            'bio'     => $this->faker->boolean(60) ? $this->faker->sentence(12) : null,
+            'bio' => $this->faker->boolean(60) ? $this->faker->sentence(12) : null,
             'linkedin' => $this->faker->boolean(30)
-                ? 'https://linkedin.com/in/' . $this->faker->userName()
+                ? 'https://linkedin.com/in/'.$this->faker->userName()
                 : null,
 
-            'datos_completos'      => true,
+            'datos_completos' => true,
             'perfil_completado_at' => now(),
         ];
     }
@@ -100,9 +99,9 @@ class PerfilFactory extends Factory
     public function basico(): static
     {
         return $this->state([
-            'cargo'           => null,
-            'area'            => null,
-            'fecha_ingreso'   => null,
+            'cargo' => null,
+            'area' => null,
+            'fecha_ingreso' => null,
             'codigo_empleado' => null,
             'datos_completos' => false,
             'perfil_completado_at' => null,

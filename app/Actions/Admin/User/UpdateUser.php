@@ -22,11 +22,11 @@ class UpdateUser
         ) ?: ($user->name);
 
         $payload = [
-            'name'     => $name,
+            'name' => $name,
             'username' => $data['username'] ?? null,
-            'email'    => $data['email'],
-            'phone'    => $data['phone'] ?? null,
-            'status'   => $data['status'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'status' => $data['status'],
         ];
 
         if (! empty($data['password'])) {
@@ -46,7 +46,7 @@ class UpdateUser
         }
 
         if (array_key_exists('perfil', $data) && is_array($data['perfil'])) {
-            $perfilData = array_filter($data['perfil'], fn($v) => $v !== null && $v !== '');
+            $perfilData = array_filter($data['perfil'], fn ($v) => $v !== null && $v !== '');
             $user->perfil()->updateOrCreate(['user_id' => $user->id], $perfilData);
         }
 

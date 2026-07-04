@@ -15,42 +15,43 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     private array $permissions = [
         // ── Usuarios ────────────────────────────────────────────────────
-        'users.viewAny'    => 'Ver listado de usuarios',
-        'users.view'       => 'Ver detalle de usuario',
-        'users.create'     => 'Crear usuario',
-        'users.edit'       => 'Editar usuario',
-        'users.delete'     => 'Eliminar usuario',
-        'users.restore'    => 'Restaurar usuario eliminado',
-        'users.forceDelete'=> 'Eliminar permanentemente',
+        'users.viewAny' => 'Ver listado de usuarios',
+        'users.view' => 'Ver detalle de usuario',
+        'users.create' => 'Crear usuario',
+        'users.edit' => 'Editar usuario',
+        'users.delete' => 'Eliminar usuario',
+        'users.restore' => 'Restaurar usuario eliminado',
+        'users.forceDelete' => 'Eliminar permanentemente',
+        'users.impersonate' => 'Iniciar sesión como otro usuario',
 
         // ── Roles ────────────────────────────────────────────────────────
-        'roles.viewAny'         => 'Ver listado de roles',
-        'roles.view'            => 'Ver detalle de rol',
-        'roles.create'          => 'Crear rol',
-        'roles.edit'            => 'Editar rol',
-        'roles.delete'          => 'Eliminar rol',
+        'roles.viewAny' => 'Ver listado de roles',
+        'roles.view' => 'Ver detalle de rol',
+        'roles.create' => 'Crear rol',
+        'roles.edit' => 'Editar rol',
+        'roles.delete' => 'Eliminar rol',
         'roles.assignPermissions' => 'Asignar permisos a rol',
 
         // ── Configuración ────────────────────────────────────────────────
-        'settings.view'       => 'Ver configuración del sistema',
-        'settings.edit'       => 'Editar configuración del sistema',
-        'settings.testMail'   => 'Enviar correo de prueba',
+        'settings.view' => 'Ver configuración del sistema',
+        'settings.edit' => 'Editar configuración del sistema',
+        'settings.testMail' => 'Enviar correo de prueba',
         'settings.runArtisan' => 'Ejecutar comandos Artisan',
 
         // ── Registro de actividad ────────────────────────────────────────
         'activitylog.viewAny' => 'Ver registro de actividad',
-        'activitylog.export'  => 'Exportar registro de actividad',
+        'activitylog.export' => 'Exportar registro de actividad',
 
         // ── Dashboard ────────────────────────────────────────────────────
-        'dashboard.view'      => 'Ver dashboard',
+        'dashboard.view' => 'Ver dashboard',
         'dashboard.viewStats' => 'Ver estadísticas del dashboard',
 
         // ── Gestor de archivos ───────────────────────────────────────────
         'files.viewAny' => 'Ver gestor de archivos',
-        'files.upload'  => 'Subir archivos',
-        'files.delete'  => 'Eliminar archivos',
-        'files.rename'  => 'Renombrar archivos y carpetas',
-        'files.folder'  => 'Crear carpetas',
+        'files.upload' => 'Subir archivos',
+        'files.delete' => 'Eliminar archivos',
+        'files.rename' => 'Renombrar archivos y carpetas',
+        'files.folder' => 'Crear carpetas',
 
         // ── Logs del servidor ────────────────────────────────────────────
         'logs.view' => 'Ver logs del servidor',
