@@ -45,10 +45,10 @@ $captchaSiteKey = config('services.recaptcha.site_key', setting('captcha_site_ke
             @csrf
 
           <div class="mb-6">
-            <label for="login-email" class="form-label">Correo electrónico</label>
-            <input type="email" class="form-control @error('email') is-invalid @enderror"
+            <label for="login-email" class="form-label">Correo, usuario o DNI</label>
+            <input type="text" class="form-control @error('email') is-invalid @enderror"
               id="login-email" name="email"
-              placeholder="tu@correo.com" autofocus value="{{ old('email') }}" />
+              placeholder="tu@correo.com, usuario o DNI" autofocus value="{{ old('email') }}" />
             @error('email')
             <span class="invalid-feedback" role="alert"><span class="fw-medium">{{ $message }}</span></span>
             @enderror

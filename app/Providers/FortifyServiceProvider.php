@@ -8,8 +8,10 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Actions\Fortify\ValidateCaptcha;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -42,6 +44,23 @@ class FortifyServiceProvider extends ServiceProvider
                 AttemptToAuthenticate::class,
                 PrepareAuthenticatedSession::class,
             ];
+        });
+
+        // Permite iniciar sesión con email, username o DNI (perfil.dni) en el mismo campo.
+        Fortify::authenticateUsing(function (Request $request) {
+            $login = (string) $request->input(Fortify::username());
+
+            $user = User::query()
+                ->where('email', $login)
+                ->orWhere('username', $login)
+                ->orWhereHas('perfil', fn ($query) => $query->where('dni', $login))
+                ->first();
+
+            if ($user && Hash::check($request->input('password'), $user->password)) {
+                return $user;
+            }
+
+            return null;
         });
 
         Fortify::createUsersUsing(CreateNewUser::class);

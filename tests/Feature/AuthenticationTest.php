@@ -41,4 +41,28 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_users_can_authenticate_using_their_username(): void
+    {
+        $user = User::factory()->create(['username' => 'jperez']);
+
+        $this->post('/login', [
+            'email' => 'jperez',
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_users_can_authenticate_using_their_dni(): void
+    {
+        $user = User::factory()->hasPerfil(['dni' => '12345678'])->create();
+
+        $this->post('/login', [
+            'email' => '12345678',
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticatedAs($user);
+    }
 }
