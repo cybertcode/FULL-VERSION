@@ -6,7 +6,9 @@ use App\Http\Middleware\BlockRegistrationMiddleware;
 use App\Http\Middleware\Enforce2FAMiddleware;
 use App\Http\Middleware\LocaleMiddleware;
 use App\Http\Middleware\MaintenanceModeMiddleware;
+use App\Http\Middleware\ResolveLoginIdentifierMiddleware;
 use App\Http\Middleware\TrackLastLoginMiddleware;
+use App\Http\Middleware\ValidateRegistrationCaptchaMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -40,6 +42,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(LocaleMiddleware::class);
         $middleware->web(MaintenanceModeMiddleware::class);
         $middleware->web(BlockRegistrationMiddleware::class);
+        $middleware->web(ValidateRegistrationCaptchaMiddleware::class);
+        $middleware->web(ResolveLoginIdentifierMiddleware::class);
         $middleware->web(Enforce2FAMiddleware::class);
         $middleware->web(TrackLastLoginMiddleware::class);
 

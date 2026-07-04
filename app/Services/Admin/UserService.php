@@ -15,6 +15,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -188,5 +189,46 @@ class UserService
             ->performedOn($user)
             ->event('password_reset')
             ->log("Contraseña de '{$user->name}' restablecida por administrador.");
+    }
+
+    public function resetTwoFactor(User $user): void
+    {
+        $user->forceFill([
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => null,
+            'two_factor_remember_token' => null,
+        ])->save();
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->event('two_factor_reset')
+            ->log("2FA de '{$user->name}' restablecido por administrador.");
+    }
+
+    public function unlock(User $user): void
+    {
+        $user->forceFill([
+            'failed_login_attempts' => 0,
+            'locked_until' => null,
+        ])->save();
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->event('account_unlocked')
+            ->log("Cuenta de '{$user->name}' desbloqueada por administrador.");
+    }
+
+    public function forceLogout(User $user): void
+    {
+        DB::table('sessions')->where('user_id', $user->id)->delete();
+
+        activity('usuarios')
+            ->causedBy(auth()->user())
+            ->performedOn($user)
+            ->event('force_logout')
+            ->log("Sesiones de '{$user->name}' cerradas por administrador.");
     }
 }

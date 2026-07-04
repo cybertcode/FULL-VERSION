@@ -27,7 +27,7 @@ $customizerHidden = 'customizer-hide';
           </div>
           <!-- /Logo -->
           <h4 class="mb-1">¿Olvidaste tu contraseña? 🔒</h4>
-          <p class="mb-6">Ingresa tu correo y te enviaremos las instrucciones para restablecer tu contraseña.</p>
+          <p class="mb-6">Ingresa tu correo, usuario o DNI y te enviaremos las instrucciones para restablecer tu contraseña.</p>
 
           @if (session('status'))
           <div class="alert alert-success mb-4 rounded" role="alert">
@@ -38,9 +38,9 @@ $customizerHidden = 'customizer-hide';
           <form id="formAuthentication" class="mb-6" action="{{ route('password.email') }}" method="POST">
             @csrf
             <div class="mb-6">
-              <label for="email" class="form-label">Correo electrónico</label>
-              <input type="email" class="form-control @error('email') is-invalid @enderror"
-                id="email" name="email" placeholder="tu@correo.com"
+              <label for="email" class="form-label">Correo, usuario o DNI</label>
+              <input type="text" class="form-control @error('email') is-invalid @enderror"
+                id="email" name="email" placeholder="tu@correo.com, usuario o DNI"
                 autofocus value="{{ old('email') }}" />
               @error('email')
               <span class="invalid-feedback" role="alert">

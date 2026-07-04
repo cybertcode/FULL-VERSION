@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class Setting extends Model
 {
@@ -24,4 +26,32 @@ class Setting extends Model
     const GROUP_MAIL = 'mail';
 
     const GROUP_REGIONAL = 'regional';
+
+    // Claves sensibles que se guardan encriptadas en BD
+    const ENCRYPTED_KEYS = ['mail_password', 'recaptcha_secret_key'];
+
+    protected function isEncryptedKey(): bool
+    {
+        return \in_array($this->getAttribute('key'), self::ENCRYPTED_KEYS, true);
+    }
+
+    public function getValueAttribute(?string $value): ?string
+    {
+        if ($value === null || ! $this->isEncryptedKey()) {
+            return $value;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (DecryptException) {
+            return $value;
+        }
+    }
+
+    public function setValueAttribute(?string $value): void
+    {
+        $this->attributes['value'] = ($value !== null && $this->isEncryptedKey())
+            ? Crypt::encryptString($value)
+            : $value;
+    }
 }

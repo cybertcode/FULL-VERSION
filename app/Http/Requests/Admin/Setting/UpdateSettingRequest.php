@@ -69,8 +69,6 @@ class UpdateSettingRequest extends FormRequest
             'login_lockout_minutes' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:1440'],
             'force_2fa' => ['sometimes', 'nullable', 'boolean'],
             'captcha_enabled' => ['sometimes', 'nullable', 'boolean'],
-            'captcha_site_key' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'captcha_secret_key' => ['sometimes', 'nullable', 'string', 'max:255'],
             'allowed_ips_admin' => ['sometimes', 'nullable', 'string', 'max:2000'],
 
             // Mantenimiento
@@ -143,8 +141,6 @@ class UpdateSettingRequest extends FormRequest
             'session_lifetime' => 'duración de sesión',
             'login_max_attempts' => 'intentos máximos de login',
             'login_lockout_minutes' => 'tiempo de bloqueo',
-            'captcha_site_key' => 'reCAPTCHA site key',
-            'captcha_secret_key' => 'reCAPTCHA secret key',
             'allowed_ips_admin' => 'IPs permitidas',
             // Mantenimiento
             'maintenance_message' => 'mensaje de mantenimiento',

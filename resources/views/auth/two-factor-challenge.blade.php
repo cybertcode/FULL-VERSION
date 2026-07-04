@@ -112,7 +112,11 @@ $customizerHidden = 'customizer-hide';
               </div>
             </form>
 
-            <div class="text-center mt-4">
+            <p class="text-center text-body-secondary small mt-4 mb-2">
+              ¿Perdiste tu dispositivo y tus códigos de recuperación? Contacta al administrador del sistema para restablecer tu verificación en dos pasos.
+            </p>
+
+            <div class="text-center">
               <form method="POST" action="{{ route('logout') }}" class="d-inline">
                 @csrf
                 <button type="submit" class="btn btn-link text-body-secondary p-0 small">

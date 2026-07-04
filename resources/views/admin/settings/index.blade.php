@@ -16,7 +16,22 @@
 <div class="row">
   <div class="col-md-12">
 
-    <x-breadcrumb title="Configuración del Sistema" :items="[['label' => 'Configuración']]" />
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+      <x-breadcrumb title="Configuración del Sistema" :items="[['label' => 'Configuración']]" />
+      @can('settings.view')
+      <div class="d-flex gap-2">
+        <a href="{{ route('admin.settings.export') }}" class="btn btn-label-secondary btn-sm">
+          <i class="icon-base ti tabler-download icon-sm me-1"></i> Exportar
+        </a>
+        @can('settings.edit')
+        <button type="button" class="btn btn-label-secondary btn-sm" onclick="document.getElementById('import-config-input').click()">
+          <i class="icon-base ti tabler-upload icon-sm me-1"></i> Importar
+        </button>
+        <input type="file" id="import-config-input" accept="application/json" hidden onchange="importSettingsFile(this)">
+        @endcan
+      </div>
+      @endcan
+    </div>
 
     @if(setting('maintenance_mode'))
     <div class="alert alert-warning alert-dismissible d-flex align-items-center mb-6" role="alert">
@@ -55,6 +70,7 @@
                 @if($item['target'] === 'maintenance' && setting('maintenance_mode'))
                   <span class="badge bg-warning ms-auto" style="font-size:.65rem;">ON</span>
                 @endif
+                <span class="badge bg-label-warning ms-auto d-none" data-dirty-badge="{{ $item['target'] }}" style="font-size:.6rem;">Sin guardar</span>
               </button>
               @endforeach
               <div class="border-top mx-3 my-1"></div>
@@ -835,34 +851,10 @@
                       </div>
                     </div>
 
-                    {{-- API keys — password toggle --}}
-                    <div class="col-sm-6 form-password-toggle">
-                      <label class="form-label" for="captcha_site_key">reCAPTCHA Site Key</label>
-                      <div class="input-group input-group-merge">
-                        <span class="input-group-text"><i class="icon-base ti tabler-key icon-sm"></i></span>
-                        <input type="password" id="captcha_site_key" name="captcha_site_key"
-                          class="form-control @error('captcha_site_key') is-invalid @enderror"
-                          value="{{ old('captcha_site_key', setting('captcha_site_key')) }}"
-                          placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" autocomplete="new-password">
-                        <span class="input-group-text cursor-pointer">
-                          <i class="icon-base ti tabler-eye-off icon-sm"></i>
-                        </span>
-                        @error('captcha_site_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6 form-password-toggle">
-                      <label class="form-label" for="captcha_secret_key">reCAPTCHA Secret Key</label>
-                      <div class="input-group input-group-merge">
-                        <span class="input-group-text"><i class="icon-base ti tabler-key icon-sm"></i></span>
-                        <input type="password" id="captcha_secret_key" name="captcha_secret_key"
-                          class="form-control @error('captcha_secret_key') is-invalid @enderror"
-                          value="{{ old('captcha_secret_key', setting('captcha_secret_key')) }}"
-                          placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" autocomplete="new-password">
-                        <span class="input-group-text cursor-pointer">
-                          <i class="icon-base ti tabler-eye-off icon-sm"></i>
-                        </span>
-                        @error('captcha_secret_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <div class="col-12">
+                      <div class="alert alert-info d-flex align-items-center mb-0" role="alert">
+                        <i class="icon-base ti tabler-info-circle icon-sm me-3 flex-shrink-0"></i>
+                        Las claves de Google reCAPTCHA se configuran en <strong>Integraciones → Google reCAPTCHA v2</strong>.
                       </div>
                     </div>
 
@@ -1392,19 +1384,163 @@ window.addEventListener('load', function () {
   }
 });
 
-// ── Tab: activar el que tiene errores, o el indicado en URL ──────────────────
+// ── Tab: activar el que tiene errores, el guardado en sessionStorage, o el indicado en URL ──
 (function () {
   var invalid = document.querySelector('.is-invalid');
   if (invalid) {
     var pane = invalid.closest('.tab-pane');
     if (pane) { new bootstrap.Tab(document.querySelector('[data-bs-target="#' + pane.id + '"]')).show(); return; }
   }
-  var tab = new URLSearchParams(window.location.search).get('tab');
+  var stored = sessionStorage.getItem('settings-active-tab');
+  var tab = stored || new URLSearchParams(window.location.search).get('tab');
   if (tab) {
     var btn = document.querySelector('[data-bs-target="#tab-' + tab + '"]');
     if (btn) new bootstrap.Tab(btn).show();
   }
 })();
+
+// Recordar el tab activo al cambiar de pestaña
+document.querySelectorAll('#settingsNavPills [data-bs-toggle="pill"]').forEach(function (btn) {
+  btn.addEventListener('shown.bs.tab', function () {
+    var target = btn.getAttribute('data-bs-target').replace('#tab-', '');
+    sessionStorage.setItem('settings-active-tab', target);
+  });
+});
+
+// ── Guardado AJAX — cada form de settings se envía sin recargar la página ────
+document.querySelectorAll('#tab-branding form, #tab-seo form, #tab-company form, #tab-mail form, #tab-regional form, #tab-security form, #tab-maintenance form, #tab-integrations form, #tab-appearance form')
+  .forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitSettingsForm(form);
+    });
+  });
+
+function submitSettingsForm(form) {
+  var submitBtn = form.querySelector('button[type="submit"]');
+  var originalHtml = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+  }
+
+  // Limpiar errores previos del form
+  form.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });
+  form.querySelectorAll('.invalid-feedback').forEach(function (el) { el.textContent = ''; });
+
+  fetch(form.action, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+      'Accept': 'application/json',
+    },
+    body: new FormData(form),
+  })
+  .then(function (r) { return r.json().then(function (body) { return { status: r.status, body: body }; }); })
+  .then(function (res) {
+    if (res.status === 422) {
+      var errors = res.body.errors || {};
+      var firstField = null;
+      Object.keys(errors).forEach(function (field) {
+        var input = form.querySelector('[name="' + field + '"]');
+        if (!input) return;
+        if (!firstField) firstField = input;
+        input.classList.add('is-invalid');
+        var feedback = input.closest('.input-group, .col-12, .col-sm-6, .col-sm-4, .col-sm-3, .col-sm-2, .col-sm-5, .col-sm-8')?.querySelector('.invalid-feedback');
+        if (feedback) feedback.textContent = errors[field][0];
+      });
+      if (firstField) firstField.focus();
+      showToast('error', 'Revisa los campos marcados en rojo.');
+      return;
+    }
+
+    if (!res.body.success) {
+      showToast('error', res.body.message || 'Ocurrió un error al guardar.');
+      return;
+    }
+
+    if (res.body.data && res.body.data.primary_color) {
+      document.cookie = 'admin-primaryColor=; Max-Age=0; path=/';
+    }
+
+    // Limpiar inputs de archivo tras subir — evita reenviarlos si se guarda otro campo del mismo tab
+    form.querySelectorAll('input[type="file"]').forEach(function (input) { input.value = ''; });
+
+    markFormClean(form);
+    showToast('success', res.body.message || 'Configuración guardada correctamente.');
+  })
+  .catch(function () {
+    showToast('error', 'Error de conexión. Intenta de nuevo.');
+  })
+  .finally(function () {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalHtml;
+    }
+  });
+}
+
+// ── Indicador de cambios sin guardar por tab ─────────────────────────────────
+var dirtyForms = new Set();
+
+function tabTargetOf(form) {
+  var pane = form.closest('.tab-pane');
+  return pane ? pane.id.replace('tab-', '') : null;
+}
+
+function markFormDirty(form) {
+  var target = tabTargetOf(form);
+  if (!target) return;
+  dirtyForms.add(target);
+  var badge = document.querySelector('[data-dirty-badge="' + target + '"]');
+  if (badge) badge.classList.remove('d-none');
+}
+
+function markFormClean(form) {
+  var target = tabTargetOf(form);
+  if (!target) return;
+  dirtyForms.delete(target);
+  var badge = document.querySelector('[data-dirty-badge="' + target + '"]');
+  if (badge) badge.classList.add('d-none');
+}
+
+document.querySelectorAll('.tab-pane form').forEach(function (form) {
+  form.addEventListener('input', function () { markFormDirty(form); });
+  form.addEventListener('change', function () { markFormDirty(form); });
+});
+
+window.addEventListener('beforeunload', function (e) {
+  if (dirtyForms.size === 0) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
+
+// ── Importar configuración desde JSON ────────────────────────────────────────
+function importSettingsFile(input) {
+  if (!input.files || !input.files[0]) return;
+  var formData = new FormData();
+  formData.append('file', input.files[0]);
+
+  fetch('{{ route('admin.settings.import') }}', {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+      'Accept': 'application/json',
+    },
+    body: formData,
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    if (data.success) {
+      showAlert('Configuración importada', data.message, 'success');
+      setTimeout(function () { window.location.reload(); }, 1200);
+    } else {
+      showToast('error', data.message || 'No se pudo importar el archivo.');
+    }
+  })
+  .catch(function () { showToast('error', 'Error de conexión al importar.'); })
+  .finally(function () { input.value = ''; });
+}
 
 // ── File upload preview — patrón Vuexy: URL.createObjectURL ──────────────────
 function previewImage(input, targetId) {

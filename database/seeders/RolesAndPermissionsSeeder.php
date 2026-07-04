@@ -23,6 +23,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'users.restore' => 'Restaurar usuario eliminado',
         'users.forceDelete' => 'Eliminar permanentemente',
         'users.impersonate' => 'Iniciar sesión como otro usuario',
+        'users.manageSecurity' => 'Restablecer 2FA, desbloquear cuenta y forzar cierre de sesión',
 
         // ── Roles ────────────────────────────────────────────────────────
         'roles.viewAny' => 'Ver listado de roles',
@@ -31,6 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'roles.edit' => 'Editar rol',
         'roles.delete' => 'Eliminar rol',
         'roles.assignPermissions' => 'Asignar permisos a rol',
+        'permissions.viewAny' => 'Ver catálogo de permisos',
 
         // ── Configuración ────────────────────────────────────────────────
         'settings.view' => 'Ver configuración del sistema',
@@ -81,7 +83,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->syncPermissions([
             'users.viewAny', 'users.view', 'users.create', 'users.edit', 'users.delete',
-            'roles.viewAny', 'roles.view',
+            'users.manageSecurity',
+            'roles.viewAny', 'roles.view', 'permissions.viewAny',
             'settings.view',
             'activitylog.viewAny',
             'login-attempts.viewAny',

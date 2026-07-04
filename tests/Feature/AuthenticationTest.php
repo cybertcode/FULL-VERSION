@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -64,5 +65,36 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_account_locks_after_max_failed_attempts(): void
+    {
+        $user = User::factory()->create();
+
+        Setting::query()->updateOrCreate(['key' => 'login_max_attempts'], ['value' => '3', 'group' => 'security']);
+        Setting::query()->updateOrCreate(['key' => 'login_lockout_minutes'], ['value' => '15', 'group' => 'security']);
+
+        for ($i = 0; $i < 3; $i++) {
+            $this->post('/login', ['email' => $user->email, 'password' => 'wrong-password']);
+        }
+
+        $user->refresh();
+        $this->assertTrue($user->isLocked());
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'password']);
+        $this->assertGuest();
+    }
+
+    public function test_failed_attempts_reset_after_successful_login(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'wrong-password']);
+        $user->refresh();
+        $this->assertSame(1, $user->failed_login_attempts);
+
+        $this->post('/login', ['email' => $user->email, 'password' => 'password']);
+        $user->refresh();
+        $this->assertSame(0, $user->failed_login_attempts);
     }
 }

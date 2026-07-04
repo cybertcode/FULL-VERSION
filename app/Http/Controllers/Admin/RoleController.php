@@ -132,6 +132,10 @@ class RoleController extends BaseAdminController
     {
         $this->authorize('update', $role);
 
+        if ($request->has('permissions')) {
+            $this->authorize('assignPermissions', $role);
+        }
+
         $this->roleService->update($role, $request->validated());
 
         $this->flashSuccess('Rol actualizado correctamente.');

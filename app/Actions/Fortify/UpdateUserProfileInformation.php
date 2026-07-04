@@ -17,6 +17,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      */
     public function update(User $user, array $input): void
     {
+        // El cambio de email está deshabilitado desde el propio perfil: solo un administrador
+        // puede cambiarlo (política institucional, evita suplantación por autocambio de email).
+        $input['email'] = $user->email;
+
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],

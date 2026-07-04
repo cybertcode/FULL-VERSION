@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SettingController extends BaseAdminController
 {
@@ -31,7 +32,7 @@ class SettingController extends BaseAdminController
         return view('admin.settings.index', compact('systemInfo'));
     }
 
-    public function update(UpdateSettingRequest $request, string $group): RedirectResponse
+    public function update(UpdateSettingRequest $request, string $group): RedirectResponse|JsonResponse
     {
         $this->authorize('settings.edit');
 
@@ -75,14 +76,30 @@ class SettingController extends BaseAdminController
             $this->applyMailConfig($data);
         }
 
-        foreach ($data as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value, 'group' => $group]
-            );
+        $changes = $this->settingService->save($data, $group);
+
+        if ($changes !== []) {
+            activity('configuracion')
+                ->causedBy(auth()->user())
+                ->withProperties(['group' => $group, 'changes' => $this->maskSensitiveChanges($changes)])
+                ->event('updated')
+                ->log("Configuración '{$group}' actualizada.");
         }
 
-        $this->settingService->clearCache();
+        if ($request->wantsJson()) {
+            $response = response()->json([
+                'success' => true,
+                'message' => 'Configuración guardada correctamente.',
+                'data' => $data,
+            ]);
+
+            if ($group === 'appearance' && isset($data['primary_color'])) {
+                $response = $response->withCookie(cookie()->forget('admin-primaryColor'));
+            }
+
+            return $response;
+        }
+
         $this->flashSuccess('Configuración guardada correctamente.');
 
         $response = redirect()->route('admin.settings.index', ['tab' => $group]);
@@ -188,6 +205,67 @@ class SettingController extends BaseAdminController
                 config([$configKey => $data[$settingKey]]);
             }
         }
+    }
+
+    public function export(): StreamedResponse
+    {
+        $this->authorize('settings.view');
+
+        $filename = 'configuracion_'.now()->format('Ymd_His').'.json';
+        $payload = json_encode($this->settingService->export(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        activity('configuracion')
+            ->causedBy(auth()->user())
+            ->event('exported')
+            ->log('Configuración exportada a JSON.');
+
+        return response()->streamDownload(
+            function () use ($payload) {
+                echo $payload;
+            },
+            $filename,
+            ['Content-Type' => 'application/json']
+        );
+    }
+
+    public function import(Request $request): JsonResponse
+    {
+        $this->authorize('settings.edit');
+
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:json', 'max:512'],
+        ]);
+
+        $decoded = json_decode($request->file('file')->get(), true);
+
+        if (! \is_array($decoded)) {
+            return response()->json(['success' => false, 'message' => 'El archivo no contiene un JSON válido.'], 422);
+        }
+
+        $applied = $this->settingService->import($decoded);
+
+        activity('configuracion')
+            ->causedBy(auth()->user())
+            ->withProperties(['applied' => $applied])
+            ->event('imported')
+            ->log("Configuración importada desde JSON ({$applied} claves aplicadas).");
+
+        return response()->json([
+            'success' => true,
+            'message' => "Se aplicaron {$applied} configuraciones correctamente. Recarga la página para verlas.",
+        ]);
+    }
+
+    /** Enmascara valores de claves sensibles antes de guardarlos en el log de auditoría. */
+    private function maskSensitiveChanges(array $changes): array
+    {
+        foreach (Setting::ENCRYPTED_KEYS as $key) {
+            if (isset($changes[$key])) {
+                $changes[$key] = ['before' => '••••••', 'after' => '••••••'];
+            }
+        }
+
+        return $changes;
     }
 
     private function groupOf(string $field): string

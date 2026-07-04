@@ -47,6 +47,7 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         // Permite iniciar sesión con email, username o DNI (perfil.dni) en el mismo campo.
+        // También aplica bloqueo temporal de cuenta tras N intentos fallidos consecutivos (login_lockout_minutes).
         Fortify::authenticateUsing(function (Request $request) {
             $login = (string) $request->input(Fortify::username());
 
@@ -56,9 +57,34 @@ class FortifyServiceProvider extends ServiceProvider
                 ->orWhereHas('perfil', fn ($query) => $query->where('dni', $login))
                 ->first();
 
-            if ($user && Hash::check($request->input('password'), $user->password)) {
+            if (! $user) {
+                return null;
+            }
+
+            if ($user->isLocked()) {
+                return null;
+            }
+
+            if (Hash::check($request->input('password'), $user->password)) {
+                if ($user->failed_login_attempts > 0 || $user->locked_until !== null) {
+                    $user->forceFill(['failed_login_attempts' => 0, 'locked_until' => null])->save();
+                }
+
                 return $user;
             }
+
+            $maxAttempts = (int) (function_exists('setting') ? setting('login_max_attempts', 5) : 5);
+            $lockoutMinutes = (int) (function_exists('setting') ? setting('login_lockout_minutes', 15) : 15);
+
+            $attempts = $user->failed_login_attempts + 1;
+            $update = ['failed_login_attempts' => $attempts];
+
+            if ($attempts >= $maxAttempts) {
+                $update['locked_until'] = now()->addMinutes($lockoutMinutes);
+                $update['failed_login_attempts'] = 0;
+            }
+
+            $user->forceFill($update)->save();
 
             return null;
         });

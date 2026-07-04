@@ -3,7 +3,7 @@ use Illuminate\Support\Facades\Route;
 $configData = Helper::appClasses();
 $customizerHidden = 'customizer-hide';
 $captchaEnabled = setting('captcha_enabled', false);
-$captchaSiteKey = config('services.recaptcha.site_key', setting('captcha_site_key', ''));
+$captchaSiteKey = config('services.recaptcha.site_key', setting('recaptcha_site_key', ''));
 @endphp
 
 @extends('layouts/blankLayout')

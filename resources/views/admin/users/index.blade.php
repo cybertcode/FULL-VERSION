@@ -680,6 +680,26 @@ document.addEventListener('DOMContentLoaded', function () {
                    <i class="icon-base ti tabler-key icon-sm me-2 text-secondary"></i>Resetear contraseña
                  </a>` : '',
             @endcan
+            @can('users.manageSecurity')
+            full.reset_two_factor_url
+              ? `<a href="javascript:;" class="dropdown-item"
+                   data-reset-2fa-url="${full.reset_two_factor_url}"
+                   data-user-name="${name}">
+                   <i class="icon-base ti tabler-shield-x icon-sm me-2 text-warning"></i>Restablecer 2FA
+                 </a>` : '',
+            full.unlock_url
+              ? `<a href="javascript:;" class="dropdown-item"
+                   data-unlock-url="${full.unlock_url}"
+                   data-user-name="${name}">
+                   <i class="icon-base ti tabler-lock-open icon-sm me-2 text-success"></i>Desbloquear cuenta
+                 </a>` : '',
+            full.force_logout_url
+              ? `<a href="javascript:;" class="dropdown-item"
+                   data-force-logout-url="${full.force_logout_url}"
+                   data-user-name="${name}">
+                   <i class="icon-base ti tabler-logout icon-sm me-2 text-danger"></i>Cerrar sesiones
+                 </a>` : '',
+            @endcan
             full.impersonate_url
               ? `<form id="impersonate-user-${full.id}" action="${full.impersonate_url}" method="POST" class="d-none">
                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -919,6 +939,54 @@ document.addEventListener('DOMContentLoaded', function () {
     jsonFetch(btn.dataset.resendUrl)
       .then(d => showToast('success', d.message ?? 'Correo de verificación enviado.'))
       .catch(() => showToast('error', 'No se pudo enviar el correo.'));
+  });
+
+  // ── Restablecer 2FA ───────────────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-reset-2fa-url]');
+    if (!btn) return;
+    confirmAction({
+      title      : '¿Restablecer 2FA?',
+      text       : `Se eliminará la configuración de autenticación de dos factores de "${btn.dataset.userName}". Deberá volver a configurarla desde su perfil.`,
+      confirmText: 'Sí, restablecer',
+      cancelText : 'Cancelar',
+      isDanger   : true,
+      onConfirm  : () => jsonFetch(btn.dataset.reset2faUrl)
+        .then(d => { showToast('success', d.message ?? '2FA restablecido.'); dt.ajax.reload(); })
+        .catch(() => showToast('error', 'No se pudo restablecer el 2FA.')),
+    });
+  });
+
+  // ── Desbloquear cuenta ────────────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-unlock-url]');
+    if (!btn) return;
+    confirmAction({
+      title      : '¿Desbloquear cuenta?',
+      text       : `Se eliminará el bloqueo temporal de "${btn.dataset.userName}" por intentos fallidos de inicio de sesión.`,
+      confirmText: 'Sí, desbloquear',
+      cancelText : 'Cancelar',
+      isDanger   : false,
+      onConfirm  : () => jsonFetch(btn.dataset.unlockUrl)
+        .then(d => { showToast('success', d.message ?? 'Cuenta desbloqueada.'); dt.ajax.reload(); })
+        .catch(() => showToast('error', 'No se pudo desbloquear la cuenta.')),
+    });
+  });
+
+  // ── Forzar cierre de sesiones ─────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-force-logout-url]');
+    if (!btn) return;
+    confirmAction({
+      title      : '¿Cerrar todas las sesiones?',
+      text       : `Se invalidarán todas las sesiones activas de "${btn.dataset.userName}" en todos sus dispositivos.`,
+      confirmText: 'Sí, cerrar sesiones',
+      cancelText : 'Cancelar',
+      isDanger   : true,
+      onConfirm  : () => jsonFetch(btn.dataset.forceLogoutUrl)
+        .then(d => showToast('success', d.message ?? 'Sesiones cerradas.'))
+        .catch(() => showToast('error', 'No se pudieron cerrar las sesiones.')),
+    });
   });
 
   // ── Restaurar usuario ────────────────────────────────────────────────────

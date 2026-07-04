@@ -8,6 +8,6 @@ class PermissionPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('roles.viewAny');
+        return $user->can('permissions.viewAny');
     }
 }

@@ -67,8 +67,6 @@ class SettingsSeeder extends Seeder
             ['key' => 'login_lockout_minutes', 'group' => 'security', 'value' => '15'],
             ['key' => 'force_2fa',             'group' => 'security', 'value' => '0'],
             ['key' => 'captcha_enabled',       'group' => 'security', 'value' => '0'],
-            ['key' => 'captcha_site_key',      'group' => 'security', 'value' => null],
-            ['key' => 'captcha_secret_key',    'group' => 'security', 'value' => null],
             ['key' => 'allowed_ips_admin',     'group' => 'security', 'value' => null],
 
             // ── Mantenimiento ──────────────────────────────────────────

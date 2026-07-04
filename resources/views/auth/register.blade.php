@@ -2,6 +2,8 @@
 use Illuminate\Support\Facades\Route;
 $configData = Helper::appClasses();
 $customizerHidden = 'customizer-hide';
+$captchaEnabled = setting('captcha_enabled', false);
+$captchaSiteKey = config('services.recaptcha.site_key', setting('recaptcha_site_key', ''));
 @endphp
 
 @extends('layouts/blankLayout')
@@ -11,6 +13,12 @@ $customizerHidden = 'customizer-hide';
 @section('page-style')
 @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
 @endsection
+
+@if($captchaEnabled && $captchaSiteKey)
+@section('vendor-script')
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+@endsection
+@endif
 
 @section('content')
 <div class="container-xxl">
@@ -87,6 +95,16 @@ $customizerHidden = 'customizer-hide';
               </div>
               @error('terms')
                 <div class="invalid-feedback"><span class="fw-medium">{{ $message }}</span></div>
+              @enderror
+            </div>
+            @endif
+
+            {{-- reCAPTCHA v2 — solo si está habilitado en Settings --}}
+            @if($captchaEnabled && $captchaSiteKey)
+            <div class="mb-6">
+              <div class="g-recaptcha" data-sitekey="{{ $captchaSiteKey }}"></div>
+              @error('g-recaptcha-response')
+              <div class="text-danger small mt-1">{{ $message }}</div>
               @enderror
             </div>
             @endif

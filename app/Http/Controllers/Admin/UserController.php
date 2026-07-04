@@ -165,6 +165,13 @@ class UserController extends BaseAdminController
                 'verify_email_url' => (! $u->deleted_at && ! $u->email_verified_at) ? route('admin.users.verify-email', $u) : null,
                 'resend_verify_url' => (! $u->deleted_at && ! $u->email_verified_at) ? route('admin.users.resend-verification', $u) : null,
                 'reset_password_url' => $u->deleted_at ? null : route('admin.users.reset-password', $u),
+                'reset_two_factor_url' => (! $u->deleted_at && $u->two_factor_secret && auth()->user()->can('manageSecurity', $u))
+                    ? route('admin.users.reset-two-factor', $u) : null,
+                'is_locked' => $u->isLocked(),
+                'unlock_url' => (! $u->deleted_at && $u->isLocked() && auth()->user()->can('manageSecurity', $u))
+                    ? route('admin.users.unlock', $u) : null,
+                'force_logout_url' => (! $u->deleted_at && auth()->user()->can('manageSecurity', $u))
+                    ? route('admin.users.force-logout', $u) : null,
                 'impersonate_url' => (! $u->deleted_at && auth()->user()->can('impersonate', $u))
                     ? route('admin.users.impersonate', $u) : null,
             ]);
@@ -333,6 +340,33 @@ class UserController extends BaseAdminController
         $this->userService->resetPassword($user);
 
         return response()->json(['message' => "Contraseña de {$user->name} restablecida correctamente."]);
+    }
+
+    public function resetTwoFactor(User $user): JsonResponse
+    {
+        $this->authorize('manageSecurity', $user);
+
+        $this->userService->resetTwoFactor($user);
+
+        return response()->json(['message' => "2FA de {$user->name} restablecido. Deberá configurarlo de nuevo."]);
+    }
+
+    public function unlock(User $user): JsonResponse
+    {
+        $this->authorize('manageSecurity', $user);
+
+        $this->userService->unlock($user);
+
+        return response()->json(['message' => "Cuenta de {$user->name} desbloqueada correctamente."]);
+    }
+
+    public function forceLogout(User $user): JsonResponse
+    {
+        $this->authorize('manageSecurity', $user);
+
+        $this->userService->forceLogout($user);
+
+        return response()->json(['message' => "Sesiones de {$user->name} cerradas correctamente."]);
     }
 
     public function exportPdf(Request $request): Response

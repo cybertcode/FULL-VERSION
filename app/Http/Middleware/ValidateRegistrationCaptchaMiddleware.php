@@ -1,15 +1,21 @@
 <?php
 
-namespace App\Actions\Fortify;
+namespace App\Http\Middleware;
 
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
-class ValidateCaptcha
+class ValidateRegistrationCaptchaMiddleware
 {
-    public function handle(Request $request, \Closure $next): mixed
+    public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->routeIs('register') || ! $request->isMethod('post')) {
+            return $next($request);
+        }
+
         if (! function_exists('setting') || ! setting('captcha_enabled', false)) {
             return $next($request);
         }

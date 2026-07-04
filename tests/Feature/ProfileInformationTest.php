@@ -31,6 +31,16 @@ class ProfileInformationTest extends TestCase
             ->call('updateProfileInformation');
 
         $this->assertEquals('Test Name', $user->fresh()->name);
-        $this->assertEquals('test@example.com', $user->fresh()->email);
+    }
+
+    public function test_email_cannot_be_changed_from_own_profile(): void
+    {
+        $this->actingAs($user = User::factory()->create());
+
+        Livewire::test(UpdateProfileInformationForm::class)
+            ->set('state', ['name' => $user->name, 'email' => 'nuevo@example.com'])
+            ->call('updateProfileInformation');
+
+        $this->assertEquals($user->email, $user->fresh()->email);
     }
 }

@@ -6,6 +6,7 @@ use App\Enums\UserStatus;
 use App\Models\User;
 use App\Services\Admin\ImageService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class UserControllerTest extends AdminTestCase
@@ -445,5 +446,96 @@ class UserControllerTest extends AdminTestCase
         $user = User::where('email', 'avatar@test.com')->first();
         $this->assertNotNull($user->avatar);
         $this->assertEquals('uploads/users/test-avatar.webp', $user->avatar);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // SECURITY ACTIONS (2FA reset / unlock / force logout)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    public function test_admin_with_manage_security_can_reset_two_factor(): void
+    {
+        $target = User::factory()->withPersonalTeam()->create([
+            'two_factor_secret' => encrypt('secret'),
+        ]);
+
+        $this->actingAsAdmin()
+            ->postJson(route('admin.users.reset-two-factor', $target))
+            ->assertOk();
+
+        $this->assertNull($target->fresh()->two_factor_secret);
+    }
+
+    public function test_user_without_manage_security_permission_cannot_reset_two_factor(): void
+    {
+        $target = User::factory()->withPersonalTeam()->create([
+            'two_factor_secret' => encrypt('secret'),
+        ]);
+
+        $this->actingAsUser()
+            ->postJson(route('admin.users.reset-two-factor', $target))
+            ->assertForbidden();
+
+        $this->assertNotNull($target->fresh()->two_factor_secret);
+    }
+
+    public function test_cannot_manage_security_of_super_admin(): void
+    {
+        $this->actingAsAdmin()
+            ->postJson(route('admin.users.unlock', $this->superAdmin))
+            ->assertForbidden();
+    }
+
+    public function test_admin_can_unlock_locked_account(): void
+    {
+        $target = User::factory()->withPersonalTeam()->create([
+            'failed_login_attempts' => 3,
+            'locked_until' => now()->addMinutes(15),
+        ]);
+
+        $this->actingAsAdmin()
+            ->postJson(route('admin.users.unlock', $target))
+            ->assertOk();
+
+        $target->refresh();
+        $this->assertFalse($target->isLocked());
+        $this->assertSame(0, $target->failed_login_attempts);
+    }
+
+    public function test_admin_can_force_logout_user(): void
+    {
+        $target = User::factory()->withPersonalTeam()->create();
+
+        DB::table('sessions')->insert([
+            'id' => 'test-session-id',
+            'user_id' => $target->id,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'test',
+            'payload' => base64_encode('test'),
+            'last_activity' => time(),
+        ]);
+
+        $this->actingAsAdmin()
+            ->postJson(route('admin.users.force-logout', $target))
+            ->assertOk();
+
+        $this->assertDatabaseMissing('sessions', ['user_id' => $target->id]);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // UPDATE — Super-Admin protection
+    // ──────────────────────────────────────────────────────────────────────────
+
+    public function test_admin_cannot_update_super_admin(): void
+    {
+        $this->actingAsAdmin()
+            ->put(route('admin.users.update', $this->superAdmin), [
+                'name' => 'Hacked Name',
+                'email' => $this->superAdmin->email,
+                'status' => UserStatus::Active->value,
+                'role' => 'admin',
+            ])
+            ->assertForbidden();
+
+        $this->assertNotEquals('Hacked Name', $this->superAdmin->fresh()->name);
     }
 }

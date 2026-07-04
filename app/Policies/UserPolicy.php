@@ -23,7 +23,8 @@ class UserPolicy
 
     public function update(User $user, User $model): bool
     {
-        return $user->can('users.edit');
+        return $user->can('users.edit')
+            && (! $model->hasRole('Super-Admin') || $user->hasRole('Super-Admin'));
     }
 
     public function delete(User $user, User $model): bool
@@ -47,5 +48,10 @@ class UserPolicy
         return $user->can('users.impersonate')
             && $user->id !== $model->id
             && ! $model->hasRole('Super-Admin');
+    }
+
+    public function manageSecurity(User $user, User $model): bool
+    {
+        return $user->can('users.manageSecurity') && ! $model->hasRole('Super-Admin');
     }
 }

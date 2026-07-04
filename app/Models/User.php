@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -26,6 +27,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $username
  * @property string $email
  * @property string|null $phone
+ * @property int $failed_login_attempts
+ * @property Carbon|null $locked_until
  */
 class User extends Authenticatable
 {
@@ -50,6 +53,8 @@ class User extends Authenticatable
         'avatar',
         'last_login_at',
         'last_login_ip',
+        'failed_login_attempts',
+        'locked_until',
     ];
 
     protected $hidden = [
@@ -73,6 +78,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'locked_until' => 'datetime',
             'password' => 'hashed',
             'status' => UserStatus::class,
         ];
@@ -81,6 +87,11 @@ class User extends Authenticatable
     public function perfil(): HasOne
     {
         return $this->hasOne(Perfil::class);
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked_until !== null && $this->locked_until->isFuture();
     }
 
     public function getAvatarUrlAttribute(): string

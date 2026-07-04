@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\Role;
+use App\Models\User;
 
 class RoleControllerTest extends AdminTestCase
 {
@@ -207,6 +208,28 @@ class RoleControllerTest extends AdminTestCase
             ->assertForbidden();
 
         $this->assertDatabaseHas('roles', ['name' => 'protegido']);
+    }
+
+    public function test_editor_with_edit_but_not_assign_permissions_cannot_change_permissions(): void
+    {
+        $limitedRole = Role::create(['name' => 'editor-limitado', 'guard_name' => 'web']);
+        $limitedRole->givePermissionTo(['roles.edit']);
+
+        $limitedUser = User::factory()->withPersonalTeam()->create();
+        $limitedUser->assignRole($limitedRole);
+
+        $target = Role::create(['name' => 'objetivo', 'guard_name' => 'web']);
+        $target->givePermissionTo(['dashboard.view']);
+
+        $this->actingAs($limitedUser)
+            ->put(route('admin.roles.update', $target), [
+                'name' => 'objetivo',
+                'permissions' => ['users.forceDelete'],
+            ])
+            ->assertForbidden();
+
+        $this->assertTrue($target->fresh()->hasPermissionTo('dashboard.view'));
+        $this->assertFalse($target->fresh()->hasPermissionTo('users.forceDelete'));
     }
 
     // ──────────────────────────────────────────────────────────────────────────

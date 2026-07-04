@@ -70,6 +70,15 @@ Route::middleware([
         Route::post('usuarios/{user}/reset-password', [UserController::class, 'resetPassword'])
             ->name('users.reset-password');
 
+        Route::post('usuarios/{user}/reset-two-factor', [UserController::class, 'resetTwoFactor'])
+            ->name('users.reset-two-factor');
+
+        Route::post('usuarios/{user}/unlock', [UserController::class, 'unlock'])
+            ->name('users.unlock');
+
+        Route::post('usuarios/{user}/force-logout', [UserController::class, 'forceLogout'])
+            ->name('users.force-logout');
+
         Route::post('usuarios/{user}/impersonate', [ImpersonateController::class, 'take'])
             ->name('users.impersonate');
 
@@ -133,8 +142,10 @@ Route::middleware([
 
         // ── Configuración ─────────────────────────────────────────────
         Route::get('configuracion', [SettingController::class, 'index'])->name('settings.index');
-        Route::put('configuracion/{group}', [SettingController::class, 'update'])->name('settings.update');
+        Route::get('configuracion/exportar', [SettingController::class, 'export'])->name('settings.export');
+        Route::post('configuracion/importar', [SettingController::class, 'import'])->name('settings.import');
         Route::post('configuracion/test-mail', [SettingController::class, 'testMail'])->name('settings.test-mail');
         Route::post('configuracion/artisan', [SettingController::class, 'runArtisan'])->name('settings.artisan');
+        Route::put('configuracion/{group}', [SettingController::class, 'update'])->name('settings.update');
 
     });
