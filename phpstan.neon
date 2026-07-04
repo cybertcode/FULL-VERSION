@@ -1,0 +1,44 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    paths:
+        - app/Http/Controllers/Admin
+        - app/Http/Controllers/Api
+        - app/Http/Controllers/Frontend
+        - app/Http/Requests
+        - app/Actions
+        - app/Services
+        - app/Repositories
+        - app/Models
+        - app/Enums
+        - app/Traits
+        - app/Http/Middleware
+        - app/Notifications
+        - app/Policies
+
+    level: 5
+
+    excludePaths:
+        - app/Http/Controllers/apps
+        - app/Http/Controllers/authentications
+        - app/Http/Controllers/cards
+        - app/Http/Controllers/charts
+        - app/Http/Controllers/dashboard
+        - app/Http/Controllers/extended_ui
+        - app/Http/Controllers/form_elements
+        - app/Http/Controllers/form_layouts
+        - app/Http/Controllers/form_validation
+        - app/Http/Controllers/form_wizard
+        - app/Http/Controllers/front_pages
+        - app/Http/Controllers/icons
+        - app/Http/Controllers/language
+        - app/Http/Controllers/laravel_example
+        - app/Http/Controllers/layouts
+        - app/Http/Controllers/maps
+        - app/Http/Controllers/modal
+        - app/Http/Controllers/pages
+        - app/Http/Controllers/tables
+        - app/Http/Controllers/user_interface
+        - app/Http/Controllers/wizard_example
