@@ -56,6 +56,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
+
+        $middleware->redirectGuestsTo(function (Request $request) {
+            return $request->is('cuenta/*') ? route('cuenta.login') : route('login');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
 

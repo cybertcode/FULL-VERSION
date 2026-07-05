@@ -25,7 +25,7 @@ class Enforce2FAMiddleware
             return $next($request);
         }
 
-        $user = auth()->user();
+        $user = auth('web')->user();
 
         // Solo aplica a usuarios autenticados
         if (! $user) {

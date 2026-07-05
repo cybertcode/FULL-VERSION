@@ -592,11 +592,36 @@ Creadas con el estilo Vuexy:
 - [x] Job de ejemplo — `App\Jobs\PruneExpiredApiTokens` (borra tokens Sanctum expirados), programado diario 03:00
 - [x] i18n balanceado — `resources/lang/en/actions.php` y `http-statuses.php` agregados (faltaban vs `es/`)
 - [x] Pint aplicado a todo el código propio (formato unificado, sin cambios de lógica)
-- [x] Security headers — `App\Http\Middleware\SecurityHeadersMiddleware` (global en `web`/`api`): `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` (solo HTTPS) y CSP permisivo (documenta GTM/GA/Meta Pixel + inline scripts existentes, no bloquea nada nuevo)
+- [x] Security headers — `App\Http\Middleware\SecurityHeadersMiddleware` (global en `web`/`api`): `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` (solo HTTPS) y CSP permisivo (documenta GTM/GA/Meta Pixel, Google Fonts, y `cdn.jsdelivr.net` del Gestor de Archivos + inline scripts existentes, no bloquea nada nuevo)
+- [x] Bug corregido — el CSP inicial no incluía `cdn.jsdelivr.net` (Bootstrap 4/jQuery/FontAwesome/jQuery-UI del iframe de UniSharp LFM en `/admin/archivos`) ni Google Fonts, rompiendo visualmente el Gestor de Archivos (CSS/JS bloqueados sin error visible en Network, solo en consola). Verificado en navegador real: sin errores de consola, navegación de carpetas funcional
+- [x] Recorrido completo de módulos admin en navegador real (Chrome DevTools MCP) — 2 bugs de CSP adicionales encontrados y corregidos: (1) `ui-avatars.com` faltaba en `img-src` (Jetstream `defaultProfilePhotoUrl`, afecta CUALQUIER usuario sin avatar en Usuarios/Roles/listados); (2) Log Viewer (`rap2hpoutre/laravel-log-viewer`, `/admin/logs`) carga Bootstrap4/jQuery/FontAwesome/DataTables desde `maxcdn.bootstrapcdn.com`, `code.jquery.com`, `cdn.datatables.net`, `use.fontawesome.com` — los 4 agregados a `script-src`/`style-src`/`font-src`/`connect-src`. Dashboard, Roles y Permisos (CRUD + copiar rol), Auditoría (diff legible), Intentos de login, Mi Perfil (3 tabs), Configuración (11 tabs), Notificaciones — todos verificados sin errores de consola tras los fixes
 - [x] CORS — `config/cors.php` publicado; `allowed_origins` ahora viene de `CORS_ALLOWED_ORIGINS` (env, lista separada por comas), antes era `*` por defecto de Laravel
 - [x] Rate limiting explícito — `throttle:6,1` en `/api/v1/login` y `settings.test-mail`, `throttle:60,1` en endpoints API autenticados, `throttle:10,1` en `settings.artisan` (antes sin límite propio, solo dependía de Fortify para el login web)
 - [x] `.env.example` documenta advertencias de producción: `APP_ENV=production`/`APP_DEBUG=false`, `LOG_LEVEL=error`, `SESSION_SECURE_COOKIE=true` con HTTPS
 - [x] Log Viewer y LFM revisados para shared hosting: ambos ya protegidos por permiso granular (`logs.view`, `files.viewAny`) y LFM ya bloquea extensiones ejecutables (`disallowed_extensions` en `config/lfm.php`) — no requirieron cambios, ya estaban bien configurados
+- [x] Auth de clientes en frontend (guard `customer`) — cuentas de usuarios finales completamente separadas del staff (`web`), espacio propio en `/cuenta/*`, nunca acceden a `/admin`. Ver sección dedicada abajo.
+
+## Auth de clientes — guard "customer" (frontend)
+
+Cuentas de **usuarios finales** (no staff), completamente aisladas del panel admin. Guard, provider, modelo y tablas propias — nunca comparten sesión ni datos con `User`/`web`.
+
+- **Modelo**: `App\Models\Customer` (`app/Models/Customer.php`) — Authenticatable + Notifiable + CanResetPassword. Tabla `customers` (name, email, email_verified_at, password, remember_token). NO usa Spatie Permission — si en el futuro un cliente necesita roles/permisos, evaluar entonces (Spatie soporta multi-guard nativamente).
+- **`config/auth.php`**: guard `customer` (session) + provider `customers` + password broker `customers` → tabla `customer_password_reset_tokens`.
+- **Controllers**: `app/Http/Controllers/Frontend/Auth/{Registered,Authenticated,PasswordResetLink,NewPassword}CustomerController.php` — implementación liviana a mano (Fortify sigue cubriendo solo `web`/staff, no vale la pena su maquinaria de 2FA/teams aquí).
+- **Requests**: `app/Http/Requests/Frontend/Auth/{Register,Login}CustomerRequest.php`.
+- **Rutas** (`routes/frontend.php`, prefijo `/cuenta`, name `cuenta.*`): `guest:customer` para register/login/password-reset, `auth:customer` para `cuenta.logout` y `cuenta.dashboard` (`/cuenta/panel`).
+- **Vistas**: `resources/views/frontend/auth/*.blade.php` (mismo patrón visual que `resources/views/auth/*`, blankLayout) y `resources/views/frontend/account/dashboard.blade.php`.
+- **`bootstrap/app.php`**: `$middleware->redirectGuestsTo()` decide destino por prefijo de URL (`/cuenta/*` → `cuenta.login`, resto → `login` staff) — necesario porque el default de Laravel solo conoce una ruta de login global.
+- **Tests**: `tests/Feature/Frontend/CustomerAuthenticationTest.php` — incluye aislamiento cruzado explícito (`test_customer_session_cannot_access_admin_panel`, `test_staff_session_cannot_access_customer_dashboard`).
+
+### ⚠️ Regla crítica para middleware/providers globales
+
+Cualquier código que llame `auth()`/`Auth::` **sin especificar guard** asume implícitamente que solo existe el guard `web`. Con el guard `customer` activo, eso puede:
+
+1. Crashear si se llama un método propio de `User` (ej. `hasRole()`) sobre un `Customer`.
+2. Aplicar lógica de staff (last login, 2FA, IP whitelist) a una sesión de cliente por error.
+
+**Siempre usar `auth('web')` / `Auth::guard('web')` explícito** en middleware que es conceptualmente solo-staff. Bugs reales de este tipo ya se encontraron y corrigieron en: `AuthServiceProvider::Gate::before` (ahora `$user instanceof User`), `TrackLastLoginMiddleware`, `Enforce2FAMiddleware`, `MaintenanceModeMiddleware`, `RestrictAdminIpMiddleware`.
 
 ## Gotchas importantes
 
@@ -605,3 +630,4 @@ Creadas con el estilo Vuexy:
 - **SQLite en tests**: no usar `DATE_FORMAT` ni SQL específico de MySQL en queries de services — agrupar en PHP (Collection `countBy`).
 - **User usa SoftDeletes**: en tests, `assertSoftDeleted` en vez de `assertNull($user->fresh())`.
 - **`name` del usuario**: es nullable y se construye desde el perfil (`Perfil::buildName`) — no validarlo como requerido.
+- **Multi-guard**: middleware/providers globales nunca deben llamar `auth()`/`Auth::` sin guard explícito — ver sección "Auth de clientes" arriba.

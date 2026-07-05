@@ -27,7 +27,7 @@ class RestrictAdminIpMiddleware
         }
 
         // Super-Admin siempre pasa aunque su IP no esté en la lista
-        if (auth()->check() && auth()->user()->hasRole('Super-Admin')) {
+        if (auth('web')->check() && auth('web')->user()->hasRole('Super-Admin')) {
             return $next($request);
         }
 

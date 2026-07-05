@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserStatus;
+use App\Models\Menu;
 use App\Services\Admin\SettingService;
 use Carbon\Carbon;
 
@@ -49,5 +50,22 @@ if (! function_exists('setting')) {
     function setting(string $key, mixed $default = null): mixed
     {
         return app(SettingService::class)->get($key, $default);
+    }
+}
+
+if (! function_exists('renderMenu')) {
+    function renderMenu(string $slug, string $ulClass = 'navbar-nav'): string
+    {
+        $menu = Menu::where('slug', $slug)->first();
+
+        if (! $menu) {
+            return '';
+        }
+
+        $tree = $menu->tree();
+
+        return '<ul class="'.$ulClass.'">'
+            .view('frontend.partials.menu-nodes', ['nodes' => $tree])->render()
+            .'</ul>';
     }
 }

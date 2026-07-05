@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\LoginAttemptController;
+use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -145,6 +146,24 @@ Route::middleware([
         Route::get('logs', [LogViewerController::class, 'index'])
             ->middleware('permission:logs.view')
             ->name('logs.index');
+
+        // ── Menús (CMS frontend) ──────────────────────────────────────
+        Route::resource('menus', MenuController::class)
+            ->only(['index', 'store', 'edit', 'update', 'destroy'])
+            ->parameters(['menus' => 'menu'])
+            ->names([
+                'index' => 'menus.index',
+                'store' => 'menus.store',
+                'edit' => 'menus.edit',
+                'update' => 'menus.update',
+                'destroy' => 'menus.destroy',
+            ]);
+
+        Route::get('menus/{menu}/arbol', [MenuController::class, 'tree'])->name('menus.tree');
+        Route::post('menus/{menu}/items', [MenuController::class, 'storeItem'])->name('menus.items.store');
+        Route::put('menus/{menu}/items/{item}', [MenuController::class, 'updateItem'])->name('menus.items.update');
+        Route::delete('menus/{menu}/items/{item}', [MenuController::class, 'destroyItem'])->name('menus.items.destroy');
+        Route::post('menus/{menu}/mover', [MenuController::class, 'move'])->name('menus.move');
 
         // ── Configuración ─────────────────────────────────────────────
         Route::get('configuracion', [SettingController::class, 'index'])->name('settings.index');

@@ -53,9 +53,15 @@
           <i class="icon-base ti tabler-layout-dashboard me-2"></i>Ir al panel
         </a>
       @else
-        <a href="{{ route('login') }}" class="btn btn-primary btn-lg">
-          <i class="icon-base ti tabler-login me-2"></i>Iniciar sesión
-        </a>
+        @auth('customer')
+          <a href="{{ route('cuenta.dashboard') }}" class="btn btn-primary btn-lg">
+            <i class="icon-base ti tabler-user me-2"></i>Ir a mi cuenta
+          </a>
+        @else
+          <a href="{{ route('cuenta.login') }}" class="btn btn-primary btn-lg">
+            <i class="icon-base ti tabler-login me-2"></i>Iniciar sesión
+          </a>
+        @endauth
       @endauth
       @if(setting('company_website'))
         <a href="{{ setting('company_website') }}" target="_blank" rel="noopener" class="btn btn-label-secondary btn-lg">

@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Menu;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Policies\MenuPolicy;
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\UserPolicy;
@@ -17,15 +19,16 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
         Role::class => RolePolicy::class,
         Permission::class => PermissionPolicy::class,
+        Menu::class => MenuPolicy::class,
     ];
 
     public function boot(): void
     {
         $this->registerPolicies();
 
-        // Super-Admin bypasses all permission checks
+        // Super-Admin bypasses all permission checks (solo aplica a staff, guard "web")
         Gate::before(function ($user, string $_ability) {
-            if ($user->hasRole('Super-Admin')) {
+            if ($user instanceof User && $user->hasRole('Super-Admin')) {
                 return true;
             }
         });

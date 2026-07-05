@@ -63,6 +63,13 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // ── Notificaciones ─────────────────────────────────────────────────
         'notifications.send' => 'Enviar notificaciones masivas',
+
+        // ── Menús (CMS frontend) ─────────────────────────────────────────
+        'menus.viewAny' => 'Ver menús de navegación',
+        'menus.view' => 'Ver detalle de menú',
+        'menus.create' => 'Crear menú',
+        'menus.edit' => 'Editar menú y sus ítems',
+        'menus.delete' => 'Eliminar menú',
     ];
 
     public function run(): void
@@ -93,6 +100,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'login-attempts.viewAny',
             'dashboard.view', 'dashboard.viewStats',
             'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
+            'menus.viewAny', 'menus.view', 'menus.create', 'menus.edit', 'menus.delete',
         ]);
 
         // Editor — acceso básico

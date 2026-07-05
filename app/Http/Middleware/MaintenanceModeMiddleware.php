@@ -19,7 +19,7 @@ class MaintenanceModeMiddleware
         }
 
         // Super-Admin autenticado siempre pasa (antes que cualquier otra verificación)
-        if (auth()->check() && auth()->user()->hasRole('Super-Admin')) {
+        if (auth('web')->check() && auth('web')->user()->hasRole('Super-Admin')) {
             return $next($request);
         }
 

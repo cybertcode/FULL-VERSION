@@ -37,6 +37,13 @@
       "permission": "files.viewAny"
     },
     {
+      "url": "admin/menus",
+      "icon": "menu-icon icon-base ti tabler-list-details",
+      "name": "Menús",
+      "slug": "admin.menus.index",
+      "permission": "menus.viewAny"
+    },
+    {
       "url": "admin/auditoria",
       "icon": "menu-icon icon-base ti tabler-history",
       "name": "Auditoría",

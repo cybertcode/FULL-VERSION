@@ -11,8 +11,8 @@ class TrackLastLoginMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
-            $user = Auth::user();
+        if (Auth::guard('web')->check()) {
+            $user = Auth::guard('web')->user();
             // Solo actualiza una vez por sesión para no golpear la BD en cada request
             if (! $request->session()->has('last_login_tracked')) {
                 $user->timestamps = false;
