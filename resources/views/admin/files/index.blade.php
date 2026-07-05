@@ -56,9 +56,11 @@
       <div class="col-md-4">
         <div class="card border-0 bg-label-primary mb-0">
           <div class="card-body d-flex align-items-center gap-3 py-3">
-            <span class="avatar rounded bg-primary">
-              <i class="icon-base ti tabler-photo icon-22px text-white"></i>
-            </span>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-primary">
+                <i class="icon-base ti tabler-photo icon-22px text-white"></i>
+              </span>
+            </div>
             <div>
               <p class="mb-0 fw-medium small">Imágenes soportadas</p>
               <small class="text-body-secondary">JPG, PNG, GIF, WebP, SVG</small>
@@ -69,9 +71,11 @@
       <div class="col-md-4">
         <div class="card border-0 bg-label-info mb-0">
           <div class="card-body d-flex align-items-center gap-3 py-3">
-            <span class="avatar rounded bg-info">
-              <i class="icon-base ti tabler-file-description icon-22px text-white"></i>
-            </span>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-info">
+                <i class="icon-base ti tabler-file-description icon-22px text-white"></i>
+              </span>
+            </div>
             <div>
               <p class="mb-0 fw-medium small">Documentos soportados</p>
               <small class="text-body-secondary">PDF, Word, Excel, PowerPoint, ZIP, TXT, CSV</small>
@@ -82,9 +86,11 @@
       <div class="col-md-4">
         <div class="card border-0 bg-label-warning mb-0">
           <div class="card-body d-flex align-items-center gap-3 py-3">
-            <span class="avatar rounded bg-warning">
-              <i class="icon-base ti tabler-shield-check icon-22px text-white"></i>
-            </span>
+            <div class="avatar">
+              <span class="avatar-initial rounded bg-warning">
+                <i class="icon-base ti tabler-shield-check icon-22px text-white"></i>
+              </span>
+            </div>
             <div>
               <p class="mb-0 fw-medium small">Archivos bloqueados</p>
               <small class="text-body-secondary">PHP, HTML, EXE, BAT, SH, JS</small>

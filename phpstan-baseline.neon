@@ -265,10 +265,16 @@ parameters:
 			path: app/Http/Controllers/Api/V1/AuthController.php
 
 		-
-			message: '#^Method App\\Http\\Requests\\Admin\\Menu\\StoreMenuItemRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			message: '#^Cannot call method view\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Controllers/Frontend/PageController.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Menu\\SaveMenuStructureRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: app/Http/Requests/Admin/Menu/StoreMenuItemRequest.php
+			path: app/Http/Requests/Admin/Menu/SaveMenuStructureRequest.php
 
 		-
 			message: '#^Method App\\Http\\Requests\\Admin\\Menu\\StoreMenuRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
@@ -277,16 +283,34 @@ parameters:
 			path: app/Http/Requests/Admin/Menu/StoreMenuRequest.php
 
 		-
-			message: '#^Method App\\Http\\Requests\\Admin\\Menu\\UpdateMenuRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Requests/Admin/Menu/UpdateMenuRequest.php
-
-		-
 			message: '#^Method App\\Http\\Requests\\Admin\\Notification\\BroadcastNotificationRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Requests/Admin/Notification/BroadcastNotificationRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Page\\StorePageRequest\:\:dataForPage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Page/StorePageRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Page\\StorePageRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Page/StorePageRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Page\\UpdatePageRequest\:\:dataForPage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Page/UpdatePageRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Page\\UpdatePageRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Page/UpdatePageRequest.php
 
 		-
 			message: '#^Method App\\Http\\Requests\\Admin\\Permission\\StorePermissionRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
@@ -403,6 +427,12 @@ parameters:
 			path: app/Models/Menu.php
 
 		-
+			message: '#^Method App\\Models\\Menu\:\:addItem\(\) has parameter \$attributes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/Menu.php
+
+		-
 			message: '#^Method App\\Models\\Menu\:\:allItems\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
@@ -427,7 +457,25 @@ parameters:
 			path: app/Models/Menu.php
 
 		-
+			message: '#^Unsafe call to private method App\\Models\\Menu\:\:generateUniqueSlug\(\) through static\:\:\.$#'
+			identifier: staticClassAccess.privateMethod
+			count: 1
+			path: app/Models/Menu.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$slug\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/MenuItem.php
+
+		-
 			message: '#^Method App\\Models\\MenuItem\:\:menu\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MenuItem.php
+
+		-
+			message: '#^Method App\\Models\\MenuItem\:\:page\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/MenuItem.php
@@ -437,6 +485,36 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/MenuItem.php
+
+		-
+			message: '#^Method App\\Models\\MenuLocationAssignment\:\:menu\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/MenuLocationAssignment.php
+
+		-
+			message: '#^Method App\\Models\\Page\:\:creator\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Method App\\Models\\Page\:\:updater\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Property App\\Models\\Page\:\:\$searchable type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/Page.php
+
+		-
+			message: '#^Unsafe call to private method App\\Models\\Page\:\:generateUniqueSlug\(\) through static\:\:\.$#'
+			identifier: staticClassAccess.privateMethod
+			count: 1
+			path: app/Models/Page.php
 
 		-
 			message: '#^Class App\\Models\\Perfil uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -733,18 +811,6 @@ parameters:
 			path: app/Services/Admin/LoginAttemptService.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\MenuItem\:\:\$parent_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Services/Admin/MenuService.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\MenuItem\>\:\:defaultOrder\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Services/Admin/MenuService.php
-
-		-
 			message: '#^Method App\\Services\\Admin\\MenuService\:\:all\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -757,28 +823,52 @@ parameters:
 			path: app/Services/Admin/MenuService.php
 
 		-
-			message: '#^Method App\\Services\\Admin\\MenuService\:\:createItem\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Services/Admin/MenuService.php
+			message: '#^Access to an undefined property App\\Models\\Page\:\:\$parent_id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Services/Admin/PageService.php
 
 		-
-			message: '#^Method App\\Services\\Admin\\MenuService\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<App\\Models\\Page\>\:\:withDepth\(\)\.$#'
+			identifier: method.notFound
 			count: 1
-			path: app/Services/Admin/MenuService.php
+			path: app/Services/Admin/PageService.php
 
 		-
-			message: '#^Method App\\Services\\Admin\\MenuService\:\:updateItem\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Call to private method pluck\(\) of parent class Illuminate\\Database\\Eloquent\\Relations\\Relation\<Illuminate\\Database\\Eloquent\\Model,Illuminate\\Database\\Eloquent\\Model,mixed\>\.$#'
+			identifier: method.private
 			count: 1
-			path: app/Services/Admin/MenuService.php
+			path: app/Services/Admin/PageService.php
 
 		-
-			message: '#^Parameter \#1 \$nodes of method App\\Services\\Admin\\MenuService\:\:jsTreeData\(\) expects Illuminate\\Support\\Collection\<int, App\\Models\\MenuItem\>, Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\> given\.$#'
-			identifier: argument.type
+			message: '#^Method App\\Services\\Admin\\PageService\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: app/Services/Admin/MenuService.php
+			path: app/Services/Admin/PageService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\PageService\:\:paginate\(\) return type with generic class Illuminate\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/PageService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\PageService\:\:selectableParents\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/PageService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\PageService\:\:stats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/PageService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\PageService\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/PageService.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
@@ -965,9 +1055,3 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Services/Admin/UserService.php
-
-		-
-			message: '#^Trait App\\Traits\\HasAudit is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: app/Traits/HasAudit.php

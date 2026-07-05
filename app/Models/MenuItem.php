@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Route;
 use Kalnoy\Nestedset\NodeTrait;
 
 class MenuItem extends BaseModel
@@ -14,7 +13,7 @@ class MenuItem extends BaseModel
 
     protected $fillable = [
         'menu_id', 'label', 'type', 'url', 'page_id',
-        'route_name', 'icon', 'target', 'is_active', 'parent_id',
+        'icon', 'target', 'is_active', 'parent_id',
     ];
 
     protected function casts(): array
@@ -29,13 +28,15 @@ class MenuItem extends BaseModel
         return $this->belongsTo(Menu::class);
     }
 
+    public function page(): BelongsTo
+    {
+        return $this->belongsTo(Page::class);
+    }
+
     public function resolvedUrl(): string
     {
         return match ($this->type) {
-            'route' => $this->route_name && Route::has($this->route_name)
-                ? route($this->route_name)
-                : '#',
-            'page' => $this->page_id ? url('/'.$this->page_id) : '#', // ajustar cuando exista el módulo Pages
+            'page' => $this->page ? url($this->page->slug) : '#',
             default => $this->url ?? '#',
         };
     }

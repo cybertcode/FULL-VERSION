@@ -37,6 +37,16 @@
       "permission": "files.viewAny"
     },
     {
+      "name": "Páginas",
+      "icon": "menu-icon icon-base ti tabler-files",
+      "slug": "admin.pages",
+      "permission": "pages.viewAny",
+      "submenu": [
+        { "url": "admin/paginas",       "name": "Todas las páginas", "slug": "admin.pages.index", "permission": "pages.viewAny" },
+        { "url": "admin/paginas/crear", "name": "Nueva página",      "slug": "admin.pages.create", "permission": "pages.create" }
+      ]
+    },
+    {
       "url": "admin/menus",
       "icon": "menu-icon icon-base ti tabler-list-details",
       "name": "Menús",

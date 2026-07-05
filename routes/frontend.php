@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\Auth\NewPasswordCustomerController;
 use App\Http\Controllers\Frontend\Auth\PasswordResetLinkCustomerController;
 use App\Http\Controllers\Frontend\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\PageController;
 /*
 |--------------------------------------------------------------------------
 | Frontend Routes
@@ -47,3 +48,16 @@ Route::middleware('auth:customer')->prefix('cuenta')->name('cuenta.')->group(fun
     Route::post('logout', [AuthenticatedCustomerController::class, 'destroy'])->name('logout');
     Route::get('panel', DashboardController::class)->name('dashboard');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Páginas dinámicas (CMS)
+|--------------------------------------------------------------------------
+| Debe ir al final del archivo — {slug} es un catch-all de un segmento
+| y no debe interceptar rutas más específicas definidas arriba.
+|--------------------------------------------------------------------------
+*/
+
+Route::get('{slug}', [PageController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('pages.show');

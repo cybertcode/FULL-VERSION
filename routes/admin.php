@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\LoginAttemptController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
@@ -159,11 +160,26 @@ Route::middleware([
                 'destroy' => 'menus.destroy',
             ]);
 
-        Route::get('menus/{menu}/arbol', [MenuController::class, 'tree'])->name('menus.tree');
-        Route::post('menus/{menu}/items', [MenuController::class, 'storeItem'])->name('menus.items.store');
-        Route::put('menus/{menu}/items/{item}', [MenuController::class, 'updateItem'])->name('menus.items.update');
-        Route::delete('menus/{menu}/items/{item}', [MenuController::class, 'destroyItem'])->name('menus.items.destroy');
-        Route::post('menus/{menu}/mover', [MenuController::class, 'move'])->name('menus.move');
+        // ── Páginas (CMS frontend) ─────────────────────────────────────
+        Route::post('paginas/{page}/restaurar', [PageController::class, 'restore'])
+            ->name('pages.restore')
+            ->whereNumber('page');
+
+        Route::delete('paginas/{page}/eliminar-permanente', [PageController::class, 'forceDelete'])
+            ->name('pages.force-delete')
+            ->whereNumber('page');
+
+        Route::resource('paginas', PageController::class)
+            ->parameters(['paginas' => 'page'])
+            ->names([
+                'index' => 'pages.index',
+                'create' => 'pages.create',
+                'store' => 'pages.store',
+                'edit' => 'pages.edit',
+                'update' => 'pages.update',
+                'destroy' => 'pages.destroy',
+            ])
+            ->except(['show']);
 
         // ── Configuración ─────────────────────────────────────────────
         Route::get('configuracion', [SettingController::class, 'index'])->name('settings.index');

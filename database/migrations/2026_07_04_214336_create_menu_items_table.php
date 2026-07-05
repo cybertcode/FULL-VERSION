@@ -15,10 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('menu_id')->constrained()->cascadeOnDelete();
             $table->string('label');
-            $table->string('type')->default('url'); // url | page | route
+            $table->string('type')->default('url'); // url | page
             $table->string('url')->nullable();
             $table->unsignedBigInteger('page_id')->nullable();
-            $table->string('route_name')->nullable();
             $table->string('icon')->nullable();
             $table->string('target')->default('_self'); // _self | _blank
             $table->boolean('is_active')->default(true);

@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\Admin\Menu\StoreMenuItemRequest;
+use App\Enums\MenuLocation;
+use App\Http\Requests\Admin\Menu\SaveMenuStructureRequest;
 use App\Http\Requests\Admin\Menu\StoreMenuRequest;
-use App\Http\Requests\Admin\Menu\UpdateMenuRequest;
 use App\Models\Menu;
-use App\Models\MenuItem;
 use App\Services\Admin\MenuService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class MenuController extends BaseAdminController
@@ -45,23 +42,30 @@ class MenuController extends BaseAdminController
     {
         $this->authorize('update', $menu);
 
-        return view('admin.menus.edit', compact('menu'));
+        return view('admin.menus.edit', [
+            'menu' => $menu,
+            'tree' => $menu->tree(),
+            'pages' => $this->menuService->selectablePagesForMenu(),
+            'locations' => MenuLocation::cases(),
+            'assignedLocations' => $this->menuService->locationsAssignedTo($menu),
+        ]);
     }
 
-    public function tree(Menu $menu): JsonResponse
+    public function update(SaveMenuStructureRequest $request, Menu $menu): RedirectResponse
     {
         $this->authorize('update', $menu);
 
-        return response()->json($this->menuService->jsTreeData($menu->tree()));
-    }
+        $data = $request->validated();
 
-    public function update(UpdateMenuRequest $request, Menu $menu): RedirectResponse
-    {
-        $this->authorize('update', $menu);
+        $this->menuService->saveStructure(
+            $menu,
+            $data['name'],
+            $data['items'] ?? [],
+            $data['deleted_ids'] ?? [],
+            $data['locations'] ?? [],
+        );
 
-        $this->menuService->update($menu, $request->validated());
-
-        $this->flashSuccess('Menú actualizado correctamente.');
+        $this->flashSuccess('Menú guardado correctamente.');
 
         return redirect()->route('admin.menus.edit', $menu);
     }
@@ -75,49 +79,5 @@ class MenuController extends BaseAdminController
         $this->flashSuccess('Menú eliminado correctamente.');
 
         return redirect()->route('admin.menus.index');
-    }
-
-    public function storeItem(StoreMenuItemRequest $request, Menu $menu): JsonResponse
-    {
-        $this->authorize('update', $menu);
-
-        $item = $this->menuService->createItem($menu, $request->validated());
-
-        return response()->json(['message' => 'Ítem agregado correctamente.', 'item' => $item]);
-    }
-
-    public function updateItem(StoreMenuItemRequest $request, Menu $menu, MenuItem $item): JsonResponse
-    {
-        $this->authorize('update', $menu);
-
-        $this->menuService->validateItemBelongsToMenu($menu, $item);
-        $this->menuService->updateItem($item, $request->validated());
-
-        return response()->json(['message' => 'Ítem actualizado correctamente.']);
-    }
-
-    public function destroyItem(Menu $menu, MenuItem $item): JsonResponse
-    {
-        $this->authorize('update', $menu);
-
-        $this->menuService->validateItemBelongsToMenu($menu, $item);
-        $this->menuService->deleteItem($item);
-
-        return response()->json(['message' => 'Ítem eliminado correctamente.']);
-    }
-
-    public function move(Request $request, Menu $menu): JsonResponse
-    {
-        $this->authorize('update', $menu);
-
-        $data = $request->validate([
-            'id' => 'required|integer',
-            'parent' => 'nullable|integer',
-            'position' => 'required|integer|min:0',
-        ]);
-
-        $this->menuService->moveNode($menu, $data['id'], $data['parent'] ?? null, $data['position']);
-
-        return response()->json(['message' => 'Orden actualizado correctamente.']);
     }
 }

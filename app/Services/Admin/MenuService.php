@@ -2,10 +2,14 @@
 
 namespace App\Services\Admin;
 
-use App\Exceptions\BusinessException;
+use App\Enums\MenuLocation;
+use App\Enums\PageStatus;
 use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Models\MenuLocationAssignment;
+use App\Models\Page;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class MenuService
 {
@@ -19,123 +23,143 @@ class MenuService
         return Menu::create($data);
     }
 
-    public function update(Menu $menu, array $data): Menu
-    {
-        $menu->update($data);
-
-        return $menu;
-    }
-
     public function delete(Menu $menu): void
     {
         $menu->allItems()->get()->each->delete();
         $menu->delete();
     }
 
-    public function createItem(Menu $menu, array $data): MenuItem
-    {
-        $item = new MenuItem($data);
-        $item->menu_id = $menu->id;
-
-        if (! empty($data['parent_id'])) {
-            $parent = MenuItem::where('menu_id', $menu->id)->findOrFail($data['parent_id']);
-            $item->appendToNode($parent)->save();
-        } else {
-            $item->saveAsRoot();
-        }
-
-        return $item;
-    }
-
-    public function updateItem(MenuItem $item, array $data): MenuItem
-    {
-        $newParentId = $data['parent_id'] ?? null;
-        unset($data['parent_id']);
-
-        $item->fill($data);
-
-        if ($newParentId && $newParentId !== $item->parent_id) {
-            $parent = MenuItem::where('menu_id', $item->menu_id)->findOrFail($newParentId);
-            $item->appendToNode($parent)->save();
-        } elseif (! $newParentId && $item->parent_id) {
-            $item->saveAsRoot();
-        } else {
-            $item->save();
-        }
-
-        return $item;
-    }
-
-    public function deleteItem(MenuItem $item): void
-    {
-        $item->delete();
-    }
-
     /**
-     * Aplica el movimiento reportado por el evento move_node.jstree del árbol.
-     * $newParentId es null cuando jsTree reporta '#' (nodo raíz).
-     */
-    public function moveNode(Menu $menu, int $nodeId, ?int $newParentId, int $position): void
-    {
-        $item = MenuItem::where('menu_id', $menu->id)->findOrFail($nodeId);
-
-        if ($newParentId) {
-            $parent = MenuItem::where('menu_id', $menu->id)->findOrFail($newParentId);
-            $item->appendToNode($parent)->save();
-        } else {
-            $item->saveAsRoot();
-        }
-
-        $siblings = $newParentId
-            ? MenuItem::where('menu_id', $menu->id)->where('parent_id', $newParentId)->defaultOrder()->get()
-            : MenuItem::where('menu_id', $menu->id)->whereNull('parent_id')->defaultOrder()->get();
-
-        $siblings = $siblings->reject(fn (MenuItem $s) => $s->id === $item->id)->values();
-        $siblings->splice($position, 0, [$item]);
-
-        $previous = null;
-        foreach ($siblings as $sibling) {
-            if ($previous) {
-                $sibling->afterNode($previous)->save();
-            }
-            $previous = $sibling->fresh();
-        }
-    }
-
-    /**
-     * Convierte el árbol Eloquent (nestedset) a la estructura que espera jsTree.
+     * Zonas ya asignadas a ESTE menú específico — para marcar sus checkboxes
+     * en el bloque "Ubicación" de la pantalla de edición (estilo WordPress
+     * "Menu Settings > Display location").
      *
-     * @param  Collection<int, MenuItem>  $nodes
-     * @return array<int, array<string, mixed>>
+     * @return array<int, string>
      */
-    public function jsTreeData(Collection $nodes): array
+    public function locationsAssignedTo(Menu $menu): array
     {
-        return $nodes->map(function (MenuItem $node) {
-            return [
-                'id' => $node->id,
-                'text' => $node->label,
-                'icon' => $node->icon ? 'icon-base ti tabler-'.$node->icon : 'icon-base ti tabler-link',
-                'state' => ['opened' => true, 'disabled' => ! $node->is_active],
-                'li_attr' => [
-                    'data-label' => $node->label,
-                    'data-type' => $node->type,
-                    'data-url' => $node->url,
-                    'data-route-name' => $node->route_name,
-                    'data-page-id' => $node->page_id,
-                    'data-icon' => $node->icon,
-                    'data-target' => $node->target,
-                    'data-is-active' => $node->is_active ? 1 : 0,
-                    'data-resolved-url' => $node->resolvedUrl(),
-                ],
-                'children' => $this->jsTreeData($node->children),
-            ];
-        })->values()->all();
+        return MenuLocationAssignment::where('menu_id', $menu->id)
+            ->pluck('location')
+            ->map(fn (MenuLocation $l) => $l->value)
+            ->all();
     }
 
-    public function validateItemBelongsToMenu(Menu $menu, MenuItem $item): void
+    /**
+     * Páginas del CMS (frontend) publicadas — un menú de navegación pública
+     * solo debe poder enlazar a contenido real del sitio, nunca a pantallas
+     * del panel administrativo.
+     *
+     * @return Collection<int, Page>
+     */
+    public function selectablePagesForMenu(): Collection
     {
-        if ($item->menu_id !== $menu->id) {
-            throw new BusinessException('El ítem no pertenece a este menú.');
+        return Page::where('status', PageStatus::Published->value)
+            ->orderBy('title')
+            ->get(['id', 'title', 'slug']);
+    }
+
+    /**
+     * Guarda el menú completo en un solo paso, estilo WordPress "Guardar menú":
+     * datos del menú, ítems (altas/bajas/cambios), su jerarquía y las ubicaciones
+     * asignadas, todo en una transacción.
+     *
+     * @param  array<int, array<string, mixed>>  $items  planos, con client_id/parent_client_id para reconstruir el árbol
+     * @param  array<int>  $deletedIds
+     * @param  array<string, bool>  $locations  ['header' => true, 'footer' => false, ...]
+     */
+    public function saveStructure(Menu $menu, string $name, array $items, array $deletedIds, array $locations): Menu
+    {
+        DB::transaction(function () use ($menu, $name, $items, $deletedIds, $locations) {
+            $menu->update(['name' => $name]);
+
+            if (! empty($deletedIds)) {
+                MenuItem::where('menu_id', $menu->id)->whereIn('id', $deletedIds)->get()->each->delete();
+            }
+
+            $clientIdToModel = [];
+
+            // Alta/actualización de datos propios (sin jerarquía todavía)
+            foreach ($items as $itemData) {
+                $attributes = collect($itemData)->only([
+                    'label', 'type', 'url', 'page_id', 'icon', 'target', 'is_active',
+                ])->all();
+
+                $model = ! empty($itemData['id'])
+                    ? MenuItem::where('menu_id', $menu->id)->findOrFail($itemData['id'])
+                    : new MenuItem(['menu_id' => $menu->id]);
+
+                $model->fill($attributes);
+
+                if (! $model->exists) {
+                    $model->saveAsRoot();
+                } else {
+                    $model->save();
+                }
+
+                $clientIdToModel[$itemData['client_id']] = $model;
+            }
+
+            // Jerarquía y orden — se aplica después de que todos los modelos ya existen,
+            // ordenando por 'order' para reconstruir hermanos en secuencia correcta.
+            $sorted = collect($items)->sortBy('order')->values();
+            $roots = $sorted->whereNull('parent_client_id')->values();
+            $this->reattachChildren($roots, $sorted, $clientIdToModel);
+
+            $this->updateLocationAssignments($menu, $locations);
+        });
+
+        return $menu->fresh();
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>>  $siblings
+     * @param  Collection<int, array<string, mixed>>  $all
+     * @param  array<string, MenuItem>  $clientIdToModel
+     */
+    private function reattachChildren(Collection $siblings, Collection $all, array $clientIdToModel): void
+    {
+        $previous = null;
+
+        foreach ($siblings as $itemData) {
+            $model = $clientIdToModel[$itemData['client_id']];
+
+            if ($previous) {
+                $model->afterNode($previous)->save();
+            } elseif ($itemData['parent_client_id'] ?? null) {
+                $parent = $clientIdToModel[$itemData['parent_client_id']];
+                $model->appendToNode($parent)->save();
+            } else {
+                $model->saveAsRoot();
+            }
+
+            $previous = $model->fresh();
+
+            $children = $all->where('parent_client_id', $itemData['client_id'])->values();
+            if ($children->isNotEmpty()) {
+                $this->reattachChildren($children, $all, $clientIdToModel);
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, bool>  $locations
+     */
+    private function updateLocationAssignments(Menu $menu, array $locations): void
+    {
+        foreach ($locations as $location => $enabled) {
+            if ($enabled) {
+                MenuLocationAssignment::updateOrCreate(
+                    ['location' => $location],
+                    ['menu_id' => $menu->id]
+                );
+            } else {
+                // Solo desasignar si la zona apuntaba a ESTE menú — si otro menú
+                // ya la tiene asignada, no se debe tocar (el checkbox desmarcado
+                // significa "este menú no va aquí", no "vacía la zona").
+                MenuLocationAssignment::where('location', $location)
+                    ->where('menu_id', $menu->id)
+                    ->update(['menu_id' => null]);
+            }
         }
     }
 }

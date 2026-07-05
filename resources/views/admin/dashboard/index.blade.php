@@ -188,8 +188,10 @@
           @can('users.viewAny')
           <div class="col-sm-6 col-md-4 col-xl-3">
             <a href="{{ route('admin.users.index') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
-              <span class="avatar avatar-sm bg-label-primary rounded">
-                <i class="icon-base ti tabler-users"></i>
+              <span class="avatar avatar-sm">
+                <span class="avatar-initial rounded bg-label-primary">
+                  <i class="icon-base ti tabler-users"></i>
+                </span>
               </span>
               <div>
                 <p class="mb-0 fw-medium">Usuarios</p>
@@ -202,8 +204,10 @@
           @can('users.create')
           <div class="col-sm-6 col-md-4 col-xl-3">
             <a href="{{ route('admin.users.create') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
-              <span class="avatar avatar-sm bg-label-success rounded">
-                <i class="icon-base ti tabler-user-plus"></i>
+              <span class="avatar avatar-sm">
+                <span class="avatar-initial rounded bg-label-success">
+                  <i class="icon-base ti tabler-user-plus"></i>
+                </span>
               </span>
               <div>
                 <p class="mb-0 fw-medium">Nuevo usuario</p>
@@ -216,8 +220,10 @@
           @can('roles.viewAny')
           <div class="col-sm-6 col-md-4 col-xl-3">
             <a href="{{ route('admin.roles.index') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
-              <span class="avatar avatar-sm bg-label-warning rounded">
-                <i class="icon-base ti tabler-shield-lock"></i>
+              <span class="avatar avatar-sm">
+                <span class="avatar-initial rounded bg-label-warning">
+                  <i class="icon-base ti tabler-shield-lock"></i>
+                </span>
               </span>
               <div>
                 <p class="mb-0 fw-medium">Roles y Permisos</p>
@@ -230,8 +236,10 @@
           @can('activitylog.viewAny')
           <div class="col-sm-6 col-md-4 col-xl-3">
             <a href="{{ route('admin.activity.index') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
-              <span class="avatar avatar-sm bg-label-danger rounded">
-                <i class="icon-base ti tabler-history"></i>
+              <span class="avatar avatar-sm">
+                <span class="avatar-initial rounded bg-label-danger">
+                  <i class="icon-base ti tabler-history"></i>
+                </span>
               </span>
               <div>
                 <p class="mb-0 fw-medium">Auditoría</p>
@@ -244,8 +252,10 @@
           @can('settings.view')
           <div class="col-sm-6 col-md-4 col-xl-3">
             <a href="{{ route('admin.settings.index') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
-              <span class="avatar avatar-sm bg-label-info rounded">
-                <i class="icon-base ti tabler-settings"></i>
+              <span class="avatar avatar-sm">
+                <span class="avatar-initial rounded bg-label-info">
+                  <i class="icon-base ti tabler-settings"></i>
+                </span>
               </span>
               <div>
                 <p class="mb-0 fw-medium">Configuración</p>
@@ -257,8 +267,10 @@
 
           <div class="col-sm-6 col-md-4 col-xl-3">
             <a href="{{ route('admin.profile.show') }}" class="d-flex align-items-center gap-3 p-3 rounded border text-decoration-none text-body hover-shadow">
-              <span class="avatar avatar-sm bg-label-secondary rounded">
-                <i class="icon-base ti tabler-user-circle"></i>
+              <span class="avatar avatar-sm">
+                <span class="avatar-initial rounded bg-label-secondary">
+                  <i class="icon-base ti tabler-user-circle"></i>
+                </span>
               </span>
               <div>
                 <p class="mb-0 fw-medium">Mi Perfil</p>

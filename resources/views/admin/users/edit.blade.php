@@ -226,7 +226,7 @@
               <input type="email" id="email_institucional" name="perfil[email_institucional]"
                 class="form-control @error('perfil.email_institucional') is-invalid @enderror"
                 value="{{ old('perfil.email_institucional', $perfil?->email_institucional) }}"
-                placeholder="j.perez@ugel.gob.pe" />
+                placeholder="j.perez@empresa.com" />
             </div>
             @error('perfil.email_institucional')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
           </div>

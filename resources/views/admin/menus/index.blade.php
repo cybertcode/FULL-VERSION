@@ -6,7 +6,7 @@
 
 <x-breadcrumb title="Menús" :items="[['label' => 'Menús']]" />
 
-<p class="mb-6 text-body-secondary">Administra los menús de navegación del sitio público. Cada menú se ubica en una zona del frontend (encabezado, pie de página, etc.) y sus ítems se ordenan arrastrando.</p>
+<p class="mb-6 text-body-secondary">Crea los menús de navegación. Al editar cada uno podrás agregar ítems, ordenarlos arrastrando y elegir en qué zona del sitio se muestra (encabezado, pie de página, etc.).</p>
 
 <div class="row g-6">
   @can('menus.create')
@@ -15,7 +15,7 @@
         <div class="row h-100">
           <div class="col-sm-5">
             <div class="d-flex align-items-end h-100 justify-content-center mt-sm-0 mt-4">
-              <i class="ti tabler-list-plus text-primary" style="font-size:5rem;opacity:.85;"></i>
+              <i class="ti tabler-playlist-add text-primary" style="font-size:5rem;opacity:.85;"></i>
             </div>
           </div>
           <div class="col-sm-7">
@@ -40,9 +40,6 @@
             <div>
               <h5 class="mb-1">{{ $menu->name }}</h5>
               <span class="badge bg-label-secondary">{{ $menu->slug }}</span>
-              @if ($menu->location)
-                <span class="badge bg-label-info">{{ $menu->location }}</span>
-              @endif
             </div>
             <div class="d-flex align-items-center gap-1">
               @can('menus.edit')
@@ -84,17 +81,10 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div class="mb-4">
-              <label class="form-label">Nombre</label>
-              <input type="text" name="name" class="form-control" required maxlength="100" placeholder="Ej. Menú principal">
-            </div>
-            <div class="mb-4">
-              <label class="form-label">Identificador (slug)</label>
-              <input type="text" name="slug" class="form-control" required maxlength="100" placeholder="Ej. header-principal">
-            </div>
             <div class="mb-0">
-              <label class="form-label">Ubicación</label>
-              <input type="text" name="location" class="form-control" maxlength="50" placeholder="Ej. header, footer, sidebar">
+              <label class="form-label">Nombre</label>
+              <input type="text" name="name" class="form-control" required maxlength="100" placeholder="Ej. Menú principal" autofocus>
+              <div class="form-text">El identificador (slug) se genera automáticamente a partir del nombre.</div>
             </div>
           </div>
           <div class="modal-footer">

@@ -70,6 +70,15 @@ class RolesAndPermissionsSeeder extends Seeder
         'menus.create' => 'Crear menú',
         'menus.edit' => 'Editar menú y sus ítems',
         'menus.delete' => 'Eliminar menú',
+
+        // ── Páginas (CMS frontend) ────────────────────────────────────────
+        'pages.viewAny' => 'Ver listado de páginas',
+        'pages.view' => 'Ver detalle de página',
+        'pages.create' => 'Crear página',
+        'pages.edit' => 'Editar página',
+        'pages.delete' => 'Eliminar página',
+        'pages.restore' => 'Restaurar página eliminada',
+        'pages.forceDelete' => 'Eliminar página permanentemente',
     ];
 
     public function run(): void
@@ -101,6 +110,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'dashboard.view', 'dashboard.viewStats',
             'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
             'menus.viewAny', 'menus.view', 'menus.create', 'menus.edit', 'menus.delete',
+            'pages.viewAny', 'pages.view', 'pages.create', 'pages.edit', 'pages.delete',
+            'pages.restore',
         ]);
 
         // Editor — acceso básico
