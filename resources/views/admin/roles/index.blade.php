@@ -134,6 +134,7 @@
                      class="btn btn-icon btn-text-secondary rounded-pill waves-effect clone-role"
                      data-role-id="{{ $role->id }}"
                      data-role-name="{{ $role->name }}"
+                     data-role-permissions="{{ json_encode($role->permissions->pluck('name')) }}"
                      data-bs-toggle="tooltip" title="Copiar rol">
                     <i class="icon-base ti tabler-copy icon-md"></i>
                   </a>
@@ -349,13 +350,7 @@ $legendItems = [
             <h5 class="mb-1">Permisos del Rol</h5>
             <p class="text-body-secondary small mb-4">Marca los permisos que tendrá este rol.</p>
             @php
-              $moduleConfig = [
-                'users'       => ['label' => 'Usuarios',             'icon' => 'tabler-users'],
-                'roles'       => ['label' => 'Roles',                 'icon' => 'tabler-shield-lock'],
-                'settings'    => ['label' => 'Configuración',         'icon' => 'tabler-settings'],
-                'activitylog' => ['label' => 'Registro de Actividad', 'icon' => 'tabler-list-check'],
-                'dashboard'   => ['label' => 'Dashboard',             'icon' => 'tabler-layout-dashboard'],
-              ];
+              $moduleConfig = config('app-settings.permission_modules', []);
             @endphp
             <div class="table-responsive">
               <table class="table table-flush-spacing">
@@ -891,9 +886,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Clonar rol — abre modal con nombre prefijado
+  // Clonar rol — abre modal con nombre prefijado y los mismos permisos del rol origen
   document.querySelectorAll('.clone-role').forEach(btn => {
     btn.addEventListener('click', function () {
+      const sourcePerms = JSON.parse(this.dataset.rolePermissions || '[]');
+
       roleTitle.textContent = 'Copiar Rol';
       document.getElementById('formMethod').value = 'POST';
       roleForm.action = '{{ route('admin.roles.store') }}';
@@ -901,7 +898,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (descInput) descInput.value = '';
       nameInput.removeAttribute('readonly');
       nameAlert.classList.add('d-none');
-      permBoxes.forEach(cb => cb.checked = false);
+      permBoxes.forEach(cb => cb.checked = sourcePerms.includes(cb.value));
       syncSelectAll();
       const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('addRoleModal'));
       modal.show();

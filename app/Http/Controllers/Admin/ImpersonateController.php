@@ -12,7 +12,20 @@ class ImpersonateController extends BaseAdminController
     {
         $this->authorize('impersonate', $user);
 
-        session()->put('impersonator_id', auth()->id());
+        $impersonator = auth()->user();
+
+        session()->put('impersonator_id', $impersonator->id);
+
+        activity('impersonacion')
+            ->causedBy($impersonator)
+            ->performedOn($user)
+            ->withProperties([
+                'impersonator_id' => $impersonator->id,
+                'impersonator_name' => $impersonator->name,
+                'target_id' => $user->id,
+                'target_name' => $user->name,
+            ])
+            ->log("{$impersonator->name} impersonó a {$user->name}.");
 
         Auth::guard('web')->login($user);
 
@@ -29,7 +42,19 @@ class ImpersonateController extends BaseAdminController
 
         abort_unless($impersonatorId, 403);
 
+        $impersonatedUser = auth()->user();
         $impersonator = User::findOrFail($impersonatorId);
+
+        activity('impersonacion')
+            ->causedBy($impersonator)
+            ->performedOn($impersonatedUser)
+            ->withProperties([
+                'impersonator_id' => $impersonator->id,
+                'impersonator_name' => $impersonator->name,
+                'target_id' => $impersonatedUser->id,
+                'target_name' => $impersonatedUser->name,
+            ])
+            ->log("{$impersonator->name} dejó de impersonar a {$impersonatedUser->name}.");
 
         Auth::guard('web')->login($impersonator);
 

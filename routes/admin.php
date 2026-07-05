@@ -111,6 +111,9 @@ Route::middleware([
         Route::get('permisos/exportar/excel', [PermissionController::class, 'exportExcel'])->name('permissions.export.excel');
         Route::get('permisos/exportar/csv', [PermissionController::class, 'exportCsv'])->name('permissions.export.csv');
         Route::get('permisos', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::post('permisos', [PermissionController::class, 'store'])->name('permissions.store');
+        Route::put('permisos/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
+        Route::delete('permisos/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
         // ── Mi Perfil ─────────────────────────────────────────────────
         Route::get('mi-perfil', [ProfileController::class, 'show'])->name('profile.show');
@@ -127,6 +130,9 @@ Route::middleware([
         Route::get('notificaciones/{id}/leer', [NotificationController::class, 'markRead'])->name('notifications.read');
         Route::post('notificaciones/leer-todas', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
         Route::delete('notificaciones/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::post('notificaciones/enviar', [NotificationController::class, 'broadcast'])
+            ->middleware('throttle:6,1')
+            ->name('notifications.broadcast');
 
         // ── Auditoría ─────────────────────────────────────────────────
         Route::get('auditoria/exportar/csv', [ActivityLogController::class, 'exportCsv'])->name('activity.export.csv');
@@ -147,6 +153,9 @@ Route::middleware([
         Route::post('configuracion/test-mail', [SettingController::class, 'testMail'])
             ->middleware('throttle:6,1')
             ->name('settings.test-mail');
+        Route::post('configuracion/test-recaptcha', [SettingController::class, 'testRecaptcha'])
+            ->middleware('throttle:6,1')
+            ->name('settings.test-recaptcha');
         Route::post('configuracion/artisan', [SettingController::class, 'runArtisan'])
             ->middleware('throttle:10,1')
             ->name('settings.artisan');

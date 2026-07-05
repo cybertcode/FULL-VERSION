@@ -580,8 +580,10 @@ Creadas con el estilo Vuexy:
 - [x] Menú filtrado por permisos (clave `"permission"` en JSON)
 - [x] Tests Feature de todos los módulos (168 en verde)
 - [x] Backups (`spatie/laravel-backup`) — `config/backup.php`, excluye `storage/`, notifica a `BACKUP_NOTIFICATION_EMAIL`, schedule diario (`backup:clean` 01:00, `backup:run` 01:30, `backup:monitor` 02:00) en `routes/console.php`
+- [x] Purga de auditoría — `activitylog:clean --force` programado domingos 03:30 (`routes/console.php`), retención configurable vía `ACTIVITY_LOGGER_RETENTION_DAYS` (default 365 días, `config/activitylog.php`)
 - [x] Logging con rotación — `LOG_STACK=daily` (14 días) en `.env`/`.env.example`, visible en Log Viewer
 - [x] API base — `routes/api.php` registrado en `bootstrap/app.php` bajo prefijo `api/v1` (antes NO se cargaba, bug corregido). `Api/V1/AuthController` (login/logout/me) con Sanctum tokens, `UserResource`
+- [x] API — endpoint de ejemplo `GET /api/v1/users` y `GET /api/v1/users/{user}` (`Api/V1/UserController`), plantilla de referencia para módulos de negocio futuros: paginación estándar (`per_page`, tope 100), autorización vía Policy (`users.viewAny`/`users.view`), Resource dedicado. Errores 401/403/404 ya devuelven JSON automáticamente en rutas API (Laravel detecta `Accept: application/json`)
 - [x] CI — `.github/workflows/ci.yml`: Pint + Larastan + PHPUnit en cada push/PR a main/develop
 - [x] Larastan (PHPStan nivel 6) — `phpstan.neon` solo sobre código propio (excluye demos Vuexy rotas), `phpstan-baseline.neon` documenta 150 hallazgos preexistentes (mayormente falta de tipos genéricos en colecciones, no bugs)
 - [x] `ImpersonateController` ahora extiende `BaseAdminController` (antes `Controller` directo) y usa `Auth::guard('web')->login()` explícito — bug real corregido: bajo `auth:sanctum` el `Auth::login()` sin guard lanzaba `BadMethodCallException`, la impersonación estaba rota en producción

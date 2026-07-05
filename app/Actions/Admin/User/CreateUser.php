@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Admin\ImageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class CreateUser
 {
@@ -22,12 +23,14 @@ class CreateUser
             $perfil['nombres'] ?? null,
         ) ?: ($data['name'] ?? 'Sin nombre');
 
+        $inviteByEmail = ! empty($data['invite_by_email']);
+
         $user = User::create([
             'name' => $name,
             'username' => $data['username'] ?? null,
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
-            'password' => Hash::make($data['password']),
+            'password' => Hash::make($inviteByEmail ? Str::random(32) : $data['password']),
             'status' => $data['status'] ?? UserStatus::Active->value,
             'avatar' => $avatar
                 ? $this->imageService->store($avatar, 'uploads/users', null, 85, 400)

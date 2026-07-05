@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\User;
+
 class DashboardControllerTest extends AdminTestCase
 {
     public function test_admin_ve_dashboard_con_stats_y_grafica(): void
@@ -12,6 +14,28 @@ class DashboardControllerTest extends AdminTestCase
             ->assertSee('Total usuarios')
             ->assertSee('Usuarios registrados por mes')
             ->assertSee('Actividad reciente');
+    }
+
+    public function test_dashboard_shows_weekly_trend_for_new_users(): void
+    {
+        User::factory()->withPersonalTeam()->create(['created_at' => now()]);
+
+        $response = $this->actingAsAdmin()->get(route('admin.dashboard'));
+
+        $response->assertOk()->assertViewHas('weeklyTrend');
+
+        $trend = $response->viewData('weeklyTrend');
+        $this->assertArrayHasKey('current', $trend);
+        $this->assertArrayHasKey('trend', $trend);
+        $this->assertGreaterThanOrEqual(1, $trend['current']);
+    }
+
+    public function test_weekly_trend_is_null_for_user_without_permission(): void
+    {
+        $this->actingAsUser()
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertViewHas('weeklyTrend', null);
     }
 
     public function test_usuario_simple_ve_dashboard_sin_stats(): void

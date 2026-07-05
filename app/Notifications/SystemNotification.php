@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Notificación genérica del sistema (canal database).
+ * Notificación genérica del sistema (canal database, con email opcional).
  *
  * Uso:
  *   $user->notify(new SystemNotification(
@@ -16,6 +17,7 @@ use Illuminate\Notifications\Notification;
  *       icon: 'tabler-user-check',   // ícono tabler
  *       color: 'success',            // primary|success|info|warning|danger
  *       url: route('admin.profile.show'),
+ *       sendEmail: true,             // además del in-app, envía por correo
  *   ));
  */
 class SystemNotification extends Notification implements ShouldQueue
@@ -28,11 +30,12 @@ class SystemNotification extends Notification implements ShouldQueue
         public string $icon = 'tabler-bell',
         public string $color = 'primary',
         public ?string $url = null,
+        public bool $sendEmail = false,
     ) {}
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $this->sendEmail ? ['database', 'mail'] : ['database'];
     }
 
     public function toDatabase(object $notifiable): array
@@ -44,5 +47,19 @@ class SystemNotification extends Notification implements ShouldQueue
             'color' => $this->color,
             'url' => $this->url,
         ];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        $mail = (new MailMessage)
+            ->subject($this->title)
+            ->greeting($this->title)
+            ->line($this->message);
+
+        if ($this->url) {
+            $mail->action('Ver más', $this->url);
+        }
+
+        return $mail;
     }
 }

@@ -60,6 +60,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // ── Intentos de login ─────────────────────────────────────────────
         'login-attempts.viewAny' => 'Ver intentos de inicio de sesión',
+
+        // ── Notificaciones ─────────────────────────────────────────────────
+        'notifications.send' => 'Enviar notificaciones masivas',
     ];
 
     public function run(): void

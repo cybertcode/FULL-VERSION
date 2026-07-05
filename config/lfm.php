@@ -117,11 +117,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'optimize_uploaded_images' => [
-        'enabled' => false,
+        'enabled' => true,
         'format' => null,
         'quality' => 85,
-        'max_width' => null,
-        'max_height' => null,
+        'max_width' => 2000,
+        'max_height' => 2000,
         'progressive' => true,
         'keep_original_when_larger' => true,
         'mimetypes' => [

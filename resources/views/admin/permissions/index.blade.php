@@ -90,24 +90,31 @@
       <button class="btn btn-sm btn-primary module-filter-btn active" data-module="">Todos</button>
       {{-- botones de módulo se generan dinámicamente por JS --}}
     </div>
-    @can('roles.viewAny')
-    <div class="btn-group">
-      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="icon-base ti tabler-download me-1"></i> Exportar
+    <div class="d-flex gap-2">
+      @can('create', \App\Models\Permission::class)
+      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#permFormModal" onclick="openPermFormModal()">
+        <i class="icon-base ti tabler-plus me-1"></i> Nuevo permiso
       </button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportPermissosProfesional('pdf')">
-          <i class="icon-base ti tabler-file-type-pdf me-2 text-danger"></i>PDF
-        </a></li>
-        <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportPermissosProfesional('excel')">
-          <i class="icon-base ti tabler-file-spreadsheet me-2 text-success"></i>Excel
-        </a></li>
-        <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportPermissosProfesional('csv')">
-          <i class="icon-base ti tabler-file-text me-2 text-info"></i>CSV
-        </a></li>
-      </ul>
+      @endcan
+      @can('roles.viewAny')
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="icon-base ti tabler-download me-1"></i> Exportar
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportPermissosProfesional('pdf')">
+            <i class="icon-base ti tabler-file-type-pdf me-2 text-danger"></i>PDF
+          </a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportPermissosProfesional('excel')">
+            <i class="icon-base ti tabler-file-spreadsheet me-2 text-success"></i>Excel
+          </a></li>
+          <li><a class="dropdown-item" href="javascript:void(0)" onclick="exportPermissosProfesional('csv')">
+            <i class="icon-base ti tabler-file-text me-2 text-info"></i>CSV
+          </a></li>
+        </ul>
+      </div>
+      @endcan
     </div>
-    @endcan
   </div>
   <div class="card-datatable table-responsive">
     <table class="datatables-permissions table border-top">
@@ -172,13 +179,54 @@
   </div>
 </div>
 
+{{-- Modal crear/editar ────────────────────────────────────────────────── --}}
+<div class="modal fade" id="permFormModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="permForm" method="POST">
+        @csrf
+        <input type="hidden" name="_method" id="permFormMethodField" value="POST" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="permFormTitle">Nuevo permiso</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label" for="permModule">Módulo</label>
+              <input type="text" id="permModule" name="module" class="form-control"
+                     placeholder="ej. facturas" pattern="[a-z][a-z0-9_-]*" required maxlength="50" />
+              <small class="text-muted">minúsculas, sin espacios</small>
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="permAction">Acción</label>
+              <input type="text" id="permAction" name="action" class="form-control"
+                     placeholder="ej. viewAny" pattern="[a-z][a-zA-Z0-9]*" required maxlength="50" />
+              <small class="text-muted">ej. viewAny, create, edit, delete</small>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="permLabel">Label visible <span class="text-muted fw-normal">(opcional)</span></label>
+              <input type="text" id="permLabel" name="label" class="form-control" maxlength="150"
+                     placeholder="ej. Ver listado de facturas" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 {{-- ─── Leyenda ─────────────────────────────────────────────────────────────── --}}
 @php
 $legendItems = [
   ['icon' => 'tabler-layout-grid',  'color' => 'primary',   'text' => 'Usa los botones de <strong class="text-body">módulo</strong> del encabezado para filtrar permisos por área del sistema.'],
   ['icon' => 'tabler-eye',          'color' => 'info',      'text' => 'Haz clic en cualquier fila para abrir el <strong class="text-body">detalle</strong> con los roles que tienen ese permiso asignado.'],
   ['icon' => 'tabler-file-export',  'color' => 'success',   'text' => 'Los botones de <strong class="text-body">Exportar</strong> respetan el módulo y el término de búsqueda activos.'],
-  ['icon' => 'tabler-lock',         'color' => 'secondary', 'text' => 'Los permisos son <strong class="text-body">solo lectura</strong>. Se crean y gestionan desde el código de la aplicación.'],
+  ['icon' => 'tabler-lock',         'color' => 'secondary', 'text' => 'El <strong class="text-body">nombre técnico</strong> (módulo.acción) no se puede editar una vez creado — solo el label visible. Un permiso asignado a algún rol no puede eliminarse.'],
 ];
 @endphp
 <x-table-legend :items="$legendItems" />
@@ -196,6 +244,33 @@ const EXPORT_URLS = {
   csv:   '{{ route('admin.permissions.export.csv') }}',
 };
 
+// ── URLs de CRUD de permisos ────────────────────────────────────────────
+const PERM_STORE_URL = '{{ route('admin.permissions.store') }}';
+const PERM_UPDATE_URL_TEMPLATE = '{{ route('admin.permissions.update', ['permission' => '__ID__']) }}';
+const PERM_DELETE_URL_TEMPLATE = '{{ route('admin.permissions.destroy', ['permission' => '__ID__']) }}';
+
+function openPermFormModal(perm = null) {
+  const form = document.getElementById('permForm');
+  form.reset();
+
+  if (perm) {
+    document.getElementById('permFormTitle').textContent = 'Editar permiso';
+    document.getElementById('permModule').value = perm.module;
+    document.getElementById('permModule').disabled = true;
+    document.getElementById('permAction').value = perm.action;
+    document.getElementById('permAction').disabled = true;
+    document.getElementById('permLabel').value = perm.label || '';
+    form.action = PERM_UPDATE_URL_TEMPLATE.replace('__ID__', perm.id);
+    document.getElementById('permFormMethodField').value = 'PUT';
+  } else {
+    document.getElementById('permFormTitle').textContent = 'Nuevo permiso';
+    document.getElementById('permModule').disabled = false;
+    document.getElementById('permAction').disabled = false;
+    form.action = PERM_STORE_URL;
+    document.getElementById('permFormMethodField').value = 'POST';
+  }
+}
+
 function exportPermissosProfesional(format) {
   const url    = new URL(EXPORT_URLS[format], location.origin);
   const mod    = document.querySelector('.module-filter-btn.active')?.dataset.module || '';
@@ -204,6 +279,20 @@ function exportPermissosProfesional(format) {
   if (search) url.searchParams.set('search', search);
   showToast('info', `Preparando ${format.toUpperCase()}… se descargará en breve.`);
   window.open(url.toString(), '_blank');
+}
+
+// ── Módulos de permisos (label + color), data-driven desde config/app-settings.php ──
+const PERMISSION_MODULES = @json($permissionModules ?? []);
+const MODULE_COLOR_CYCLE = ['primary', 'success', 'warning', 'info', 'secondary', 'danger'];
+
+function moduleLabelOf(mod) {
+  return PERMISSION_MODULES[mod]?.label || (mod.charAt(0).toUpperCase() + mod.slice(1));
+}
+
+function moduleColorOf(mod) {
+  const keys = Object.keys(PERMISSION_MODULES);
+  const idx = keys.indexOf(mod);
+  return idx >= 0 ? MODULE_COLOR_CYCLE[idx % MODULE_COLOR_CYCLE.length] : 'secondary';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -254,23 +343,8 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       {
         targets: 3,
-        render: (data, type, full) => {
-          const colors = {
-            users: 'primary', roles: 'success', settings: 'warning',
-            activitylog: 'info', dashboard: 'secondary', permisos: 'danger'
-          };
-          const labels = {
-            users:       'Usuarios',
-            roles:       'Roles',
-            settings:    'Configuración',
-            activitylog: 'Reg. Actividad',
-            dashboard:   'Dashboard',
-            permisos:    'Permisos',
-          };
-          const c = colors[full.module] || 'secondary';
-          const l = labels[full.module] || full.module;
-          return `<span class="badge bg-label-${c}">${l}</span>`;
-        }
+        render: (data, type, full) =>
+          `<span class="badge bg-label-${moduleColorOf(full.module)}">${moduleLabelOf(full.module)}</span>`
       },
       {
         targets: 4,
@@ -294,11 +368,29 @@ document.addEventListener('DOMContentLoaded', function () {
         orderable: false,
         searchable: false,
         responsivePriority: 1,
-        render: (data, type, full) =>
-          `<button class="btn btn-sm btn-icon btn-label-secondary perm-detail-btn"
+        render: (data, type, full) => {
+          const canEdit = @json($canEditPermissions ?? false);
+          const canDelete = @json($canDeletePermissions ?? false);
+          const canDeleteThis = canDelete && (!full.roles || full.roles.length === 0);
+          let html = `<button class="btn btn-sm btn-icon btn-label-secondary perm-detail-btn"
                    data-id="${full.id}" title="Ver detalle">
              <i class="icon-base ti tabler-eye"></i>
-           </button>`
+           </button>`;
+          if (canEdit) {
+            html += `<button class="btn btn-sm btn-icon btn-label-primary perm-edit-btn"
+                   data-id="${full.id}" title="Editar label">
+             <i class="icon-base ti tabler-edit"></i>
+           </button>`;
+          }
+          if (canDelete) {
+            html += `<button class="btn btn-sm btn-icon btn-label-danger perm-delete-btn"
+                   data-id="${full.id}" title="${canDeleteThis ? 'Eliminar' : 'No se puede eliminar: asignado a roles'}"
+                   ${canDeleteThis ? '' : 'disabled'}>
+             <i class="icon-base ti tabler-trash"></i>
+           </button>`;
+          }
+          return html;
+        }
       },
     ],
     order: [[2, 'asc']],
@@ -380,19 +472,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ── Botones de módulo ────────────────────────────────────────────────
-  const moduleColors = {
-    users: 'primary', roles: 'success', settings: 'warning',
-    activitylog: 'info', dashboard: 'secondary'
-  };
-  const moduleLabels = {
-    users:       'Usuarios',
-    roles:       'Roles',
-    settings:    'Configuración',
-    activitylog: 'Registro de actividad',
-    dashboard:   'Dashboard',
-    permisos:    'Permisos',
-  };
-
   function buildModuleFilters(data) {
     const modules = [...new Set(data.map(p => p.module))].sort();
     const bar = document.querySelector('.module-filter-btn[data-module=""]').parentElement;
@@ -402,8 +481,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     modules.forEach(mod => {
       const count = data.filter(p => p.module === mod).length;
-      const c     = moduleColors[mod] || 'secondary';
-      const label = moduleLabels[mod] || mod;
+      const c     = moduleColorOf(mod);
+      const label = moduleLabelOf(mod);
       const btn   = document.createElement('button');
       btn.className      = `btn btn-sm btn-label-${c} module-filter-btn`;
       btn.dataset.module = mod;
@@ -438,13 +517,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const perm = allData.find(p => p.id === id);
     if (!perm) return;
 
-    const modLabels = {
-      users: 'Usuarios', roles: 'Roles', settings: 'Configuración',
-      activitylog: 'Reg. Actividad', dashboard: 'Dashboard', permisos: 'Permisos',
-    };
     document.getElementById('pdName').textContent   = perm.name;
     document.getElementById('pdLabel').textContent  = perm.label;
-    document.getElementById('pdModule').textContent = modLabels[perm.module] || perm.module;
+    document.getElementById('pdModule').textContent = moduleLabelOf(perm.module);
     document.getElementById('pdAction').textContent = perm.action || '—';
     document.getElementById('pdCreatedAt').textContent = perm.created_at ?? '—';
 
@@ -458,6 +533,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     detailModal.show();
+  });
+
+  // ── Editar permiso ───────────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.perm-edit-btn');
+    if (!btn) return;
+
+    const perm = allData.find(p => p.id === parseInt(btn.dataset.id));
+    if (!perm) return;
+
+    openPermFormModal(perm);
+    new bootstrap.Modal(document.getElementById('permFormModal')).show();
+  });
+
+  // ── Eliminar permiso ──────────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.perm-delete-btn');
+    if (!btn || btn.disabled) return;
+
+    const perm = allData.find(p => p.id === parseInt(btn.dataset.id));
+    if (!perm) return;
+
+    confirmDeleteUrl(PERM_DELETE_URL_TEMPLATE.replace('__ID__', perm.id), perm.label || perm.name);
   });
 });
 </script>

@@ -356,26 +356,36 @@
           @error('phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
 
-        <div class="mb-4">
-          <label class="form-label" for="password">Contraseña <span class="text-danger">*</span></label>
-          <div class="input-group input-group-merge @error('password') is-invalid @enderror">
-            <span class="input-group-text"><i class="icon-base ti tabler-lock"></i></span>
-            <input type="password" id="password" name="password"
-              class="form-control @error('password') is-invalid @enderror"
-              placeholder="Mínimo 8 caracteres" required />
-            <span class="input-group-text cursor-pointer" id="toggle-password">
-              <i class="icon-base ti tabler-eye-off"></i>
-            </span>
-          </div>
-          @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+        <div class="mb-4 form-check form-switch">
+          <input type="checkbox" class="form-check-input" id="invite_by_email" name="invite_by_email"
+            value="1" {{ old('invite_by_email') ? 'checked' : '' }} />
+          <label class="form-check-label" for="invite_by_email">
+            Invitar por correo <span class="text-muted small">(el usuario define su propia contraseña)</span>
+          </label>
         </div>
 
-        <div>
-          <label class="form-label" for="password_confirmation">Confirmar contraseña <span class="text-danger">*</span></label>
-          <div class="input-group input-group-merge">
-            <span class="input-group-text"><i class="icon-base ti tabler-lock-check"></i></span>
-            <input type="password" id="password_confirmation" name="password_confirmation"
-              class="form-control" required />
+        <div id="password-fields">
+          <div class="mb-4">
+            <label class="form-label" for="password">Contraseña <span class="text-danger">*</span></label>
+            <div class="input-group input-group-merge @error('password') is-invalid @enderror">
+              <span class="input-group-text"><i class="icon-base ti tabler-lock"></i></span>
+              <input type="password" id="password" name="password"
+                class="form-control @error('password') is-invalid @enderror"
+                placeholder="Mínimo 8 caracteres" />
+              <span class="input-group-text cursor-pointer" id="toggle-password">
+                <i class="icon-base ti tabler-eye-off"></i>
+              </span>
+            </div>
+            @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+          </div>
+
+          <div>
+            <label class="form-label" for="password_confirmation">Confirmar contraseña <span class="text-danger">*</span></label>
+            <div class="input-group input-group-merge">
+              <span class="input-group-text"><i class="icon-base ti tabler-lock-check"></i></span>
+              <input type="password" id="password_confirmation" name="password_confirmation"
+                class="form-control" />
+            </div>
           </div>
         </div>
       </div>
@@ -452,6 +462,25 @@ window.addEventListener('load', function () {
       icon.classList.replace('tabler-eye', 'tabler-eye-off');
     }
   });
+
+  const inviteCheckbox = document.getElementById('invite_by_email');
+  const passwordFields = document.getElementById('password-fields');
+  const passwordInput  = document.getElementById('password');
+  const passwordConfirmInput = document.getElementById('password_confirmation');
+
+  function syncPasswordFields() {
+    const inviting = inviteCheckbox.checked;
+    passwordFields.classList.toggle('d-none', inviting);
+    passwordInput.required = ! inviting;
+    passwordConfirmInput.required = ! inviting;
+    if (inviting) {
+      passwordInput.value = '';
+      passwordConfirmInput.value = '';
+    }
+  }
+
+  inviteCheckbox?.addEventListener('change', syncPasswordFields);
+  syncPasswordFields();
 });
 </script>
 @endsection

@@ -21,6 +21,17 @@ class RoleControllerTest extends AdminTestCase
             ->assertViewHas('permissionsGrouped');
     }
 
+    public function test_clone_role_button_carries_source_permissions_in_view(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'editor', 'guard_name' => 'web']);
+        $role->syncPermissions(['dashboard.view']);
+
+        $response = $this->actingAsSuperAdmin()->get(route('admin.roles.index'));
+
+        $response->assertOk();
+        $response->assertSee('data-role-permissions="'.e(json_encode(['dashboard.view'])).'"', false);
+    }
+
     public function test_admin_with_permission_can_view_roles_index(): void
     {
         $this->actingAsAdmin()

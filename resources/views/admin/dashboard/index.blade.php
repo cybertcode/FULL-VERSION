@@ -44,7 +44,7 @@
   {{-- Stats rápidas --}}
   @if($stats)
   @foreach([
-    ['label' => 'Total usuarios',  'value' => $stats['total'],  'icon' => 'tabler-users',       'color' => 'primary', 'hint' => 'registrados en el sistema'],
+    ['label' => 'Total usuarios',  'value' => $stats['total'],  'icon' => 'tabler-users',       'color' => 'primary', 'hint' => 'registrados en el sistema', 'trend' => $weeklyTrend],
     ['label' => 'Usuarios activos','value' => $stats['active'], 'icon' => 'tabler-user-check',  'color' => 'success', 'hint' => ($stats['total'] > 0 ? round($stats['active'] / $stats['total'] * 100) : 0) . '% del total'],
     ['label' => 'Bloqueados',      'value' => $stats['banned'], 'icon' => 'tabler-user-off',    'color' => 'danger',  'hint' => 'accesos restringidos'],
     ['label' => 'Roles',           'value' => $stats['roles'],  'icon' => 'tabler-shield-lock', 'color' => 'warning', 'hint' => 'roles configurados'],
@@ -56,7 +56,23 @@
           <div>
             <span class="text-body-secondary d-block mb-1">{{ $card['label'] }}</span>
             <h4 class="mb-1">{{ number_format($card['value']) }}</h4>
-            <small class="text-body-secondary">{{ $card['hint'] }}</small>
+            @if(!empty($card['trend']))
+              @php $t = $card['trend']; @endphp
+              <small class="d-flex align-items-center gap-1">
+                @if($t['trend'] === 'up')
+                  <i class="icon-base ti tabler-trending-up text-success"></i>
+                  <span class="text-success fw-medium">+{{ $t['change_percent'] }}%</span>
+                @elseif($t['trend'] === 'down')
+                  <i class="icon-base ti tabler-trending-down text-danger"></i>
+                  <span class="text-danger fw-medium">{{ $t['change_percent'] }}%</span>
+                @else
+                  <i class="icon-base ti tabler-minus text-muted"></i>
+                @endif
+                <span class="text-body-secondary">vs. semana anterior ({{ $t['current'] }} nuevos)</span>
+              </small>
+            @else
+              <small class="text-body-secondary">{{ $card['hint'] }}</small>
+            @endif
           </div>
           <div class="avatar">
             <span class="avatar-initial rounded bg-label-{{ $card['color'] }}">

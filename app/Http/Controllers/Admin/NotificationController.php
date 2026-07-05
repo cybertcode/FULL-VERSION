@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\Notification\BroadcastNotificationRequest;
+use App\Models\Role;
+use App\Models\User;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class NotificationController extends BaseAdminController
@@ -20,6 +25,7 @@ class NotificationController extends BaseAdminController
         return view('admin.notifications.index', [
             'notifications' => $query->paginate(15)->withQueryString(),
             'unreadCount' => $request->user()->unreadNotifications()->count(),
+            'roles' => $request->user()->can('notifications.send') ? Role::pluck('name') : collect(),
         ]);
     }
 
@@ -51,6 +57,36 @@ class NotificationController extends BaseAdminController
         return back()->with('flash', [
             'type' => 'success',
             'message' => 'Notificación eliminada.',
+        ]);
+    }
+
+    /** Envía una notificación masiva a todos los usuarios o a los de un rol específico. */
+    public function broadcast(BroadcastNotificationRequest $request): RedirectResponse
+    {
+        $this->authorize('notifications.send');
+
+        $data = $request->validated();
+
+        $users = $data['audience'] === 'role'
+            ? User::role($data['role'])->get()
+            : User::all();
+
+        Notification::send($users, new SystemNotification(
+            title: $data['title'],
+            message: $data['message'],
+            icon: 'tabler-speakerphone',
+            color: 'info',
+            sendEmail: ! empty($data['send_email']),
+        ));
+
+        activity('notificaciones')
+            ->causedBy($request->user())
+            ->withProperties(['audience' => $data['audience'], 'role' => $data['role'] ?? null, 'count' => $users->count()])
+            ->log("Notificación masiva enviada a {$users->count()} usuario(s).");
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => "Notificación enviada a {$users->count()} usuario(s).",
         ]);
     }
 }

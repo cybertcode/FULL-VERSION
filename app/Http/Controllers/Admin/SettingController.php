@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -137,6 +138,35 @@ class SettingController extends BaseAdminController
             return response()->json(['success' => true, 'message' => 'Correo enviado correctamente a '.$email]);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => 'Error: '.$e->getMessage()], 422);
+        }
+    }
+
+    public function testRecaptcha(): JsonResponse
+    {
+        $this->authorize('settings.edit');
+
+        $secretKey = setting('recaptcha_secret_key');
+
+        if (empty($secretKey)) {
+            return response()->json(['success' => false, 'message' => 'No hay una clave secreta de reCAPTCHA configurada.'], 422);
+        }
+
+        try {
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $secretKey,
+                'response' => 'test-connectivity-check',
+            ]);
+
+            $errorCodes = $response->json('error-codes', []);
+
+            if (\in_array('invalid-input-secret', $errorCodes, true)) {
+                return response()->json(['success' => false, 'message' => 'La clave secreta no es válida según Google.'], 422);
+            }
+
+            // Cualquier otro error (token inválido/faltante) confirma que la clave sí fue aceptada por Google.
+            return response()->json(['success' => true, 'message' => 'La clave secreta es válida y Google respondió correctamente.']);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'No se pudo contactar a Google: '.$e->getMessage()], 422);
         }
     }
 

@@ -5,8 +5,11 @@ namespace Tests\Feature\Admin;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Services\Admin\ImageService;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class UserControllerTest extends AdminTestCase
@@ -118,6 +121,54 @@ class UserControllerTest extends AdminTestCase
             'email' => 'nuevo@test.com',
             'phone' => '+51 999 000 001',
         ]);
+    }
+
+    public function test_can_create_user_via_email_invitation_without_password(): void
+    {
+        Notification::fake();
+
+        $this->actingAsSuperAdmin()
+            ->post(route('admin.users.store'), [
+                'name' => 'Usuario Invitado',
+                'email' => 'invitado@test.com',
+                'invite_by_email' => '1',
+                'status' => UserStatus::Active->value,
+                'role' => 'admin',
+            ])
+            ->assertRedirect(route('admin.users.index'));
+
+        $user = User::where('email', 'invitado@test.com')->firstOrFail();
+
+        Notification::assertSentTo($user, ResetPassword::class);
+    }
+
+    public function test_invited_user_gets_random_unusable_password(): void
+    {
+        Notification::fake();
+
+        $this->actingAsSuperAdmin()->post(route('admin.users.store'), [
+            'name' => 'Usuario Invitado 2',
+            'email' => 'invitado2@test.com',
+            'invite_by_email' => '1',
+            'status' => UserStatus::Active->value,
+            'role' => 'admin',
+        ]);
+
+        $user = User::where('email', 'invitado2@test.com')->firstOrFail();
+
+        $this->assertFalse(Hash::check('password', $user->password));
+    }
+
+    public function test_password_is_required_when_not_inviting_by_email(): void
+    {
+        $this->actingAsSuperAdmin()
+            ->post(route('admin.users.store'), [
+                'name' => 'Sin Password',
+                'email' => 'sinpassword@test.com',
+                'status' => UserStatus::Active->value,
+                'role' => 'admin',
+            ])
+            ->assertSessionHasErrors('password');
     }
 
     public function test_created_user_has_correct_role(): void

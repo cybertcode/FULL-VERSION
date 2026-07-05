@@ -259,6 +259,24 @@ parameters:
 			path: app/Http/Controllers/Api/V1/AuthController.php
 
 		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Notification\\BroadcastNotificationRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Notification/BroadcastNotificationRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Permission\\StorePermissionRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Permission/StorePermissionRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Permission\\UpdatePermissionRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Permission/UpdatePermissionRequest.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1

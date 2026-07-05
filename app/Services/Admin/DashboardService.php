@@ -21,6 +21,38 @@ class DashboardService
         ];
     }
 
+    /**
+     * Comparativa de usuarios nuevos: esta semana vs. la semana anterior.
+     *
+     * @return array{current: int, previous: int, change_percent: float|null, trend: string}
+     */
+    public function newUsersWeeklyTrend(): array
+    {
+        $startOfThisWeek = now()->startOfWeek();
+        $startOfLastWeek = $startOfThisWeek->copy()->subWeek();
+
+        $current = User::where('created_at', '>=', $startOfThisWeek)->count();
+        $previous = User::whereBetween('created_at', [$startOfLastWeek, $startOfThisWeek])->count();
+
+        $changePercent = $previous > 0
+            ? round((($current - $previous) / $previous) * 100, 1)
+            : ($current > 0 ? 100.0 : null);
+
+        $trend = match (true) {
+            $changePercent === null => 'flat',
+            $changePercent > 0 => 'up',
+            $changePercent < 0 => 'down',
+            default => 'flat',
+        };
+
+        return [
+            'current' => $current,
+            'previous' => $previous,
+            'change_percent' => $changePercent,
+            'trend' => $trend,
+        ];
+    }
+
     /** Registros de usuarios por mes — últimos 12 meses, para ApexCharts. */
     public function registrationsPerMonth(): array
     {

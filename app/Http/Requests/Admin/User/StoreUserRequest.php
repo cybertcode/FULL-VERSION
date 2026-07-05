@@ -23,7 +23,11 @@ class StoreUserRequest extends FormRequest
             'username' => ['nullable', 'string', 'max:60', 'regex:/^[a-zA-Z0-9._-]+$/', 'unique:users,username'],
             'email' => ['required', 'email:rfc', 'max:254', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+            'invite_by_email' => ['nullable', 'boolean'],
+            'password' => [
+                Rule::requiredIf(! $this->boolean('invite_by_email')),
+                'nullable', 'confirmed', Password::min(8)->letters()->numbers(),
+            ],
             'status' => ['required', Rule::enum(UserStatus::class)],
             'role' => ['required', 'string', Rule::exists(Role::class, 'name')],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],

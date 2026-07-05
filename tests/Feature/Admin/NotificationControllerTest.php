@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Notifications\SystemNotification;
+use Illuminate\Support\Facades\Notification;
 
 class NotificationControllerTest extends AdminTestCase
 {
@@ -72,6 +73,65 @@ class NotificationControllerTest extends AdminTestCase
             ->delete(route('admin.notifications.destroy', $id));
 
         $this->assertSame(0, $this->plainUser->notifications()->count());
+    }
+
+    public function test_super_admin_can_broadcast_to_all_users(): void
+    {
+        Notification::fake();
+
+        $this->actingAsSuperAdmin()
+            ->post(route('admin.notifications.broadcast'), [
+                'title' => 'Aviso general',
+                'message' => 'Mantenimiento programado.',
+                'audience' => 'all',
+            ])
+            ->assertRedirect();
+
+        Notification::assertSentTo([$this->superAdmin, $this->admin, $this->plainUser], SystemNotification::class);
+    }
+
+    public function test_can_broadcast_to_specific_role_only(): void
+    {
+        Notification::fake();
+
+        $this->actingAsSuperAdmin()
+            ->post(route('admin.notifications.broadcast'), [
+                'title' => 'Solo admins',
+                'message' => 'Aviso para administradores.',
+                'audience' => 'role',
+                'role' => 'admin',
+            ])
+            ->assertRedirect();
+
+        Notification::assertSentTo($this->admin, SystemNotification::class);
+        Notification::assertNotSentTo($this->plainUser, SystemNotification::class);
+    }
+
+    public function test_broadcast_with_send_email_marks_notification_for_email(): void
+    {
+        Notification::fake();
+
+        $this->actingAsSuperAdmin()->post(route('admin.notifications.broadcast'), [
+            'title' => 'Con email',
+            'message' => 'Este va también por correo.',
+            'audience' => 'all',
+            'send_email' => '1',
+        ]);
+
+        Notification::assertSentTo($this->plainUser, SystemNotification::class, function ($notification) {
+            return $notification->sendEmail === true && in_array('mail', $notification->via($this->plainUser), true);
+        });
+    }
+
+    public function test_user_without_permission_cannot_broadcast(): void
+    {
+        $this->actingAsUser()
+            ->post(route('admin.notifications.broadcast'), [
+                'title' => 'No autorizado',
+                'message' => 'No debería enviarse.',
+                'audience' => 'all',
+            ])
+            ->assertForbidden();
     }
 
     public function test_no_puede_leer_notificacion_ajena(): void

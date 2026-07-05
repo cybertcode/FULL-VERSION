@@ -1367,6 +1367,13 @@
                         @error('recaptcha_secret_key')<div class="invalid-feedback">{{ $message }}</div>@enderror
                       </div>
                     </div>
+                    <div class="col-12">
+                      <button type="button" id="btn-test-recaptcha" class="btn btn-label-primary"
+                        onclick="testRecaptchaConnection()">
+                        <i class="icon-base ti tabler-plug-connected icon-sm me-1"></i> Probar conexión con Google
+                      </button>
+                      <div id="test-recaptcha-result" class="mt-3" style="display:none;"></div>
+                    </div>
                   </div>
                 </div>
                 <div class="card-footer text-end">
@@ -1832,6 +1839,25 @@ function sendTestMail() {
   })
   .catch(function(){ result.style.display='block'; result.innerHTML='<div class="alert alert-danger">Error de conexión. Intenta de nuevo.</div>'; })
   .finally(function(){ btn.disabled=false; btn.innerHTML='<i class="icon-base ti tabler-send icon-sm me-1"></i> Enviar correo de prueba'; });
+}
+
+// ── Probar conexión reCAPTCHA ──────────────────────────────────────────────────
+function testRecaptchaConnection() {
+  var btn    = document.getElementById('btn-test-recaptcha');
+  var result = document.getElementById('test-recaptcha-result');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Probando...';
+  fetch('{{ route('admin.settings.test-recaptcha') }}', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content,'Accept':'application/json' }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    result.style.display = 'block';
+    result.innerHTML = '<div class="alert alert-' + (data.success ? 'success':'danger') + ' d-flex align-items-center"><i class="icon-base ti ' + (data.success ? 'tabler-check':'tabler-x') + ' icon-sm me-2"></i>' + data.message + '</div>';
+  })
+  .catch(function(){ result.style.display='block'; result.innerHTML='<div class="alert alert-danger">Error de conexión. Intenta de nuevo.</div>'; })
+  .finally(function(){ btn.disabled=false; btn.innerHTML='<i class="icon-base ti tabler-plug-connected icon-sm me-1"></i> Probar conexión con Google'; });
 }
 
 // ── Acciones Artisan ──────────────────────────────────────────────────────────

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Setting;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
 
 class SettingControllerTest extends AdminTestCase
@@ -80,6 +82,21 @@ class SettingControllerTest extends AdminTestCase
         ]);
     }
 
+    public function test_activity_log_properties_have_before_after_structure(): void
+    {
+        $this->actingAsSuperAdmin()
+            ->putJson(route('admin.settings.update', 'regional'), ['timezone' => 'America/Bogota']);
+
+        $activity = Activity::where('log_name', 'configuracion')->latest('id')->first();
+
+        $this->assertNotNull($activity);
+        $this->assertArrayHasKey('changes', $activity->properties->toArray());
+        $this->assertArrayHasKey('timezone', $activity->properties['changes']);
+        $this->assertArrayHasKey('before', $activity->properties['changes']['timezone']);
+        $this->assertArrayHasKey('after', $activity->properties['changes']['timezone']);
+        $this->assertEquals('America/Bogota', $activity->properties['changes']['timezone']['after']);
+    }
+
     public function test_no_registra_actividad_si_no_hubo_cambios(): void
     {
         $this->actingAsSuperAdmin()
@@ -114,6 +131,55 @@ class SettingControllerTest extends AdminTestCase
 
         $this->assertSame('Sistema Importado', setting('site_name'));
         $this->assertSame('$', setting('currency_symbol'));
+    }
+
+    public function test_test_recaptcha_fails_without_secret_key(): void
+    {
+        $this->actingAsSuperAdmin()
+            ->postJson(route('admin.settings.test-recaptcha'))
+            ->assertStatus(422)
+            ->assertJson(['success' => false]);
+    }
+
+    public function test_test_recaptcha_reports_invalid_secret_key(): void
+    {
+        Setting::updateOrCreate(['key' => 'recaptcha_secret_key'], ['value' => 'clave-invalida', 'group' => 'integrations']);
+
+        Http::fake([
+            'https://www.google.com/recaptcha/api/siteverify' => Http::response([
+                'success' => false,
+                'error-codes' => ['invalid-input-secret'],
+            ]),
+        ]);
+
+        $this->actingAsSuperAdmin()
+            ->postJson(route('admin.settings.test-recaptcha'))
+            ->assertStatus(422)
+            ->assertJson(['success' => false]);
+    }
+
+    public function test_test_recaptcha_succeeds_when_secret_key_is_accepted(): void
+    {
+        Setting::updateOrCreate(['key' => 'recaptcha_secret_key'], ['value' => 'clave-valida', 'group' => 'integrations']);
+
+        Http::fake([
+            'https://www.google.com/recaptcha/api/siteverify' => Http::response([
+                'success' => false,
+                'error-codes' => ['invalid-input-response'],
+            ]),
+        ]);
+
+        $this->actingAsSuperAdmin()
+            ->postJson(route('admin.settings.test-recaptcha'))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_user_without_permission_cannot_test_recaptcha(): void
+    {
+        $this->actingAsUser()
+            ->postJson(route('admin.settings.test-recaptcha'))
+            ->assertForbidden();
     }
 
     public function test_importar_ignora_claves_encriptadas_y_archivos(): void

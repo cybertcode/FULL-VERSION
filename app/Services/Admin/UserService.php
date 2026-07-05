@@ -18,6 +18,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class UserService
@@ -64,17 +65,21 @@ class UserService
         activity('usuarios')
             ->causedBy(auth()->user())
             ->performedOn($user)
-            ->withProperties(['role' => $data['role'] ?? null])
+            ->withProperties(['role' => $data['role'] ?? null, 'invited' => ! empty($data['invite_by_email'])])
             ->event('created')
             ->log("Usuario '{$user->name}' creado.");
 
-        $user->notify(new SystemNotification(
-            title: 'Bienvenido a '.setting('site_name', config('app.name')),
-            message: 'Tu cuenta fue creada correctamente. Completa tu perfil para empezar.',
-            icon: 'tabler-confetti',
-            color: 'success',
-            url: route('admin.profile.show'),
-        ));
+        if (! empty($data['invite_by_email'])) {
+            Password::sendResetLink(['email' => $user->email]);
+        } else {
+            $user->notify(new SystemNotification(
+                title: 'Bienvenido a '.setting('site_name', config('app.name')),
+                message: 'Tu cuenta fue creada correctamente. Completa tu perfil para empezar.',
+                icon: 'tabler-confetti',
+                color: 'success',
+                url: route('admin.profile.show'),
+            ));
+        }
 
         return $user;
     }

@@ -264,6 +264,24 @@ document.addEventListener('DOMContentLoaded', function () {
             <tbody>${rows}</tbody>
           </table>
         </div>`;
+    } else if (props.changes && typeof props.changes === 'object' && Object.keys(props.changes).length) {
+      // Formato propio (Settings): {group, changes: {campo: {before, after}}} → tabla antes/después
+      let rows = Object.entries(props.changes).map(([k, v]) => `
+        <tr>
+          <td class="fw-medium">${esc(k)}</td>
+          <td><span class="badge bg-label-danger">${esc(v?.before ?? '—')}</span></td>
+          <td><span class="badge bg-label-success">${esc(v?.after ?? '—')}</span></td>
+        </tr>`).join('');
+      const groupLabel = props.group ? `<span class="text-muted small d-block mb-2">Grupo: ${esc(props.group)}</span>` : '';
+      container.innerHTML = `
+        <h6 class="mb-3">Cambios</h6>
+        ${groupLabel}
+        <div class="table-responsive border rounded">
+          <table class="table table-sm mb-0">
+            <thead><tr><th>Campo</th><th>Antes</th><th>Después</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
     } else if (Object.keys(props).length) {
       // Propiedades sueltas → lista clave/valor
       let rows = Object.entries(props).map(([k, v]) => `

@@ -6,6 +6,11 @@
 
 <x-breadcrumb title="Mis Notificaciones" :items="[['label' => 'Notificaciones']]">
   <x-slot name="actions">
+    @can('notifications.send')
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#broadcastModal">
+        <i class="icon-base ti tabler-speakerphone icon-sm me-1"></i> Enviar notificación
+      </button>
+    @endcan
     @if($unreadCount > 0)
       <form method="POST" action="{{ route('admin.notifications.read-all') }}">
         @csrf
@@ -88,5 +93,62 @@
     </div>
   @endif
 </div>
+
+@can('notifications.send')
+<div class="modal fade" id="broadcastModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="POST" action="{{ route('admin.notifications.broadcast') }}">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title">Enviar notificación masiva</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-4">
+            <label class="form-label" for="bc-title">Título</label>
+            <input type="text" id="bc-title" name="title" class="form-control" maxlength="150" required />
+          </div>
+          <div class="mb-4">
+            <label class="form-label" for="bc-message">Mensaje</label>
+            <textarea id="bc-message" name="message" class="form-control" rows="3" maxlength="1000" required></textarea>
+          </div>
+          <div class="mb-4">
+            <label class="form-label" for="bc-audience">Destinatarios</label>
+            <select id="bc-audience" name="audience" class="form-select">
+              <option value="all">Todos los usuarios</option>
+              <option value="role">Solo un rol</option>
+            </select>
+          </div>
+          <div class="mb-4" id="bc-role-wrapper" style="display:none;">
+            <label class="form-label" for="bc-role">Rol</label>
+            <select id="bc-role" name="role" class="form-select">
+              @foreach($roles as $role)
+                <option value="{{ $role }}">{{ $role }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="form-check form-switch">
+            <input type="checkbox" class="form-check-input" id="bc-send-email" name="send_email" value="1" />
+            <label class="form-check-label" for="bc-send-email">Enviar también por correo</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section('admin-page-script')
+<script>
+document.getElementById('bc-audience')?.addEventListener('change', function () {
+  document.getElementById('bc-role-wrapper').style.display = this.value === 'role' ? 'block' : 'none';
+});
+</script>
+@endsection
+@endcan
 
 @endsection
