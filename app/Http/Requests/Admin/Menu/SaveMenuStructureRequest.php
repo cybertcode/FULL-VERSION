@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\Menu;
 
+use App\Rules\SafeMenuUrl;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +26,7 @@ class SaveMenuStructureRequest extends FormRequest
             'items.*.parent_client_id' => ['nullable', 'string'],
             'items.*.label' => ['required', 'string', 'max:150'],
             'items.*.type' => ['required', Rule::in(['url', 'page'])],
-            'items.*.url' => ['nullable', 'string', 'max:500'],
+            'items.*.url' => ['nullable', 'string', 'max:500', new SafeMenuUrl],
             'items.*.page_id' => ['nullable', 'integer', 'exists:pages,id'],
             'items.*.icon' => ['nullable', 'string', 'max:100'],
             'items.*.target' => ['required', Rule::in(['_self', '_blank'])],

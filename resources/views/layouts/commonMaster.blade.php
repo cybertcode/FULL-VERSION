@@ -68,6 +68,21 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="{{ setting('site_favicon') ? Storage::url(setting('site_favicon')) : asset('assets/img/favicon/favicon.ico') }}" />
 
+  <!-- PWA: instalable en escritorio y móvil -->
+  <link rel="manifest" href="{{ route('pwa.manifest') }}" />
+  <meta name="theme-color" content="#1340A0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="{{ asset('assets/img/pwa/icon-192.png') }}" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('{{ asset('sw.js') }}');
+      });
+    }
+  </script>
+
   <!-- Include Styles -->
   <!-- $isFront is used to append the front layout styles only on the front layout otherwise the variable will be blank -->
   @include('layouts/sections/styles' . $isFront)

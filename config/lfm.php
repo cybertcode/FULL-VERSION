@@ -61,13 +61,14 @@ return [
             'thumb' => true,
             'thumb_width' => 80,
             'thumb_height' => 80,
+            // SVG excluido a propósito: puede contener <script> embebido y
+            // ejecutarse como XSS si se abre directamente en el navegador.
             'valid_mime' => [
                 'image/jpeg',
                 'image/pjpeg',
                 'image/png',
                 'image/gif',
                 'image/webp',
-                'image/svg+xml',
             ],
         ],
     ],
@@ -104,9 +105,15 @@ return [
     'should_validate_mime' => true,
     'over_write_on_duplicate' => false,
 
-    // Bloquear ejecutables
+    // Bloquear ejecutables — incluye variantes que algunos hosting (Apache/PHP-FPM
+    // en shared hosting) interpretan como PHP igual que .php (phtml, phar, pht,
+    // phps, php3-8), y otros formatos ejecutables/interpretables por el servidor.
     'disallowed_mimetypes' => ['text/x-php', 'text/html', 'application/x-httpd-php'],
-    'disallowed_extensions' => ['php', 'html', 'htm', 'exe', 'bat', 'sh', 'js'],
+    'disallowed_extensions' => [
+        'php', 'php2', 'php3', 'php4', 'php5', 'php7', 'php8', 'phtml', 'pht', 'phps',
+        'phar', 'html', 'htm', 'shtml', 'exe', 'bat', 'cmd', 'sh', 'cgi', 'js', 'jsp',
+        'asp', 'aspx', 'htaccess', 'htpasswd',
+    ],
 
     'item_columns' => ['name', 'url', 'time', 'icon', 'is_file', 'is_image', 'thumb_url'],
     'is_reverse_view' => false,

@@ -121,12 +121,17 @@ class MenuService
         $previous = null;
 
         foreach ($siblings as $itemData) {
-            $model = $clientIdToModel[$itemData['client_id']];
+            // Siempre releer fresco de BD antes de mover: el modelo cacheado en
+            // $clientIdToModel puede tener _lft/_rgt obsoletos si ya fue movido
+            // en una iteración anterior de esta misma recursión (ej. su propio
+            // padre reordenado como hermano) — usar la instancia en memoria aquí
+            // causa "Node must not be a descendant" en árboles de 3+ niveles.
+            $model = $clientIdToModel[$itemData['client_id']]->fresh();
 
             if ($previous) {
                 $model->afterNode($previous)->save();
             } elseif ($itemData['parent_client_id'] ?? null) {
-                $parent = $clientIdToModel[$itemData['parent_client_id']];
+                $parent = $clientIdToModel[$itemData['parent_client_id']]->fresh();
                 $model->appendToNode($parent)->save();
             } else {
                 $model->saveAsRoot();

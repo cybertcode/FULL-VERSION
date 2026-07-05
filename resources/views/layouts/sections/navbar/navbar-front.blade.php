@@ -1,13 +1,37 @@
 @php
-use Illuminate\Support\Facades\Route;
-$currentRouteName = Route::currentRouteName();
-$activeRoutes = ['front-pages-pricing', 'front-pages-payment', 'front-pages-checkout', 'front-pages-help-center'];
-$activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
+use App\Enums\MenuLocation;
+use Illuminate\Support\Facades\Storage;
 @endphp
 
 @section('vendor-script')
 @vite(['resources/assets/vendor/js/dropdown-hover.js', 'resources/assets/vendor/js/mega-dropdown.js'])
 @endsection
+
+<style>
+  .landing-navbar .navbar-nav > .nav-item > .nav-link {
+    padding-block: .375rem;
+    padding-inline: .5rem;
+    font-size: .8125rem;
+    font-weight: 500;
+  }
+  .landing-navbar .navbar-nav > .nav-item > .nav-link .icon-base { font-size: .875rem; }
+  .landing-navbar .dropdown-item { font-size: .8125rem; padding-block: .375rem; }
+  .landing-navbar .app-brand-text { font-size: 1rem; }
+  @media (max-width: 991.98px) {
+    .landing-navbar .navbar-nav > .nav-item > .nav-link { padding-block: .5rem; padding-inline: .25rem; }
+    .landing-nav-menu .navbar-nav .dropdown-menu {
+      position: static !important;
+      float: none;
+      inset: auto !important;
+      transform: none !important;
+      box-shadow: none;
+      border: none;
+      background: transparent;
+      padding-inline-start: 1rem;
+      margin: 0;
+    }
+  }
+</style>
 
 <!-- Navbar: Start -->
 <nav class="layout-navbar shadow-none py-0">
@@ -22,9 +46,14 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
           <i class="icon-base ti tabler-menu-2 icon-lg align-middle text-heading fw-medium"></i>
         </button>
         <!-- Mobile menu toggle: End-->
-        <a href="{{ url('front-pages/landing') }}" class="app-brand-link">
-          <span class="app-brand-logo demo">@include('_partials.macros')</span>
-          <span class="app-brand-text demo menu-text fw-bold ms-2 ps-1">{{ config('variables.templateName') }}</span>
+        <a href="{{ url('/') }}" class="app-brand-link">
+          @if(setting('site_logo'))
+            <img src="{{ Storage::url(setting('site_logo')) }}" alt="{{ setting('site_name') }}"
+              class="app-brand-logo demo" style="height: 28px; object-fit: contain;">
+          @else
+            <span class="app-brand-logo demo">@include('_partials.macros')</span>
+          @endif
+          <span class="app-brand-text demo menu-text fw-bold ms-2 ps-1">{{ setting('site_name', config('variables.templateName')) }}</span>
         </a>
       </div>
       <!-- Menu logo wrapper: End -->
@@ -36,211 +65,7 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
           <i class="icon-base ti tabler-x icon-lg"></i>
         </button>
         <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <a class="nav-link fw-medium" aria-current="page"
-              href="{{ url('front-pages/landing') }}#landingHero">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingFeatures">Features</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingTeam">Team</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingFAQ">FAQ</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('front-pages/landing') }}#landingContact">Contact
-              us</a>
-          </li>
-          <li class="nav-item mega-dropdown {{ $activeClass }}">
-            <a href="javascript:void(0);"
-              class="nav-link dropdown-toggle navbar-ex-14-mega-dropdown mega-dropdown fw-medium" aria-expanded="false"
-              data-bs-toggle="mega-dropdown" data-trigger="hover">
-              <span>Pages</span>
-            </a>
-            <div class="dropdown-menu p-4 p-xl-8">
-              <div class="row gy-4">
-                <div class="col-12 col-lg">
-                  <div class="h6 d-flex align-items-center mb-3 mb-lg-5">
-                    <div class="avatar flex-shrink-0 me-3">
-                      <span class="avatar-initial rounded bg-label-primary"><i
-                          class="icon-base ti tabler-layout-grid icon-lg"></i></span>
-                    </div>
-                    <span class="ps-1">Other</span>
-                  </div>
-                  <ul class="nav flex-column">
-                    <li class="nav-item {{ $currentRouteName === 'front-pages-pricing' ? 'active' : '' }}">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('front-pages/pricing') }}">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        <span>Pricing</span>
-                      </a>
-                    </li>
-                    <li class="nav-item {{ $currentRouteName === 'front-pages-payment' ? 'active' : '' }}">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('front-pages/payment') }}">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        <span>Payment</span>
-                      </a>
-                    </li>
-                    <li class="nav-item {{ $currentRouteName === 'front-pages-checkout' ? 'active' : '' }}">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('front-pages/checkout') }}">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        <span>Checkout</span>
-                      </a>
-                    </li>
-                    <li class="nav-item {{ $currentRouteName === 'front-pages-help-center' ? 'active' : '' }}">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('front-pages/help-center') }}">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        <span>Help Center</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="col-12 col-lg">
-                  <div class="h6 d-flex align-items-center mb-3 mb-lg-5">
-                    <div class="avatar flex-shrink-0 me-3">
-                      <span class="avatar-initial rounded bg-label-primary"><i
-                          class="icon-base ti tabler-lock-open icon-lg"></i></span>
-                    </div>
-                    <span class="ps-1">Auth Demo</span>
-                  </div>
-                  <ul class="nav flex-column">
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/login-basic') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Login (Basic)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/login-cover') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Login (Cover)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/register-basic') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Register (Basic)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/register-cover') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Register (Cover)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/register-multisteps') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Register (Multi-steps)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/forgot-password-basic') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Forgot Password (Basic)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/forgot-password-cover') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Forgot Password (Cover)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/reset-password-basic') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Reset Password (Basic)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/reset-password-cover') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Reset Password (Cover)
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="col-12 col-lg">
-                  <div class="h6 d-flex align-items-center mb-3 mb-lg-5">
-                    <div class="avatar flex-shrink-0 me-3">
-                      <span class="avatar-initial rounded bg-label-primary"><i
-                          class="icon-base ti tabler-file-analytics icon-lg"></i></span>
-                    </div>
-                    <span class="ps-1">Other</span>
-                  </div>
-                  <ul class="nav flex-column">
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/pages/misc-error') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Error
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/pages/misc-under-maintenance') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Under Maintenance
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/pages/misc-comingsoon') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Coming Soon
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/pages/misc-not-authorized') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Not Authorized
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/verify-email-basic') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Verify Email (Basic)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/verify-email-cover') }}"
-                        target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Verify Email (Cover)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/two-steps-basic') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Two Steps (Basic)
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link mega-dropdown-link" href="{{ url('/auth/two-steps-cover') }}" target="_blank">
-                        <i class="icon-base ti tabler-circle me-1 icon-12px"></i>
-                        Two Steps (Cover)
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="col-lg-4 d-none d-lg-block">
-                  <div class="bg-body nav-img-col p-2">
-                    <img src="{{ asset('assets/img/front-pages/misc/nav-item-col-img.png') }}" alt="nav item col image"
-                      class="w-100" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link fw-medium" href="{{ url('/') }}" target="_blank">Admin</a>
-          </li>
+          @include('frontend.partials.menu-nodes', ['nodes' => optional(\App\Models\MenuLocationAssignment::where('location', MenuLocation::Header->value)->first()?->menu)->tree() ?? collect()])
         </ul>
       </div>
       <div class="landing-menu-overlay d-lg-none"></div>
@@ -282,9 +107,21 @@ $activeClass = in_array($currentRouteName, $activeRoutes) ? 'active' : '';
 
         <!-- navbar button: Start -->
         <li>
-          <a href="{{ url('/auth/login-cover') }}" class="btn btn-primary" target="_blank"><span
-              class="icon-base ti tabler-login scaleX-n1-rtl me-md-1"></span><span
-              class="d-none d-md-block">Login/Register</span></a>
+          @auth
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-primary"><span
+                class="icon-base ti tabler-layout-dashboard scaleX-n1-rtl me-md-1"></span><span
+                class="d-none d-md-block">Panel</span></a>
+          @else
+            @auth('customer')
+              <a href="{{ route('cuenta.dashboard') }}" class="btn btn-primary"><span
+                  class="icon-base ti tabler-user scaleX-n1-rtl me-md-1"></span><span
+                  class="d-none d-md-block">Mi cuenta</span></a>
+            @else
+              <a href="{{ route('cuenta.login') }}" class="btn btn-primary"><span
+                  class="icon-base ti tabler-login scaleX-n1-rtl me-md-1"></span><span
+                  class="d-none d-md-block">Iniciar sesión</span></a>
+            @endauth
+          @endauth
         </li>
         <!-- navbar button: End -->
       </ul>

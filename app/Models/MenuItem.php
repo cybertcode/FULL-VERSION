@@ -37,7 +37,26 @@ class MenuItem extends BaseModel
     {
         return match ($this->type) {
             'page' => $this->page ? url($this->page->slug) : '#',
-            default => $this->url ?? '#',
+            default => $this->safeUrl(),
         };
+    }
+
+    /**
+     * Defensa en profundidad: aunque SafeMenuUrl ya valida esto al guardar
+     * desde el panel, cualquier ítem insertado por otra vía (seeder, tinker)
+     * no debe poder renderizar un scheme ejecutable como javascript:/data:.
+     */
+    private function safeUrl(): string
+    {
+        if (blank($this->url)) {
+            return '#';
+        }
+
+        if (preg_match('/^([a-zA-Z][a-zA-Z0-9+.-]*):/', $this->url, $matches) &&
+            ! in_array(strtolower($matches[1]), ['http', 'https', 'mailto', 'tel'], true)) {
+            return '#';
+        }
+
+        return $this->url;
     }
 }

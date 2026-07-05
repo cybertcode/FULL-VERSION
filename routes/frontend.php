@@ -7,6 +7,7 @@ use App\Http\Controllers\Frontend\Auth\PasswordResetLinkCustomerController;
 use App\Http\Controllers\Frontend\Auth\RegisteredCustomerController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PageController;
+use App\Http\Controllers\Frontend\PwaManifestController;
 /*
 |--------------------------------------------------------------------------
 | Frontend Routes
@@ -19,6 +20,9 @@ use App\Http\Controllers\Frontend\PageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Manifest PWA — dinámico (nombre/colores desde settings), sirve tanto /admin como el frontend.
+Route::get('/manifest.webmanifest', PwaManifestController::class)->name('pwa.manifest');
 
 /*
 |--------------------------------------------------------------------------
