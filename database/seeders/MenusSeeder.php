@@ -32,8 +32,12 @@ class MenusSeeder extends Seeder
             $header->addItem(['label' => 'Misión y visión', 'type' => 'url', 'url' => '/nosotros/mision-vision', 'target' => '_self'], parent: $nosotros);
 
             $servicios = $header->addItem(['label' => 'Servicios', 'type' => 'url', 'url' => '/servicios', 'icon' => 'briefcase', 'target' => '_self']);
-            $header->addItem(['label' => 'Consultoría', 'type' => 'url', 'url' => '/servicios/consultoria', 'target' => '_self'], parent: $servicios);
+            $consultoria = $header->addItem(['label' => 'Consultoría', 'type' => 'url', 'url' => '/servicios/consultoria', 'target' => '_self'], parent: $servicios);
             $header->addItem(['label' => 'Soporte técnico', 'type' => 'url', 'url' => '/servicios/soporte', 'target' => '_self'], parent: $servicios);
+
+            // Ejemplo de 3er nivel de anidamiento (sub-ítem de un sub-ítem) —
+            // el nestedset no tiene límite de profundidad, esto lo demuestra.
+            $header->addItem(['label' => 'Auditoría de procesos', 'type' => 'url', 'url' => '/servicios/consultoria/auditoria', 'target' => '_self'], parent: $consultoria);
 
             $header->addItem(['label' => 'Contacto', 'type' => 'url', 'url' => '/contacto', 'icon' => 'mail', 'target' => '_self']);
             $header->addItem(['label' => 'Iniciar sesión', 'type' => 'url', 'url' => '/login', 'icon' => 'login', 'target' => '_self']);

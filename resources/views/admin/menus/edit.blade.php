@@ -155,6 +155,13 @@
           <label class="form-label mb-1 small">Etiqueta</label>
           <input type="text" class="form-control form-control-sm f-label" maxlength="150" required>
         </div>
+        <div class="col-md-3">
+          <label class="form-label mb-1 small d-block">Destino</label>
+          <div class="btn-group btn-group-sm w-100 dest-toggle" role="group">
+            <button type="button" class="btn btn-outline-primary btn-sm dest-btn active" data-dest="url">Enlace</button>
+            <button type="button" class="btn btn-outline-primary btn-sm dest-btn" data-dest="page">Página</button>
+          </div>
+        </div>
         <div class="col-md-4 field-url">
           <label class="form-label mb-1 small">URL</label>
           <input type="text" class="form-control form-control-sm f-url" placeholder="/servicios">
@@ -273,6 +280,16 @@ function buildIconGrid(li) {
   COMMON_ICONS.forEach(icon => grid.appendChild(makeBtn(icon)));
 }
 
+function setRowDestType(li, type) {
+  const isPage = type === 'page';
+  li.dataset.type = isPage ? 'page' : 'url';
+  li.querySelector('.field-url').classList.toggle('d-none', isPage);
+  li.querySelector('.field-page').classList.toggle('d-none', ! isPage);
+  li.querySelectorAll('.dest-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.dest === li.dataset.type);
+  });
+}
+
 function createRow({ clientId = null, id = null, label = '', type = 'url', url = '', pageId = '', icon = '', target = '_self', isActive = true } = {}) {
   const template = document.getElementById('rowTemplate');
   const node = template.content.cloneNode(true);
@@ -292,14 +309,12 @@ function createRow({ clientId = null, id = null, label = '', type = 'url', url =
   buildIconGrid(li);
   setRowIcon(li, icon);
 
-  if (type === 'page') {
-    li.querySelector('.field-url').classList.add('d-none');
-    li.querySelector('.field-page').classList.remove('d-none');
-    li.querySelector('.f-page').value = pageId;
-    li.dataset.type = 'page';
-  } else {
-    li.dataset.type = 'url';
-  }
+  setRowDestType(li, type);
+  if (type === 'page') { li.querySelector('.f-page').value = pageId; }
+
+  li.querySelectorAll('.dest-btn').forEach(btn => {
+    btn.addEventListener('click', () => setRowDestType(li, btn.dataset.dest));
+  });
 
   const labelInput = li.querySelector('.f-label');
   labelInput.addEventListener('input', () => {
