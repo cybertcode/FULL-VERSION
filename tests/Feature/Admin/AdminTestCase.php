@@ -55,11 +55,13 @@ abstract class AdminTestCase extends TestCase
         $permissions = [
             'users.viewAny', 'users.view', 'users.create', 'users.edit',
             'users.delete', 'users.restore', 'users.forceDelete', 'users.manageSecurity',
+            'users.impersonate',
             'roles.viewAny', 'roles.view', 'roles.create', 'roles.edit',
             'roles.delete', 'roles.assignPermissions',
             'permissions.viewAny',
             'settings.view', 'settings.edit', 'settings.testMail', 'settings.runArtisan',
             'activitylog.viewAny', 'activitylog.export',
+            'login-attempts.viewAny',
             'dashboard.view', 'dashboard.viewStats',
             'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
             'logs.view',
@@ -74,10 +76,11 @@ abstract class AdminTestCase extends TestCase
         $admin = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $admin->syncPermissions([
             'users.viewAny', 'users.view', 'users.create', 'users.edit', 'users.delete',
-            'users.manageSecurity',
+            'users.manageSecurity', 'users.impersonate',
             'roles.viewAny', 'roles.view', 'permissions.viewAny',
             'settings.view',
             'activitylog.viewAny',
+            'login-attempts.viewAny',
             'dashboard.view', 'dashboard.viewStats',
             'files.viewAny', 'files.upload', 'files.delete', 'files.rename', 'files.folder',
         ]);

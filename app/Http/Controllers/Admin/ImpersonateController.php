@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
-class ImpersonateController extends Controller
+class ImpersonateController extends BaseAdminController
 {
     public function take(User $user): RedirectResponse
     {
@@ -15,7 +14,7 @@ class ImpersonateController extends Controller
 
         session()->put('impersonator_id', auth()->id());
 
-        Auth::login($user);
+        Auth::guard('web')->login($user);
 
         return redirect()->route('admin.dashboard')
             ->with('flash', [
@@ -32,7 +31,7 @@ class ImpersonateController extends Controller
 
         $impersonator = User::findOrFail($impersonatorId);
 
-        Auth::login($impersonator);
+        Auth::guard('web')->login($impersonator);
 
         return redirect()->route('admin.users.index')
             ->with('flash', [

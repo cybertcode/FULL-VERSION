@@ -71,7 +71,7 @@ php artisan lang:add {locale}   # publica archivos en lang/{locale}/
 
 ```bash
 ./vendor/bin/pint                   # PHP code style (Laravel Pint)
-./vendor/bin/phpstan analyse --memory-limit=512M  # Análisis estático (Larastan nivel 5)
+./vendor/bin/phpstan analyse --memory-limit=512M  # Análisis estático (Larastan nivel 6)
 php artisan test                    # PHPUnit
 php artisan permission:cache-reset  # limpiar cache de permisos Spatie
 php artisan backup:run              # backup manual (BD + archivos)
@@ -545,7 +545,7 @@ Creadas con el estilo Vuexy:
 | `livewire/livewire` | ^3.6.4 | Componentes reactivos |
 | `spatie/laravel-permission` | ^6.25 | Roles y permisos |
 | `spatie/laravel-backup` | ^9.3 | Backups programados de BD + archivos |
-| `larastan/larastan` (dev) | ^3.10 | Análisis estático (PHPStan nivel 5) |
+| `larastan/larastan` (dev) | ^3.10 | Análisis estático (PHPStan nivel 6) |
 | `pixinvent/vuexy-laravel-bootstrap-jetstream` | ^3.0 | Swap vistas Jetstream → Vuexy |
 
 ### JS destacados
@@ -583,11 +583,18 @@ Creadas con el estilo Vuexy:
 - [x] Logging con rotación — `LOG_STACK=daily` (14 días) en `.env`/`.env.example`, visible en Log Viewer
 - [x] API base — `routes/api.php` registrado en `bootstrap/app.php` bajo prefijo `api/v1` (antes NO se cargaba, bug corregido). `Api/V1/AuthController` (login/logout/me) con Sanctum tokens, `UserResource`
 - [x] CI — `.github/workflows/ci.yml`: Pint + Larastan + PHPUnit en cada push/PR a main/develop
-- [x] Larastan (PHPStan nivel 5) — `phpstan.neon` solo sobre código propio (excluye demos Vuexy rotas), `phpstan-baseline.neon` documenta 65 hallazgos preexistentes
+- [x] Larastan (PHPStan nivel 6) — `phpstan.neon` solo sobre código propio (excluye demos Vuexy rotas), `phpstan-baseline.neon` documenta 150 hallazgos preexistentes (mayormente falta de tipos genéricos en colecciones, no bugs)
+- [x] `ImpersonateController` ahora extiende `BaseAdminController` (antes `Controller` directo) y usa `Auth::guard('web')->login()` explícito — bug real corregido: bajo `auth:sanctum` el `Auth::login()` sin guard lanzaba `BadMethodCallException`, la impersonación estaba rota en producción
+- [x] Tests agregados para `ImpersonateController`, `PermissionController`, `LoginAttemptController` (antes sin cobertura) — 191 tests verdes
 - [x] Impersonación de usuarios — permiso `users.impersonate`, `UserPolicy::impersonate()` (no self, no Super-Admin), `Admin/ImpersonateController` (`take`/`leave`), banner en `admin/layouts/master.blade.php`, botón en dropdown de `admin/users/index.blade.php`, excepción en `MaintenanceModeMiddleware` y `Enforce2FAMiddleware` para poder salir siempre
 - [x] Job de ejemplo — `App\Jobs\PruneExpiredApiTokens` (borra tokens Sanctum expirados), programado diario 03:00
 - [x] i18n balanceado — `resources/lang/en/actions.php` y `http-statuses.php` agregados (faltaban vs `es/`)
 - [x] Pint aplicado a todo el código propio (formato unificado, sin cambios de lógica)
+- [x] Security headers — `App\Http\Middleware\SecurityHeadersMiddleware` (global en `web`/`api`): `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` (solo HTTPS) y CSP permisivo (documenta GTM/GA/Meta Pixel + inline scripts existentes, no bloquea nada nuevo)
+- [x] CORS — `config/cors.php` publicado; `allowed_origins` ahora viene de `CORS_ALLOWED_ORIGINS` (env, lista separada por comas), antes era `*` por defecto de Laravel
+- [x] Rate limiting explícito — `throttle:6,1` en `/api/v1/login` y `settings.test-mail`, `throttle:60,1` en endpoints API autenticados, `throttle:10,1` en `settings.artisan` (antes sin límite propio, solo dependía de Fortify para el login web)
+- [x] `.env.example` documenta advertencias de producción: `APP_ENV=production`/`APP_DEBUG=false`, `LOG_LEVEL=error`, `SESSION_SECURE_COOKIE=true` con HTTPS
+- [x] Log Viewer y LFM revisados para shared hosting: ambos ya protegidos por permiso granular (`logs.view`, `files.viewAny`) y LFM ya bloquea extensiones ejecutables (`disallowed_extensions` en `config/lfm.php`) — no requirieron cambios, ya estaban bien configurados
 
 ## Gotchas importantes
 

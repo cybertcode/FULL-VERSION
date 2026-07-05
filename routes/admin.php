@@ -144,8 +144,12 @@ Route::middleware([
         Route::get('configuracion', [SettingController::class, 'index'])->name('settings.index');
         Route::get('configuracion/exportar', [SettingController::class, 'export'])->name('settings.export');
         Route::post('configuracion/importar', [SettingController::class, 'import'])->name('settings.import');
-        Route::post('configuracion/test-mail', [SettingController::class, 'testMail'])->name('settings.test-mail');
-        Route::post('configuracion/artisan', [SettingController::class, 'runArtisan'])->name('settings.artisan');
+        Route::post('configuracion/test-mail', [SettingController::class, 'testMail'])
+            ->middleware('throttle:6,1')
+            ->name('settings.test-mail');
+        Route::post('configuracion/artisan', [SettingController::class, 'runArtisan'])
+            ->middleware('throttle:10,1')
+            ->name('settings.artisan');
         Route::put('configuracion/{group}', [SettingController::class, 'update'])->name('settings.update');
 
     });

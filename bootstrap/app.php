@@ -7,6 +7,7 @@ use App\Http\Middleware\Enforce2FAMiddleware;
 use App\Http\Middleware\LocaleMiddleware;
 use App\Http\Middleware\MaintenanceModeMiddleware;
 use App\Http\Middleware\ResolveLoginIdentifierMiddleware;
+use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Http\Middleware\TrackLastLoginMiddleware;
 use App\Http\Middleware\ValidateRegistrationCaptchaMiddleware;
 use Illuminate\Foundation\Application;
@@ -46,6 +47,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(ResolveLoginIdentifierMiddleware::class);
         $middleware->web(Enforce2FAMiddleware::class);
         $middleware->web(TrackLastLoginMiddleware::class);
+
+        $middleware->web(append: SecurityHeadersMiddleware::class);
+        $middleware->api(append: SecurityHeadersMiddleware::class);
 
         $middleware->alias([
             'role' => RoleMiddleware::class,

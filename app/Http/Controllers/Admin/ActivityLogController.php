@@ -9,7 +9,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ActivityLogController extends BaseAdminController
 {
-    public function __construct(protected ActivityLogService $service) {}
+    public function __construct(protected ActivityLogService $service)
+    {
+        parent::__construct();
+    }
 
     public function index(Request $request): View
     {

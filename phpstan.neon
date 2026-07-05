@@ -18,7 +18,7 @@ parameters:
         - app/Notifications
         - app/Policies
 
-    level: 5
+    level: 6
 
     excludePaths:
         - app/Http/Controllers/apps

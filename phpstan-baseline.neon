@@ -1,16 +1,70 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Method App\\Actions\\Admin\\Role\\CreateRole\:\:handle\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Admin/Role/CreateRole.php
+
+		-
 			message: '#^Method App\\Actions\\Admin\\Role\\CreateRole\:\:handle\(\) should return App\\Models\\Role but returns Spatie\\Permission\\Contracts\\Role\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Actions/Admin/Role/CreateRole.php
 
 		-
+			message: '#^Method App\\Actions\\Admin\\Role\\UpdateRole\:\:handle\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Admin/Role/UpdateRole.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Actions/Admin/Role/UpdateRole.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Actions/Admin/Role/UpdateRole.php
+
+		-
+			message: '#^Method App\\Actions\\Admin\\User\\BulkUserAction\:\:handle\(\) has parameter \$ids with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Admin/User/BulkUserAction.php
+
+		-
+			message: '#^Method App\\Actions\\Admin\\User\\BulkUserAction\:\:handle\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Admin/User/BulkUserAction.php
+
+		-
+			message: '#^Method App\\Actions\\Admin\\User\\CreateUser\:\:handle\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Admin/User/CreateUser.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$foto_perfil\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Actions/Admin/User/ForceDeleteUser.php
+
+		-
+			message: '#^Method App\\Actions\\Admin\\User\\UpdateUser\:\:handle\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Admin/User/UpdateUser.php
+
+		-
+			message: '#^Method App\\Actions\\Jetstream\\AddTeamMember\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Jetstream/AddTeamMember.php
 
 		-
 			message: '#^Method App\\Actions\\Jetstream\\CreateTeam\:\:create\(\) should return App\\Models\\Team but returns Illuminate\\Database\\Eloquent\\Model\.$#'
@@ -23,6 +77,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Actions/Jetstream/DeleteUser.php
+
+		-
+			message: '#^Method App\\Actions\\Jetstream\\InviteTeamMember\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Actions/Jetstream/InviteTeamMember.php
 
 		-
 			message: '#^Parameter \#1 \$invitation of class Laravel\\Jetstream\\Mail\\TeamInvitation constructor expects Laravel\\Jetstream\\TeamInvitation, Illuminate\\Database\\Eloquent\\Model given\.$#'
@@ -67,10 +127,40 @@ parameters:
 			path: app/Http/Controllers/Admin/RoleController.php
 
 		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\User\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: app/Http/Controllers/Admin/RoleController.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/Admin/RoleController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Admin\\SettingController\:\:applyMailConfig\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/Admin/SettingController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Admin\\SettingController\:\:getSystemInfo\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/Admin/SettingController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Admin\\SettingController\:\:maskSensitiveChanges\(\) has parameter \$changes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/Admin/SettingController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Admin\\SettingController\:\:maskSensitiveChanges\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/Admin/SettingController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$area\.$#'
@@ -133,6 +223,12 @@ parameters:
 			path: app/Http/Controllers/Admin/UserController.php
 
 		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\User\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: app/Http/Controllers/Admin/UserController.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
@@ -145,10 +241,76 @@ parameters:
 			path: app/Http/Controllers/Admin/UserController.php
 
 		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\AuthController\:\:login\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\AuthController\:\:logout\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\AuthController\:\:me\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Requests/Admin/Profile/UpdateProfileRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Profile\\UpdateProfileRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Profile/UpdateProfileRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Role\\StoreRoleRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Role/StoreRoleRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Role\\UpdateRoleRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Role/UpdateRoleRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\Setting\\UpdateSettingRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/Setting/UpdateSettingRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\User\\StoreUserRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/User/StoreUserRequest.php
+
+		-
+			message: '#^Method App\\Http\\Requests\\Admin\\User\\UpdateUserRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Requests/Admin/User/UpdateUserRequest.php
+
+		-
+			message: '#^Method App\\Models\\BaseModel\:\:scopeFilter\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/BaseModel.php
+
+		-
+			message: '#^Method App\\Models\\BaseModel\:\:scopeFilter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/BaseModel.php
 
 		-
 			message: '#^Property App\\Models\\BaseModel\:\:\$defaultSort \(string\) on left side of \?\? is not nullable\.$#'
@@ -163,10 +325,106 @@ parameters:
 			path: app/Models/BaseModel.php
 
 		-
+			message: '#^Property App\\Models\\BaseModel\:\:\$searchable type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/BaseModel.php
+
+		-
+			message: '#^Class App\\Models\\Perfil uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Perfil.php
+
+		-
+			message: '#^Method App\\Models\\Perfil\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Perfil.php
+
+		-
+			message: '#^Method App\\Models\\Role\:\:topUsers\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Role.php
+
+		-
+			message: '#^Method App\\Models\\Role\:\:users\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Role.php
+
+		-
 			message: '#^PHPDoc type array\<int, string\> of property App\\Models\\Team\:\:\$fillable is not covariant with PHPDoc type list\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
 			identifier: property.phpDocType
 			count: 1
 			path: app/Models/Team.php
+
+		-
+			message: '#^Method App\\Models\\TeamInvitation\:\:team\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/TeamInvitation.php
+
+		-
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Models/TeamInvitation.php
+
+		-
+			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:perfil\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeActive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeActive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeFilter\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeFilter\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeInactive\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:scopeInactive\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:socialAccounts\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
 
 		-
 			message: '#^Property App\\Models\\User\:\:\$defaultSort \(string\) on left side of \?\? is not nullable\.$#'
@@ -179,6 +437,30 @@ parameters:
 			identifier: nullCoalesce.property
 			count: 1
 			path: app/Models/User.php
+
+		-
+			message: '#^Property App\\Models\\User\:\:\$searchable type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Notifications\\PasswordChangedNotification\:\:via\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Notifications/PasswordChangedNotification.php
+
+		-
+			message: '#^Method App\\Notifications\\SystemNotification\:\:toDatabase\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Notifications/SystemNotification.php
+
+		-
+			message: '#^Method App\\Notifications\\SystemNotification\:\:via\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Notifications/SystemNotification.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
@@ -199,15 +481,87 @@ parameters:
 			path: app/Services/Admin/ActivityLogService.php
 
 		-
+			message: '#^Method App\\Services\\Admin\\ActivityLogService\:\:buildQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/ActivityLogService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\ActivityLogService\:\:filterOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/ActivityLogService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\ActivityLogService\:\:paginate\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/ActivityLogService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\ActivityLogService\:\:stats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/ActivityLogService.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Services/Admin/ActivityLogService.php
 
 		-
+			message: '#^Method App\\Services\\Admin\\DashboardService\:\:recentActivity\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Services/Admin/DashboardService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\DashboardService\:\:recentUsers\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Services/Admin/DashboardService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\DashboardService\:\:registrationsPerMonth\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/DashboardService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\DashboardService\:\:stats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/DashboardService.php
+
+		-
 			message: '#^Call to an undefined method Barryvdh\\DomPDF\\PDF\:\:set_option\(\)\.$#'
 			identifier: method.notFound
 			count: 6
+			path: app/Services/Admin/ExportService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\ExportService\:\:branding\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/ExportService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\ExportService\:\:resolvePermissionsQuery\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/ExportService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\ExportService\:\:resolveRolesQuery\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/ExportService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\ExportService\:\:resolveUsersQuery\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
 			path: app/Services/Admin/ExportService.php
 
 		-
@@ -253,6 +607,24 @@ parameters:
 			path: app/Services/Admin/ExportService.php
 
 		-
+			message: '#^Method App\\Services\\Admin\\LoginAttemptService\:\:buildQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/LoginAttemptService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\LoginAttemptService\:\:paginate\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/LoginAttemptService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\LoginAttemptService\:\:stats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/LoginAttemptService.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 2
@@ -265,8 +637,68 @@ parameters:
 			path: app/Services/Admin/RoleService.php
 
 		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:all\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:allPermissionsGrouped\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:bulkAssignRole\(\) has parameter \$userIds with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:bulkAssignRole\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:riskStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:roleChangeHistory\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:roleHistory\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\RoleService\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/RoleService.php
+
+		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Spatie\\Activitylog\\Models\\Activity\>\:\:map\(\) contains unresolvable type\.$#'
 			identifier: argument.unresolvableType
+			count: 2
+			path: app/Services/Admin/RoleService.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Spatie\\Activitylog\\Models\\Activity\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
 			count: 2
 			path: app/Services/Admin/RoleService.php
 
@@ -283,8 +715,38 @@ parameters:
 			path: app/Services/Admin/RoleService.php
 
 		-
-			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
-			identifier: larastan.noUnnecessaryCollectionCall
+			message: '#^Method App\\Services\\Admin\\SettingService\:\:all\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/SettingService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\SettingService\:\:export\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/SettingService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\SettingService\:\:grouped\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/SettingService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\SettingService\:\:import\(\) has parameter \$values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/SettingService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\SettingService\:\:save\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/SettingService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\SettingService\:\:save\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: app/Services/Admin/SettingService.php
 
@@ -297,6 +759,48 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\:\:filter\(\)\.$#'
 			identifier: method.notFound
+			count: 1
+			path: app/Services/Admin/UserService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\UserService\:\:bulkAction\(\) has parameter \$ids with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/UserService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\UserService\:\:bulkAction\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/UserService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\UserService\:\:create\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/UserService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\UserService\:\:paginate\(\) return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Services/Admin/UserService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\UserService\:\:stats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/UserService.php
+
+		-
+			message: '#^Method App\\Services\\Admin\\UserService\:\:update\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Services/Admin/UserService.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$query contains generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Services/Admin/UserService.php
 
