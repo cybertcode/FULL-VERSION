@@ -17,6 +17,25 @@ use Illuminate\Support\Facades\Storage;
   .landing-navbar .navbar-nav > .nav-item > .nav-link .icon-base { font-size: .875rem; }
   .landing-navbar .dropdown-item { font-size: .8125rem; padding-block: .375rem; }
   .landing-navbar .app-brand-text { font-size: 1rem; }
+
+  /* Submenús de 3er nivel+ (dentro de un .dropdown-menu ya abierto) — Bootstrap
+     no soporta anidar data-bs-toggle="dropdown" infinitamente (el clic en el
+     segundo toggle se interpreta como "clic fuera" y cierra todo el árbol).
+     Se controla con :hover en desktop y una clase .show propia en mobile. */
+  @media (min-width: 992px) {
+    .dropdown-submenu {
+      position: relative;
+    }
+    .dropdown-submenu-menu {
+      top: 0;
+      left: 100%;
+      margin-top: -.5rem;
+    }
+    .dropdown-submenu:hover > .dropdown-submenu-menu {
+      display: block;
+    }
+  }
+
   @media (max-width: 991.98px) {
     .landing-navbar .navbar-nav > .nav-item > .nav-link { padding-block: .5rem; padding-inline: .25rem; }
     .landing-nav-menu .navbar-nav .dropdown-menu {
@@ -29,6 +48,12 @@ use Illuminate\Support\Facades\Storage;
       background: transparent;
       padding-inline-start: 1rem;
       margin: 0;
+    }
+    .dropdown-submenu-menu {
+      display: none;
+    }
+    .dropdown-submenu.submenu-open > .dropdown-submenu-menu {
+      display: block;
     }
   }
 </style>
@@ -130,3 +155,19 @@ use Illuminate\Support\Facades\Storage;
   </div>
 </nav>
 <!-- Navbar: End -->
+
+<script>
+  window.addEventListener('load', function () {
+    document.querySelectorAll('.dropdown-submenu > .dropdown-toggle').forEach(function (toggle) {
+      toggle.addEventListener('click', function (e) {
+        if (window.innerWidth >= 992) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const li = toggle.closest('.dropdown-submenu');
+        li.classList.toggle('submenu-open');
+      });
+    });
+  });
+</script>

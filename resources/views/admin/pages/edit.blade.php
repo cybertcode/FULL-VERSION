@@ -3,18 +3,11 @@
 @section('title', 'Editar página: '.$page->title)
 
 @section('admin-vendor-style')
-  @vite([
-    'resources/assets/vendor/libs/quill/typography.scss',
-    'resources/assets/vendor/libs/quill/editor.scss',
-    'resources/assets/vendor/libs/select2/select2.scss',
-  ])
+  @vite(['resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('admin-vendor-script')
-  @vite([
-    'resources/assets/vendor/libs/quill/quill.js',
-    'resources/assets/vendor/libs/select2/select2.js',
-  ])
+  @vite(['resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('admin-content')

@@ -3,9 +3,8 @@
 namespace App\Services\Admin;
 
 use App\Enums\PageStatus;
-use App\Enums\PageTemplate;
+use App\Exceptions\BusinessException;
 use App\Models\Page;
-use App\Services\HtmlSanitizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -33,10 +32,6 @@ class PageService
 
         if ($request->filled('status') && ! $soloDeleted) {
             $query->where('status', $request->input('status'));
-        }
-
-        if ($request->filled('template')) {
-            $query->where('template', $request->input('template'));
         }
 
         if (! $soloDeleted) {
@@ -75,8 +70,6 @@ class PageService
 
     public function create(array $data): Page
     {
-        $data['content'] = $this->sanitizeRichTextFields($data['template'], $data['content'] ?? []);
-
         $page = new Page($data);
 
         if (! empty($data['parent_id'])) {
@@ -94,9 +87,6 @@ class PageService
         $newParentId = $data['parent_id'] ?? null;
         unset($data['parent_id']);
 
-        $template = $data['template'] ?? $page->template;
-        $data['content'] = $this->sanitizeRichTextFields($template, $data['content'] ?? []);
-
         $page->fill($data);
 
         if ($newParentId && $newParentId !== $page->parent_id) {
@@ -113,6 +103,8 @@ class PageService
 
     public function delete(Page $page): void
     {
+        $this->assertNotUsedInMenus($page);
+
         $page->delete();
     }
 
@@ -123,31 +115,30 @@ class PageService
 
     public function forceDelete(Page $page): void
     {
+        $this->assertNotUsedInMenus($page);
+
         $page->forceDelete();
     }
 
     /**
-     * Limpia con HtmlSanitizer únicamente los campos declarados como
-     * "richtext" por la plantilla — el resto del contenido (texto plano,
-     * URLs, rutas de imagen) se guarda tal cual, ya validado por el FormRequest.
-     *
-     * @param  array<string, string|null>  $content
-     * @return array<string, string|null>
+     * Impide eliminar una página mientras algún ítem de menú la use —
+     * evita enlaces rotos ("#") silenciosos en el frontend público.
      */
-    private function sanitizeRichTextFields(PageTemplate|string $template, array $content): array
+    private function assertNotUsedInMenus(Page $page): void
     {
-        $template = $template instanceof PageTemplate ? $template : PageTemplate::from($template);
+        $usages = $page->menuItems()->with('menu')->get();
 
-        $richTextKeys = collect($template->fields())
-            ->where('type', 'richtext')
-            ->pluck('key');
-
-        foreach ($richTextKeys as $key) {
-            if (array_key_exists($key, $content)) {
-                $content[$key] = HtmlSanitizer::clean($content[$key]);
-            }
+        if ($usages->isEmpty()) {
+            return;
         }
 
-        return $content;
+        $description = $usages
+            ->map(fn ($item) => "\"{$item->menu->name}\" → ítem \"{$item->label}\"")
+            ->implode(', ');
+
+        throw new BusinessException(
+            "No puedes eliminar esta página porque está enlazada en: {$description}. ".
+            'Edita esos menús y cambia el destino del ítem antes de continuar.'
+        );
     }
 }

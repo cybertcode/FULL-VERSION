@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\PageStatus;
-use App\Enums\PageTemplate;
 use App\Http\Requests\Admin\Page\StorePageRequest;
 use App\Http\Requests\Admin\Page\UpdatePageRequest;
 use App\Models\Page;
@@ -27,9 +26,8 @@ class PageController extends BaseAdminController
         $pages = $this->pageService->paginate($request, $this->perPage);
         $stats = $this->pageService->stats();
         $statuses = PageStatus::cases();
-        $templates = PageTemplate::cases();
 
-        return view('admin.pages.index', compact('pages', 'stats', 'statuses', 'templates'));
+        return view('admin.pages.index', compact('pages', 'stats', 'statuses'));
     }
 
     public function create(): View
@@ -37,7 +35,6 @@ class PageController extends BaseAdminController
         $this->authorize('create', Page::class);
 
         return view('admin.pages.create', [
-            'templates' => PageTemplate::cases(),
             'statuses' => PageStatus::cases(),
             'parents' => $this->pageService->selectableParents(),
         ]);
@@ -47,9 +44,9 @@ class PageController extends BaseAdminController
     {
         $this->authorize('create', Page::class);
 
-        $page = $this->pageService->create($request->dataForPage());
+        $page = $this->pageService->create($request->validated());
 
-        $this->flashSuccess('Página creada correctamente.');
+        $this->flashSuccess('Página creada correctamente. Edita su contenido en '.$page->viewPath());
 
         return redirect()->route('admin.pages.edit', $page);
     }
@@ -60,7 +57,6 @@ class PageController extends BaseAdminController
 
         return view('admin.pages.edit', [
             'page' => $page,
-            'templates' => PageTemplate::cases(),
             'statuses' => PageStatus::cases(),
             'parents' => $this->pageService->selectableParents($page),
         ]);
@@ -70,7 +66,7 @@ class PageController extends BaseAdminController
     {
         $this->authorize('update', $page);
 
-        $this->pageService->update($page, $request->dataForPage());
+        $this->pageService->update($page, $request->validated());
 
         $this->flashSuccess('Página actualizada correctamente.');
 

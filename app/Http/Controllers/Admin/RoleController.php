@@ -121,6 +121,10 @@ class RoleController extends BaseAdminController
     {
         $this->authorize('create', Role::class);
 
+        if ($request->filled('permissions')) {
+            $this->authorize('assignPermissions', new Role);
+        }
+
         $this->roleService->create($request->validated());
 
         $this->flashSuccess('Rol creado correctamente.');

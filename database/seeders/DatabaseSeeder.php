@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             SettingsSeeder::class,
             UsersSeeder::class,
+            PagesSeeder::class,
             MenusSeeder::class,
         ]);
     }

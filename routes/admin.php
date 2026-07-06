@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\RestrictAdminIpMiddleware;
+use App\Http\Middleware\VerifyDeveloperCreditMiddleware;
 use Illuminate\Support\Facades\Route;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 
@@ -26,6 +27,7 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
     RestrictAdminIpMiddleware::class,
+    VerifyDeveloperCreditMiddleware::class,
 ])
     ->prefix('admin')
     ->name('admin.')

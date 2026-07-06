@@ -136,6 +136,24 @@ class RoleControllerTest extends AdminTestCase
         $this->assertCount(0, $role->permissions);
     }
 
+    public function test_user_with_create_but_not_assign_permissions_cannot_create_role_with_permissions(): void
+    {
+        $limitedRole = Role::create(['name' => 'creador-limitado', 'guard_name' => 'web']);
+        $limitedRole->givePermissionTo(['roles.create']);
+
+        $limitedUser = User::factory()->withPersonalTeam()->create();
+        $limitedUser->assignRole($limitedRole);
+
+        $this->actingAs($limitedUser)
+            ->post(route('admin.roles.store'), [
+                'name' => 'escalado',
+                'permissions' => ['users.forceDelete'],
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('roles', ['name' => 'escalado']);
+    }
+
     // ──────────────────────────────────────────────────────────────────────────
     // UPDATE
     // ──────────────────────────────────────────────────────────────────────────

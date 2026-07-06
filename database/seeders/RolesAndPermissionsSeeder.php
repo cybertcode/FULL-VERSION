@@ -33,6 +33,9 @@ class RolesAndPermissionsSeeder extends Seeder
         'roles.delete' => 'Eliminar rol',
         'roles.assignPermissions' => 'Asignar permisos a rol',
         'permissions.viewAny' => 'Ver catálogo de permisos',
+        'permissions.create' => 'Crear permiso',
+        'permissions.edit' => 'Editar permiso',
+        'permissions.delete' => 'Eliminar permiso',
 
         // ── Configuración ────────────────────────────────────────────────
         'settings.view' => 'Ver configuración del sistema',

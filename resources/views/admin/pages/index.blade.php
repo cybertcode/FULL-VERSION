@@ -100,12 +100,6 @@
           <option value="{{ $status->value }}" @selected(request('status') === $status->value)>{{ $status->label() }}</option>
         @endforeach
       </select>
-      <select name="template" class="form-select" style="max-width:200px">
-        <option value="">Todas las plantillas</option>
-        @foreach ($templates as $template)
-          <option value="{{ $template->value }}" @selected(request('template') === $template->value)>{{ $template->label() }}</option>
-        @endforeach
-      </select>
       <button type="submit" class="btn btn-outline-secondary">
         <i class="icon-base ti tabler-filter"></i>
       </button>
@@ -127,7 +121,7 @@
       <thead>
         <tr>
           <th>Título</th>
-          <th>Plantilla</th>
+          <th>Archivo</th>
           <th>Estado</th>
           <th>Autor</th>
           <th>Fecha</th>
@@ -146,7 +140,7 @@
               </span>
               <div class="text-muted small" style="padding-left: {{ $page->depth * 1.5 }}rem">/{{ $page->slug }}</div>
             </td>
-            <td>{{ $page->template->label() }}</td>
+            <td><code class="small">frontend/paginas/{{ $page->slug }}.blade.php</code></td>
             <td><span class="badge {{ $page->status->badgeClass() }}">{{ $page->status->label() }}</span></td>
             <td>{{ $page->creator?->name ?? '—' }}</td>
             <td>{{ $page->created_at->format('d/m/Y') }}</td>
@@ -158,7 +152,7 @@
                   </form>
                   <button type="button" class="btn btn-icon btn-text-secondary rounded-pill waves-effect"
                           data-bs-toggle="tooltip" title="Restaurar"
-                          onclick="confirmAction({title:'¿Restaurar página?', text:'«sa {{ addslashes($page->title) }}» volverá a estar disponible.', confirmText:'Restaurar', onConfirm:()=>document.getElementById('restore-page-{{ $page->id }}').submit()})">
+                          onclick="confirmAction({title:'¿Restaurar página?', text:'«{{ addslashes($page->title) }}» volverá a estar disponible.', confirmText:'Restaurar', onConfirm:()=>document.getElementById('restore-page-{{ $page->id }}').submit()})">
                     <i class="icon-base ti tabler-refresh icon-md"></i>
                   </button>
                 @endcan

@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use App\Enums\PageStatus;
-use App\Enums\PageTemplate;
 use App\Traits\HasAudit;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Kalnoy\Nestedset\NodeTrait;
 
@@ -16,7 +17,7 @@ class Page extends BaseModel
     protected array $searchable = ['title', 'slug'];
 
     protected $fillable = [
-        'title', 'slug', 'template', 'status', 'content',
+        'title', 'slug', 'status',
         'seo_title', 'seo_description', 'seo_og_image',
         'published_at', 'parent_id',
     ];
@@ -24,9 +25,7 @@ class Page extends BaseModel
     protected function casts(): array
     {
         return [
-            'template' => PageTemplate::class,
             'status' => PageStatus::class,
-            'content' => 'array',
             'published_at' => 'datetime',
         ];
     }
@@ -38,6 +37,69 @@ class Page extends BaseModel
                 $page->slug = static::generateUniqueSlug($page->title);
             }
         });
+
+        static::created(function (Page $page) {
+            $page->createViewFile();
+        });
+
+        static::updating(function (Page $page) {
+            if ($page->isDirty('slug')) {
+                $page->renameViewFile($page->getOriginal('slug'), $page->slug);
+            }
+        });
+
+        static::forceDeleted(function (Page $page) {
+            $page->deleteViewFile();
+        });
+    }
+
+    /**
+     * Vista Blade dedicada a esta página — una por página, editada a mano
+     * en resources/views/frontend/paginas/{slug}.blade.php.
+     */
+    public function view(): string
+    {
+        return 'frontend.paginas.'.$this->slug;
+    }
+
+    public function viewPath(): string
+    {
+        return resource_path('views/frontend/paginas/'.$this->slug.'.blade.php');
+    }
+
+    public function createViewFile(): void
+    {
+        $path = $this->viewPath();
+
+        if (File::exists($path)) {
+            return;
+        }
+
+        File::ensureDirectoryExists(dirname($path));
+
+        $stub = File::get(resource_path('stubs/frontend-page.blade.stub'));
+        $stub = str_replace('{{ title }}', $this->title, $stub);
+
+        File::put($path, $stub);
+    }
+
+    public function renameViewFile(string $oldSlug, string $newSlug): void
+    {
+        $oldPath = resource_path("views/frontend/paginas/{$oldSlug}.blade.php");
+        $newPath = resource_path("views/frontend/paginas/{$newSlug}.blade.php");
+
+        if (File::exists($oldPath) && ! File::exists($newPath)) {
+            File::move($oldPath, $newPath);
+        }
+    }
+
+    public function deleteViewFile(): void
+    {
+        $path = $this->viewPath();
+
+        if (File::exists($path)) {
+            File::delete($path);
+        }
     }
 
     private static function generateUniqueSlug(string $title): string
@@ -52,6 +114,29 @@ class Page extends BaseModel
         }
 
         return $slug;
+    }
+
+    public function menuItems(): HasMany
+    {
+        return $this->hasMany(MenuItem::class);
+    }
+
+    /**
+     * Cadena de ancestros (de raíz a padre inmediato) para el breadcrumb
+     * público — cada elemento trae la etiqueta y la URL real de la página.
+     *
+     * @return array<int, array{label: string, url: string}>
+     */
+    public function breadcrumbTrail(): array
+    {
+        return $this->ancestors()
+            ->defaultOrder()
+            ->get(['title', 'slug'])
+            ->map(fn (Page $ancestor) => [
+                'label' => $ancestor->title,
+                'url' => url($ancestor->slug),
+            ])
+            ->all();
     }
 
     public function publish(): bool

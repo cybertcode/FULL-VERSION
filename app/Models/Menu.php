@@ -47,7 +47,7 @@ class Menu extends BaseModel
 
     public function tree(): Collection
     {
-        return $this->allItems()->get()->toTree();
+        return $this->allItems()->with('page:id,title,slug')->get()->toTree();
     }
 
     /**

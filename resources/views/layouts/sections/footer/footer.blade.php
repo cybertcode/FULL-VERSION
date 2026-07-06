@@ -1,7 +1,11 @@
 @php
+use App\Services\System\DeveloperCreditService;
+
 $containerFooter = isset($configData['contentLayout']) && $configData['contentLayout'] === 'compact'
   ? 'container-xxl'
   : 'container-fluid';
+
+$devCredit = app(DeveloperCreditService::class);
 
 $socials = [
   'social_facebook'  => ['icon' => 'tabler-brand-facebook-filled',  'label' => 'Facebook'],
@@ -50,10 +54,10 @@ $whatsapp   = setting('social_whatsapp');
       </div>
 
       {{-- Derecha: versión + crédito --}}
-      <div class="d-none d-lg-flex align-items-center gap-2">
+      <div class="d-none d-lg-flex align-items-center gap-2" data-dev-credit="{{ $devCredit->signature() }}">
         <span class="badge bg-label-secondary">v{{ config('app.version', '1.0.0') }}</span>
         <span class="text-muted">Desarrollado por</span>
-        <a href="https://developtech.pe" class="footer-link fw-medium" target="_blank" rel="noopener">DevelopTech</a>
+        <a href="{{ $devCredit->url() }}" class="footer-link fw-medium" target="_blank" rel="noopener">{{ $devCredit->name() }}</a>
       </div>
 
     </div>

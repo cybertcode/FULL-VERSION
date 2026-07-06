@@ -15,6 +15,6 @@ class PageController extends Controller
             ->where('status', PageStatus::Published->value)
             ->firstOrFail();
 
-        return view($page->template->view(), compact('page'));
+        return view($page->view(), compact('page'));
     }
 }

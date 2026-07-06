@@ -17,40 +17,47 @@
     <form id="menuForm" action="{{ route('admin.menus.update', $menu) }}" method="POST">
         @csrf @method('PUT')
 
-        <div class="d-flex align-items-end gap-4 mb-4 flex-wrap">
-            <div style="max-width:360px" class="flex-grow-1">
-                <label class="form-label mb-1" for="menu_name">Nombre del menú</label>
-                <input type="text" id="menu_name" name="name" class="form-control" value="{{ $menu->name }}" required
-                    maxlength="100">
+        <div class="d-flex align-items-end gap-3 mb-3 flex-wrap">
+            <div style="max-width:320px" class="flex-grow-1">
+                <label class="form-label mb-1 small" for="menu_name">Nombre del menú</label>
+                <input type="text" id="menu_name" name="name" class="form-control form-control-sm"
+                    value="{{ $menu->name }}" required maxlength="100">
             </div>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary btn-sm">
                 <i class="icon-base ti tabler-device-floppy me-1"></i> Guardar menú
             </button>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-3">
             {{-- ─── Columna izquierda: agregar ítems ──────────────────────────── --}}
             <div class="col-lg-3">
-                <div class="card mb-4">
-                    <div class="card-header py-2">
+                <div class="card mb-3">
+                    <div class="card-header py-1" id="menus-edit-card-header">
                         <ul class="nav nav-tabs card-header-tabs" role="tablist">
                             <li class="nav-item">
-                                <button class="nav-link active py-1" data-bs-toggle="tab" data-bs-target="#tab-add-link"
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-add-link"
                                     type="button">Enlace</button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link py-1" data-bs-toggle="tab" data-bs-target="#tab-add-pages"
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-add-pages"
                                     type="button">Páginas</button>
                             </li>
                         </ul>
                     </div>
-                    <div class="card-body py-3">
+                    <div class="card-body">
                         <div class="tab-content p-0">
 
                             {{-- Enlace personalizado --}}
                             <div class="tab-pane fade show active" id="tab-add-link">
-                                <div class="mb-2 mt-2">
-                                    <label class="form-label mb-1 small" for="new_link_url">URL</label>
+                                <div class="form-check menu-panel-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="new_link_no_target">
+                                    <label class="form-check-label" for="new_link_no_target"
+                                        title="El ítem no tendrá destino propio, solo sirve para agrupar sub-ítems">
+                                        Solo agrupar sub-ítems
+                                    </label>
+                                </div>
+                                <div class="mb-2" id="new_link_url_wrapper">
+                                    <label class="form-label mb-1" for="new_link_url">URL</label>
                                     <div class="input-group input-group-merge input-group-sm">
                                         <span class="input-group-text"><i class="icon-base ti tabler-link"></i></span>
                                         <input type="text" id="new_link_url" class="form-control"
@@ -58,9 +65,23 @@
                                     </div>
                                 </div>
                                 <div class="mb-2">
-                                    <label class="form-label mb-1 small" for="new_link_label">Texto</label>
+                                    <label class="form-label mb-1" for="new_link_label">Texto</label>
                                     <input type="text" id="new_link_label" class="form-control form-control-sm"
                                         placeholder="Ej. Servicios">
+                                </div>
+                                <div class="mb-2" id="new_link_icon_wrapper">
+                                    <label class="form-label mb-1 d-block">Ícono</label>
+                                    <div class="dropdown icon-picker">
+                                        <button type="button"
+                                            class="btn btn-outline-secondary btn-sm icon-picker-toggle dropdown-toggle"
+                                            data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                            <i class="icon-base ti tabler-ban icon-picker-preview"></i>
+                                        </button>
+                                        <div class="dropdown-menu p-2 icon-picker-menu" style="width:220px">
+                                            <div class="d-flex flex-wrap gap-1 icon-picker-grid"></div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" class="f-icon" value="">
                                 </div>
                                 <button type="button" class="btn btn-primary btn-sm w-100" id="btnAddLink">Agregar</button>
                             </div>
@@ -68,25 +89,40 @@
                             {{-- Páginas del CMS (frontend) --}}
                             <div class="tab-pane fade" id="tab-add-pages">
                                 @if ($pages->isEmpty())
-                                    <p class="text-body-secondary small mb-2">
+                                    <p class="text-body-secondary small mb-2 mt-2">
                                         No hay páginas publicadas todavía.
                                         <a href="{{ route('admin.pages.create') }}" target="_blank">Crear una</a>.
                                     </p>
                                 @else
-                                    <div class="mb-2">
+                                    <div class="mb-2 mt-2">
                                         <input type="text" class="form-control form-control-sm" id="pagesSearchFilter"
                                             placeholder="Buscar página...">
                                     </div>
-                                    <div class="list-group list-group-sm mb-2" style="max-height:220px; overflow-y:auto"
+                                    <div class="list-group list-group-sm mb-2" style="max-height:200px; overflow-y:auto"
                                         id="pagesList">
                                         @foreach ($pages as $page)
                                             <label class="list-group-item py-1 small">
                                                 <input class="form-check-input me-2" type="checkbox"
-                                                    value="{{ $page->id }}" data-label="{{ $page->title }}">
+                                                    value="{{ $page->id }}" data-label="{{ $page->title }}"
+                                                    data-slug="{{ $page->slug }}">
                                                 {{ $page->title }}
                                                 <span class="text-body-secondary">/{{ $page->slug }}</span>
                                             </label>
                                         @endforeach
+                                    </div>
+                                    <div class="mb-2" id="new_pages_icon_wrapper">
+                                        <label class="form-label mb-1 d-block">Ícono (para todas las seleccionadas)</label>
+                                        <div class="dropdown icon-picker">
+                                            <button type="button"
+                                                class="btn btn-outline-secondary btn-sm icon-picker-toggle dropdown-toggle"
+                                                data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                                <i class="icon-base ti tabler-ban icon-picker-preview"></i>
+                                            </button>
+                                            <div class="dropdown-menu p-2 icon-picker-menu" style="width:220px">
+                                                <div class="d-flex flex-wrap gap-1 icon-picker-grid"></div>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" class="f-icon" value="">
                                     </div>
                                 @endif
                                 <button type="button" class="btn btn-primary btn-sm w-100" id="btnAddPages"
@@ -98,15 +134,15 @@
                 </div>
 
                 {{-- Ubicación — estilo WordPress "Menu Settings > Display location" --}}
-                <div class="card">
+                <div class="card" id="locationsCard">
                     <h6 class="card-header py-2 mb-0">Ubicación</h6>
-                    <div class="card-body py-3">
+                    <div class="card-body py-2">
                         @foreach ($locations as $location)
                             <div class="form-check mb-1">
                                 <input type="hidden" name="locations[{{ $location->value }}]" value="0">
                                 <input class="form-check-input" type="checkbox" name="locations[{{ $location->value }}]"
                                     value="1" id="loc_{{ $location->value }}" @checked(in_array($location->value, $assignedLocations, true))>
-                                <label class="form-check-label small" for="loc_{{ $location->value }}">
+                                <label class="form-check-label" for="loc_{{ $location->value }}">
                                     {{ $location->label() }}
                                 </label>
                             </div>
@@ -117,12 +153,12 @@
 
             {{-- ─── Columna derecha: estructura del menú ───────────────────────── --}}
             <div class="col-lg-9">
-                <div class="card">
+                <div class="card" id="menuStructureCard">
                     <div class="card-header py-2">
                         <h6 class="mb-0">Estructura del menú</h6>
                         <small class="text-body-secondary">Arrastra para reordenar o anidar como sub-ítem.</small>
                     </div>
-                    <div class="card-body py-3">
+                    <div class="card-body py-2">
                         <ul id="menuStructure" class="menu-structure list-unstyled mb-0"></ul>
                         <p class="text-body-secondary mb-0 d-none" id="menuStructureEmpty">
                             <i class="icon-base ti tabler-list-details icon-md mb-2 d-block"></i>
@@ -141,7 +177,9 @@
         <li class="menu-item-row" data-client-id="">
             <div class="menu-item-row-header">
                 <i class="icon-base ti tabler-grip-vertical drag-handle"></i>
-                <span class="menu-item-row-title flex-grow-1"></span>
+                <i class="icon-base ti menu-item-type-icon" title=""></i>
+                <span class="menu-item-row-title text-truncate" style="max-width:14rem"></span>
+                <span class="text-body-secondary menu-item-row-url text-truncate flex-grow-1"></span>
                 <span class="badge bg-label-secondary row-inactive-badge d-none">Oculto</span>
                 <button type="button" class="btn btn-icon btn-sm btn-text-secondary row-toggle" title="Editar">
                     <i class="icon-base ti tabler-chevron-down"></i>
@@ -157,13 +195,15 @@
                         <input type="text" class="form-control form-control-sm f-label" maxlength="150">
                         <div class="invalid-feedback">La etiqueta es obligatoria.</div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <label class="form-label mb-1 small d-block">Destino</label>
                         <div class="btn-group btn-group-sm w-100 dest-toggle" role="group">
                             <button type="button" class="btn btn-outline-primary btn-sm dest-btn active"
                                 data-dest="url">Enlace</button>
                             <button type="button" class="btn btn-outline-primary btn-sm dest-btn"
                                 data-dest="page">Página</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm dest-btn" data-dest="none"
+                                title="Sin destino — solo agrupa sub-ítems">Sin destino</button>
                         </div>
                     </div>
                     <div class="col-md-4 field-url">
@@ -176,9 +216,15 @@
                         <select class="form-select form-select-sm f-page select2-inline">
                             <option value="">Selecciona...</option>
                             @foreach ($pages as $page)
-                                <option value="{{ $page->id }}">{{ $page->title }}</option>
+                                <option value="{{ $page->id }}" data-slug="{{ $page->slug }}">{{ $page->title }}
+                                </option>
                             @endforeach
                         </select>
+                    </div>
+                    <div class="col-md-4 field-none d-none">
+                        <label class="form-label mb-1 small d-block">&nbsp;</label>
+                        <p class="text-body-secondary small mb-0">Este ítem solo agrupa a sus sub-ítems, no lleva a ninguna
+                            parte.</p>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label mb-1 small">Abrir en</label>
@@ -220,32 +266,67 @@
 
 @section('admin-page-script')
     <style>
-        .menu-structure,
+        #menuStructure,
         .menu-structure-children {
             padding-left: 0;
         }
 
         .menu-structure-children {
-            padding-left: 1.5rem;
-            margin-top: .375rem;
+            padding-left: 1.125rem;
+            margin-top: .25rem;
         }
 
         .menu-item-row {
             background: var(--bs-paper-bg, #fff);
             border: 1px solid var(--bs-border-color);
-            border-radius: .5rem;
-            margin-bottom: .375rem;
+            border-radius: .375rem;
+            margin-bottom: .25rem;
         }
 
         .menu-item-row-header {
             display: flex;
             align-items: center;
-            gap: .5rem;
-            padding: .375rem .625rem;
+            gap: .375rem;
+            padding: .125rem .375rem;
+            min-height: 1.75rem;
+            font-size: .8125rem;
+        }
+
+        .menu-item-row-header .drag-handle {
+            font-size: .9375rem;
+        }
+
+        .menu-item-row-header .btn.btn-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            padding: 0;
+            font-size: .75rem;
+        }
+
+        .menu-item-row-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .menu-item-row-url {
+            font-size: .6875rem;
+            margin-left: .25rem;
+        }
+
+        .menu-item-type-icon {
+            font-size: .875rem;
+            color: var(--bs-secondary-color);
+            flex-shrink: 0;
         }
 
         .menu-item-row-body {
-            padding: .25rem .625rem .625rem .625rem;
+            padding: .25rem .5rem .5rem .5rem;
+            font-size: .8125rem;
+        }
+
+        .menu-item-row-body .form-label {
+            font-size: .6875rem;
         }
 
         .drag-handle {
@@ -265,10 +346,119 @@
             width: 2.4rem;
         }
 
+        .icon-picker-grid {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
         .icon-picker-btn.active {
             background-color: var(--bs-primary);
             color: #fff;
             border-color: var(--bs-primary);
+        }
+
+        /* ─── Compactación general de la pantalla ──────────────────────── */
+        #menus-edit-card-header {
+            padding-top: .5rem;
+            padding-bottom: .5rem;
+        }
+
+        #menus-edit-card-header .nav-link {
+            font-size: .75rem;
+            padding-top: .25rem;
+            padding-bottom: .25rem;
+        }
+
+        /* Todo el contenido de los tabs "Enlace"/"Páginas" a un tamaño uniforme,
+               separado del todos los elementos internos con margin explícito (no
+               depender solo del padding del card-body, que queda visualmente
+               insuficiente junto al border-bottom de las pestañas). */
+        #tab-add-link,
+        #tab-add-pages {
+            font-size: .75rem;
+        }
+
+        #tab-add-link .form-label,
+        #tab-add-pages .form-label {
+            font-size: .6875rem;
+        }
+
+        /* Vuexy pone padding-block-start:0 en .card-body cuando sigue a un
+               .card-header (asume que el header ya separa visualmente) — pero con
+               nav-tabs dentro del header (que trae su propio border-bottom), el
+               contenido queda pegado a esa línea. Se restaura el padding solo aquí. */
+        #menus-edit-card-header+.card-body {
+            padding-block-start: 1rem !important;
+        }
+
+        .menu-panel-check {
+            margin-block: 0 .75rem;
+        }
+
+        .menu-panel-check .form-check-label {
+            font-size: .75rem;
+            line-height: 1.3;
+        }
+
+        #pagesList .list-group-item {
+            font-size: .6875rem;
+            padding-top: .25rem;
+            padding-bottom: .25rem;
+        }
+
+        #locationsCard .form-check-label {
+            font-size: .75rem;
+        }
+
+        #menuStructureCard .card-header {
+            padding-top: .5rem;
+            padding-bottom: .5rem;
+        }
+
+        #menuStructureCard .card-header h6 {
+            font-size: .9375rem;
+        }
+
+        #menuStructureCard .card-header small {
+            font-size: .6875rem;
+        }
+
+        /* ─── Responsive ──────────────────────────────────────────────── */
+        @media (max-width: 991.98px) {
+            .menu-item-row-title {
+                max-width: 9rem !important;
+            }
+
+            .menu-item-row-url {
+                display: none;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .menu-item-row-header {
+                flex-wrap: wrap;
+                min-height: auto;
+                padding-block: .375rem;
+            }
+
+            .menu-item-row-title {
+                max-width: 100% !important;
+                white-space: normal;
+                flex-basis: 100%;
+                order: 1;
+            }
+
+            .menu-item-row-url {
+                display: none;
+            }
+
+            .menu-item-row-header .btn.btn-icon {
+                margin-left: auto;
+            }
+
+            .menu-item-row-body .row>div {
+                margin-bottom: .5rem;
+            }
         }
     </style>
     <script>
@@ -294,10 +484,31 @@
         document.querySelectorAll('input[name^="locations["]').forEach(el => el.addEventListener('change', markDirty));
 
         const COMMON_ICONS = [
-            'home', 'info-circle', 'briefcase', 'mail', 'phone', 'map-pin',
-            'shopping-cart', 'users', 'file-text', 'photo', 'settings', 'star',
-            'heart', 'bell', 'calendar', 'help-circle', 'book', 'building',
-            'device-laptop', 'news',
+            // Navegación / general
+            'home', 'info-circle', 'star', 'heart', 'bell', 'help-circle',
+            'external-link', 'link', 'grid-dots', 'category', 'apps',
+            // Institucional / empresa
+            'briefcase', 'building', 'building-store', 'building-bank',
+            'users', 'users-group', 'user-circle', 'school',
+            // Contacto / ubicación
+            'mail', 'phone', 'map-pin', 'map-2', 'world', 'globe',
+            // Contenido
+            'file-text', 'file-download', 'folder', 'folder-open', 'photo',
+            'book', 'news', 'clipboard-list', 'list-check', 'checklist',
+            // Comercio
+            'shopping-cart', 'credit-card', 'wallet', 'gift', 'ticket',
+            'truck', 'package', 'box-seam',
+            // Multimedia / redes
+            'video', 'camera', 'music', 'headphones', 'download', 'upload',
+            'share', 'brand-facebook', 'brand-instagram', 'brand-twitter',
+            'brand-linkedin', 'brand-youtube', 'brand-whatsapp', 'brand-tiktok',
+            // Servicios / logros
+            'certificate', 'award', 'trophy', 'target', 'rocket', 'bulb',
+            'bolt', 'shield-check', 'lock-check', 'stethoscope', 'tools',
+            'scale', 'gavel',
+            // Datos / sistema
+            'settings', 'calendar', 'chart-bar', 'chart-pie', 'report',
+            'database', 'server', 'cloud', 'device-laptop',
         ];
 
         function nextClientId() {
@@ -313,17 +524,17 @@
             }
         }
 
-        function setRowIcon(li, icon) {
-            li.querySelector('.f-icon').value = icon || '';
-            const preview = li.querySelector('.icon-picker-preview');
+        function setRowIcon(container, icon) {
+            container.querySelector('.f-icon').value = icon || '';
+            const preview = container.querySelector('.icon-picker-preview');
             preview.className = 'icon-base ti icon-picker-preview ' + (icon ? 'tabler-' + icon : 'tabler-ban');
-            li.querySelectorAll('.icon-picker-grid .icon-picker-btn').forEach(b => {
+            container.querySelectorAll('.icon-picker-grid .icon-picker-btn').forEach(b => {
                 b.classList.toggle('active', (b.dataset.icon || '') === (icon || ''));
             });
         }
 
-        function buildIconGrid(li) {
-            const grid = li.querySelector('.icon-picker-grid');
+        function buildIconGrid(container) {
+            const grid = container.querySelector('.icon-picker-grid');
             const makeBtn = (icon, title) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -331,21 +542,56 @@
                 btn.title = title || icon;
                 btn.dataset.icon = icon || '';
                 btn.innerHTML = `<i class="icon-base ti tabler-${icon || 'ban'}"></i>`;
-                btn.addEventListener('click', () => setRowIcon(li, icon));
+                btn.addEventListener('click', () => setRowIcon(container, icon));
                 return btn;
             };
             grid.appendChild(makeBtn(null, 'Sin ícono'));
             COMMON_ICONS.forEach(icon => grid.appendChild(makeBtn(icon)));
         }
 
-        function setRowDestType(li, type) {
-            const isPage = type === 'page';
-            li.dataset.type = isPage ? 'page' : 'url';
-            li.querySelector('.field-url').classList.toggle('d-none', isPage);
-            li.querySelector('.field-page').classList.toggle('d-none', !isPage);
+        function updateRowUrlBadge(li) {
+            const dest = li.dataset.dest;
+            const badge = li.querySelector('.menu-item-row-url');
+
+            if (dest === 'page') {
+                const option = li.querySelector('.f-page').selectedOptions[0];
+                badge.textContent = option && option.value ? '/' + option.dataset.slug : '';
+            } else if (dest === 'none') {
+                badge.textContent = '';
+            } else {
+                badge.textContent = li.querySelector('.f-url').value.trim();
+            }
+        }
+
+        function setRowDestType(li, dest) {
+            if (!['url', 'page', 'none'].includes(dest)) {
+                dest = 'url';
+            }
+            li.dataset.dest = dest;
+            li.dataset.type = dest === 'page' ? 'page' : 'url';
+
+            li.querySelector('.field-url').classList.toggle('d-none', dest !== 'url');
+            li.querySelector('.field-page').classList.toggle('d-none', dest !== 'page');
+            li.querySelector('.field-none').classList.toggle('d-none', dest !== 'none');
             li.querySelectorAll('.dest-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.dest === li.dataset.type);
+                btn.classList.toggle('active', btn.dataset.dest === dest);
             });
+
+            const typeIcon = li.querySelector('.menu-item-type-icon');
+            const iconByDest = {
+                page: 'tabler-file-text',
+                none: 'tabler-folder',
+                url: 'tabler-link'
+            };
+            const titleByDest = {
+                page: 'Página',
+                none: 'Sin destino (agrupador)',
+                url: 'Enlace'
+            };
+            typeIcon.className = 'icon-base ti menu-item-type-icon ' + iconByDest[dest];
+            typeIcon.title = titleByDest[dest];
+
+            updateRowUrlBadge(li);
         }
 
         function createRow({
@@ -353,12 +599,15 @@
             id = null,
             label = '',
             type = 'url',
+            dest = null,
             url = '',
             pageId = '',
+            pageSlug = '',
             icon = '',
             target = '_self',
             isActive = true
         } = {}) {
+            dest = dest || (type === 'page' ? 'page' : (url ? 'url' : 'none'));
             const template = document.getElementById('rowTemplate');
             const node = template.content.cloneNode(true);
             const li = node.querySelector('.menu-item-row');
@@ -370,6 +619,7 @@
             }
 
             li.querySelector('.menu-item-row-title').textContent = label;
+            li.querySelector('.menu-item-row-title').title = label;
             li.querySelector('.f-label').value = label;
             li.querySelector('.f-url').value = url;
             li.querySelector('.f-target').value = target;
@@ -379,14 +629,19 @@
             buildIconGrid(li);
             setRowIcon(li, icon);
 
-            setRowDestType(li, type);
-            if (type === 'page') {
+            if (dest === 'page') {
                 li.querySelector('.f-page').value = pageId;
+            }
+            setRowDestType(li, dest);
+            if (dest === 'page' && pageSlug) {
+                li.querySelector('.menu-item-row-url').textContent = '/' + pageSlug;
             }
 
             li.querySelectorAll('.dest-btn').forEach(btn => {
                 btn.addEventListener('click', () => setRowDestType(li, btn.dataset.dest));
             });
+
+            li.querySelector('.f-page').addEventListener('change', () => updateRowUrlBadge(li));
 
             const labelInput = li.querySelector('.f-label');
             labelInput.addEventListener('input', () => {
@@ -402,6 +657,7 @@
                 if (urlInput.classList.contains('is-invalid')) {
                     validateRow(li);
                 }
+                updateRowUrlBadge(li);
             });
             urlInput.addEventListener('blur', () => validateRow(li));
 
@@ -454,19 +710,19 @@
         function validateRow(li) {
             const labelInput = li.querySelector('.f-label');
             const urlInput = li.querySelector('.f-url');
-            const isPage = li.dataset.type === 'page';
+            const dest = li.dataset.dest;
 
             const labelValid = labelInput.value.trim().length > 0;
             labelInput.classList.toggle('is-invalid', !labelValid);
 
-            if (!isPage) {
+            if (dest === 'url') {
                 const urlValid = urlInput.value.trim().length > 0;
                 urlInput.classList.toggle('is-invalid', !urlValid);
             } else {
                 urlInput.classList.remove('is-invalid');
             }
 
-            return labelValid && (isPage || urlInput.value.trim().length > 0);
+            return labelValid && (dest !== 'url' || urlInput.value.trim().length > 0);
         }
 
         function appendRowToStructure(li, parentUl = null) {
@@ -481,25 +737,51 @@
             document.getElementById('menuStructureEmpty').classList.toggle('d-none', !isEmpty);
         }
 
+        const newLinkIconWrapper = document.getElementById('new_link_icon_wrapper');
+        buildIconGrid(newLinkIconWrapper);
+        setRowIcon(newLinkIconWrapper, null);
+
+        const newPagesIconWrapper = document.getElementById('new_pages_icon_wrapper');
+        if (newPagesIconWrapper) {
+            buildIconGrid(newPagesIconWrapper);
+            setRowIcon(newPagesIconWrapper, null);
+        }
+
+        const newLinkNoTarget = document.getElementById('new_link_no_target');
+        newLinkNoTarget.addEventListener('change', function() {
+            document.getElementById('new_link_url_wrapper').classList.toggle('d-none', this.checked);
+        });
+
         document.getElementById('btnAddLink').addEventListener('click', function() {
+            const noTarget = newLinkNoTarget.checked;
             const url = document.getElementById('new_link_url').value.trim();
             const label = document.getElementById('new_link_label').value.trim() || url;
+            const icon = newLinkIconWrapper.querySelector('.f-icon').value;
 
-            if (!url) {
-                showToast('warning', 'Escribe una URL para el enlace.');
+            if (!noTarget && !url) {
+                showToast('warning', 'Escribe una URL para el enlace, o marca "Sin destino".');
+                return;
+            }
+
+            if (noTarget && !document.getElementById('new_link_label').value.trim()) {
+                showToast('warning', 'Escribe un texto para el ítem.');
                 return;
             }
 
             const li = createRow({
-                label,
-                type: 'url',
-                url
+                label: noTarget ? document.getElementById('new_link_label').value.trim() : label,
+                dest: noTarget ? 'none' : 'url',
+                url: noTarget ? '' : url,
+                icon
             });
             appendRowToStructure(li);
             markDirty();
 
             document.getElementById('new_link_url').value = '';
             document.getElementById('new_link_label').value = '';
+            newLinkNoTarget.checked = false;
+            document.getElementById('new_link_url_wrapper').classList.remove('d-none');
+            setRowIcon(newLinkIconWrapper, null);
         });
 
         const btnAddPages = document.getElementById('btnAddPages');
@@ -512,16 +794,23 @@
                     return;
                 }
 
+                const icon = newPagesIconWrapper ? newPagesIconWrapper.querySelector('.f-icon').value : '';
+
                 checked.forEach(cb => {
                     const li = createRow({
                         label: cb.dataset.label,
                         type: 'page',
-                        pageId: cb.value
+                        pageId: cb.value,
+                        pageSlug: cb.dataset.slug,
+                        icon
                     });
                     appendRowToStructure(li);
                     cb.checked = false;
                 });
                 markDirty();
+                if (newPagesIconWrapper) {
+                    setRowIcon(newPagesIconWrapper, null);
+                }
             });
         }
 
@@ -642,6 +931,7 @@
                 type: nodeData.type,
                 url: nodeData.url || '',
                 pageId: nodeData.page_id || '',
+                pageSlug: nodeData.page ? nodeData.page.slug : '',
                 icon: nodeData.icon || '',
                 target: nodeData.target,
                 isActive: !!nodeData.is_active,

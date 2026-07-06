@@ -8,34 +8,7 @@
       "slug": "admin.dashboard",
       "permission": "dashboard.view"
     },
-    { "menuHeader": "Administración" },
-    {
-      "name": "Usuarios",
-      "icon": "menu-icon icon-base ti tabler-users",
-      "slug": "admin.users",
-      "permission": "users.viewAny",
-      "submenu": [
-        { "url": "admin/usuarios",       "name": "Todos los usuarios", "slug": "admin.users.index", "permission": "users.viewAny" },
-        { "url": "admin/usuarios/crear", "name": "Nuevo usuario",      "slug": "admin.users.create", "permission": "users.create" }
-      ]
-    },
-    {
-      "name": "Roles y Permisos",
-      "icon": "menu-icon icon-base ti tabler-shield-lock",
-      "slug": "admin.roles",
-      "permission": "roles.viewAny",
-      "submenu": [
-        { "url": "admin/roles", "name": "Roles y permisos", "slug": "admin.roles.index", "permission": "roles.viewAny" }
-      ]
-    },
-    { "menuHeader": "Sistema" },
-    {
-      "url": "admin/archivos",
-      "icon": "menu-icon icon-base ti tabler-folder-open",
-      "name": "Archivos",
-      "slug": "admin.files.index",
-      "permission": "files.viewAny"
-    },
+    { "menuHeader": "Contenido" },
     {
       "name": "Páginas",
       "icon": "menu-icon icon-base ti tabler-files",
@@ -54,12 +27,31 @@
       "permission": "menus.viewAny"
     },
     {
-      "url": "admin/auditoria",
-      "icon": "menu-icon icon-base ti tabler-history",
-      "name": "Auditoría",
-      "slug": "admin.activity.index",
-      "permission": "activitylog.viewAny"
+      "url": "admin/archivos",
+      "icon": "menu-icon icon-base ti tabler-folder-open",
+      "name": "Archivos",
+      "slug": "admin.files.index",
+      "permission": "files.viewAny"
     },
+    { "menuHeader": "Administración" },
+    {
+      "name": "Usuarios",
+      "icon": "menu-icon icon-base ti tabler-users",
+      "slug": "admin.users",
+      "permission": "users.viewAny",
+      "submenu": [
+        { "url": "admin/usuarios",       "name": "Todos los usuarios", "slug": "admin.users.index", "permission": "users.viewAny" },
+        { "url": "admin/usuarios/crear", "name": "Nuevo usuario",      "slug": "admin.users.create", "permission": "users.create" }
+      ]
+    },
+    {
+      "url": "admin/roles",
+      "icon": "menu-icon icon-base ti tabler-lock",
+      "name": "Roles y Permisos",
+      "slug": "admin.roles.index",
+      "permission": "roles.viewAny"
+    },
+    { "menuHeader": "Sistema" },
     {
       "url": "admin/intentos-login",
       "icon": "menu-icon icon-base ti tabler-shield-lock",
@@ -68,17 +60,18 @@
       "permission": "login-attempts.viewAny"
     },
     {
+      "url": "admin/auditoria",
+      "icon": "menu-icon icon-base ti tabler-history",
+      "name": "Auditoría",
+      "slug": "admin.activity.index",
+      "permission": "activitylog.viewAny"
+    },
+    {
       "url": "admin/logs",
       "icon": "menu-icon icon-base ti tabler-file-text",
       "name": "Logs del servidor",
       "slug": "admin.logs.index",
       "permission": "logs.view"
-    },
-    {
-      "url": "admin/mi-perfil",
-      "icon": "menu-icon icon-base ti tabler-user-circle",
-      "name": "Mi Perfil",
-      "slug": "admin.profile.show"
     },
     {
       "url": "admin/configuracion",

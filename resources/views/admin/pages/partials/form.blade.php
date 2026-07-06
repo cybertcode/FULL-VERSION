@@ -1,8 +1,3 @@
-@php
-    $currentTemplate = old('template', $page?->template?->value ?? \App\Enums\PageTemplate::Standard->value);
-    $currentContent = old('content', $page?->content ?? []);
-@endphp
-
 <form action="{{ $action }}" method="POST">
   @csrf
   @if ($method === 'PUT') @method('PUT') @endif
@@ -27,50 +22,28 @@
         </div>
       </div>
 
-      {{-- Campos dinámicos según plantilla --}}
-      @foreach (\App\Enums\PageTemplate::cases() as $template)
-        <div class="card mb-6 template-fields" data-template="{{ $template->value }}"
-             @if($currentTemplate !== $template->value) style="display:none" @endif>
-          <div class="card-header">
-            <h5 class="mb-0">Contenido — {{ $template->label() }}</h5>
-          </div>
-          <div class="card-body">
-            @foreach ($template->fields() as $field)
-              <div class="mb-6">
-                <label class="form-label" for="content_{{ $field['key'] }}_{{ $template->value }}">{{ $field['label'] }}</label>
-
-                @switch($field['type'])
-                  @case('richtext')
-                    <div class="quill-editor-{{ $template->value }}-{{ $field['key'] }}" style="min-height:200px">
-                      {!! $currentContent[$field['key']] ?? '' !!}
-                    </div>
-                    <input type="hidden"
-                           name="content_by_template[{{ $template->value }}][{{ $field['key'] }}]"
-                           id="content_{{ $field['key'] }}_{{ $template->value }}"
-                           class="quill-hidden-input"
-                           data-editor-target="quill-editor-{{ $template->value }}-{{ $field['key'] }}"
-                           value="{{ $currentContent[$field['key']] ?? '' }}">
-                    @break
-
-                  @case('image')
-                    <x-lfm-input
-                      :name="'content_by_template['.$template->value.']['.$field['key'].']'"
-                      type="image"
-                      :value="$currentContent[$field['key']] ?? null" />
-                    @break
-
-                  @default
-                    <input type="text"
-                           name="content_by_template[{{ $template->value }}][{{ $field['key'] }}]"
-                           id="content_{{ $field['key'] }}_{{ $template->value }}"
-                           class="form-control"
-                           value="{{ $currentContent[$field['key']] ?? '' }}">
-                @endswitch
-              </div>
-            @endforeach
-          </div>
+      {{-- Contenido: se edita como código, no desde este formulario --}}
+      <div class="card mb-6">
+        <div class="card-header">
+          <h5 class="mb-0">Contenido</h5>
         </div>
-      @endforeach
+        <div class="card-body">
+          @if ($page)
+            <p class="mb-2">El contenido de esta página se edita directamente en su archivo Blade:</p>
+            <code class="d-block p-3 bg-lighter rounded mb-2">resources/views/frontend/paginas/{{ $page->slug }}.blade.php</code>
+            <p class="text-body-secondary small mb-0">
+              Abre ese archivo en tu editor de código y escribe el HTML/Blade que quieras. El archivo ya incluye
+              el navbar y footer reales del sitio (menús gestionados en <a href="{{ route('admin.menus.index') }}">/admin/menus</a>),
+              solo debes completar el bloque de contenido.
+            </p>
+          @else
+            <p class="text-body-secondary mb-0">
+              Al guardar, se creará automáticamente el archivo Blade de esta página en
+              <code>resources/views/frontend/paginas/</code> — lo edites después desde tu editor de código.
+            </p>
+          @endif
+        </div>
+      </div>
 
       {{-- SEO --}}
       <div class="card">
@@ -128,22 +101,6 @@
           <button type="submit" class="btn btn-primary waves-effect waves-light">
             <i class="icon-base ti tabler-device-floppy me-1"></i> Guardar
           </button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">Plantilla</h5>
-        </div>
-        <div class="card-body">
-          <select id="template" name="template" class="form-select select2">
-            @foreach ($templates as $template)
-              <option value="{{ $template->value }}" @selected($currentTemplate === $template->value)>
-                {{ $template->label() }}
-              </option>
-            @endforeach
-          </select>
-          <div class="form-text">Define qué campos de contenido puedes llenar y cómo se ve en el sitio.</div>
         </div>
       </div>
     </div>
