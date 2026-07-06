@@ -22,7 +22,26 @@ Ver [CLAUDE.md](CLAUDE.md) para la guía técnica completa (arquitectura, conven
 
 ## Cómo usar este repositorio como base de un proyecto nuevo
 
-Este repo es un **GitHub Template**. Para iniciar un proyecto nuevo sin arrastrar el historial de git del boilerplate:
+Hay dos formas de arrancar un proyecto nuevo a partir de este boilerplate. Ninguna modifica ni depende de esta carpeta (`full-version`) — quedan totalmente independientes entre sí.
+
+### Opción A — Copia local rápida (Laragon), sin tocar GitHub
+
+Para probar algo ya mismo en `c:\laragon\www\`, sin crear repositorio todavía:
+
+```bash
+# Desde c:\laragon\www\ (NO desde dentro de full-version)
+cp -r full-version mi-proyecto-nuevo
+cd mi-proyecto-nuevo
+rm -rf .git                 # importante: si no, seguirá vinculado al historial del boilerplate
+```
+
+Luego sigue la sección **Instalación** de abajo. Con Laragon, la carpeta `mi-proyecto-nuevo` queda accesible automáticamente en `http://mi-proyecto-nuevo.test` (auto-vhost) — usa esa URL como `APP_URL` en el `.env`.
+
+**No copies** `vendor/`, `node_modules/`, `.env`, ni `storage/framework/*` (son de esta instancia y pesan mucho) — bórralos después de copiar o excluye la copia con `rsync -a --exclude=vendor --exclude=node_modules --exclude=.env full-version/ mi-proyecto-nuevo/` (Git Bash) si prefieres hacerlo en un solo paso. `composer install` y `yarn install` los regeneran limpios en la instalación.
+
+### Opción B — Repositorio nuevo en GitHub (template)
+
+Este repo está marcado como **GitHub Template**. Para crear un repositorio nuevo e independiente en tu cuenta (útil si vas a desplegar, dar acceso a otros, o simplemente prefieres empezar con git limpio desde ya):
 
 ```bash
 gh repo create <nombre-proyecto-nuevo> --template cybertcode/FULL-VERSION --private --clone
@@ -30,6 +49,8 @@ cd <nombre-proyecto-nuevo>
 ```
 
 O desde la web de GitHub: botón **"Use this template"** → *"Create a new repository"*.
+
+Esto no toca tu copia local de `full-version` en Laragon — es un repo aparte que luego puedes clonar donde quieras (incluyendo dentro de `c:\laragon\www\` con otro nombre, para tener también auto-vhost).
 
 ## Requisitos
 
@@ -51,8 +72,9 @@ Edita `.env` con tus datos reales, como mínimo:
 | Variable | Qué poner |
 | -------- | --------- |
 | `APP_NAME` | Nombre del proyecto nuevo |
-| `APP_URL` | URL local (ej. `http://mi-proyecto.test`) |
-| `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Credenciales de tu base de datos |
+| `APP_URL` | URL local — con Laragon es `http://<nombre-de-la-carpeta>.test` |
+| `DB_DATABASE` | Nombre de una base de datos **nueva y vacía** (créala en phpMyAdmin/HeidiSQL antes del siguiente paso — no reutilices la del boilerplate ni la de otro proyecto) |
+| `DB_USERNAME` / `DB_PASSWORD` | Credenciales de tu MySQL (Laragon local: `root` sin password) |
 
 El resto de variables en `.env.example` están comentadas por sección (mail, colas, S3, Redis, backups, etc.) — todas opcionales para desarrollo local, revisar antes de ir a producción.
 
