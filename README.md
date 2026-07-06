@@ -1,66 +1,104 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<p align="center"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="320" alt="Laravel Logo"></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<h1 align="center">Boilerplate Laravel 12 + Vuexy</h1>
 
-## About Laravel
+<p align="center">Panel administrativo listo para producción, pensado como base para cualquier proyecto nuevo.</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Qué incluye
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Laravel 12** + plantilla comercial **Vuexy v3** (Bootstrap 5, multi-page, sin SPA).
+- **Auth completa** vía Jetstream (2FA, sesiones activas, login social Google/GitHub/Facebook).
+- **Roles y permisos** granulares con Spatie Permission (`modulo.accion`), CRUD de permisos desde la UI.
+- **Guard `customer`** aislado para usuarios finales del frontend (`/cuenta/*`), separado del panel admin.
+- **CMS de Páginas y Menús** (`/admin/paginas`, `/admin/menus`) — plantillas con campos dinámicos, jerarquía, sanitización de HTML.
+- **Auditoría** (activity log con diff legible), **impersonación de usuarios**, **notificaciones** (database + email), **backups automáticos**, **Gestor de Archivos** (LFM) con componente `<x-lfm-input>` reutilizable.
+- **API REST** de ejemplo en `/api/v1` (Sanctum, paginación estándar, Policies).
+- **Seguridad de fábrica**: security headers, CSP, CORS configurable, rate limiting, 2FA reforzado en login social y API, XSS/HTML sanitizado en contenido editable.
+- **Calidad**: PHPUnit (273+ tests), Larastan/PHPStan nivel 6, Laravel Pint, CI en GitHub Actions.
 
-## Learning Laravel
+Ver [CLAUDE.md](CLAUDE.md) para la guía técnica completa (arquitectura, convenciones, dónde tocar y dónde no).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Cómo usar este repositorio como base de un proyecto nuevo
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Este repo es un **GitHub Template**. Para iniciar un proyecto nuevo sin arrastrar el historial de git del boilerplate:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+gh repo create <nombre-proyecto-nuevo> --template cybertcode/FULL-VERSION --private --clone
+cd <nombre-proyecto-nuevo>
+```
 
-## Laravel Sponsors
+O desde la web de GitHub: botón **"Use this template"** → *"Create a new repository"*.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Requisitos
 
-### Premium Partners
+- PHP 8.2+
+- MySQL 8+ (o compatible)
+- Composer 2
+- Node.js 18 + **Yarn** (el proyecto usa Yarn, no npm)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Instalación
 
-## Contributing
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Edita `.env` con tus datos reales, como mínimo:
 
-## Code of Conduct
+| Variable | Qué poner |
+| -------- | --------- |
+| `APP_NAME` | Nombre del proyecto nuevo |
+| `APP_URL` | URL local (ej. `http://mi-proyecto.test`) |
+| `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Credenciales de tu base de datos |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+El resto de variables en `.env.example` están comentadas por sección (mail, colas, S3, Redis, backups, etc.) — todas opcionales para desarrollo local, revisar antes de ir a producción.
 
-## Security Vulnerabilities
+```bash
+php artisan migrate:fresh --seed
+yarn install
+yarn build          # o `yarn dev` para desarrollo con hot-reload
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Todo junto (servidor + queue worker + logs + Vite en paralelo):
 
-## License
+```bash
+composer run dev
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Credenciales por defecto (seeder)
+
+| Campo | Valor |
+| ----- | ----- |
+| URL panel | `/admin` |
+| Email | `admin@admin.com` |
+| Password | `Admin123` |
+| Rol | `Super-Admin` |
+
+**Cambiar esta contraseña antes de desplegar a producción.**
+
+## Comandos útiles
+
+```bash
+php artisan test                                    # suite completa de tests
+./vendor/bin/phpstan analyse --memory-limit=512M     # análisis estático (nivel 6)
+./vendor/bin/pint                                    # formateo de código (Laravel Pint)
+php artisan backup:run                               # backup manual (BD + archivos)
+php artisan schedule:list                            # ver tareas programadas
+```
+
+## Antes de desplegar a producción
+
+- `APP_ENV=production` y `APP_DEBUG=false` (evita filtrar stack traces).
+- `LOG_LEVEL=error` (evita ruido de SQL/payloads en logs).
+- `SESSION_SECURE_COOKIE=true` si el hosting fuerza HTTPS.
+- Configurar `CORS_ALLOWED_ORIGINS` si algún frontend externo consume `/api/v1`.
+- Revisar `/admin/configuracion` → Integraciones para reCAPTCHA y login social (se configuran ahí, no en `.env`).
+- Cambiar la contraseña del usuario `admin@admin.com`.
+
+## Licencia
+
+Este boilerplate usa Laravel (MIT) y la plantilla comercial Vuexy (licencia de Pixinvent — no redistribuir el código de la plantilla fuera de proyectos con licencia válida).
