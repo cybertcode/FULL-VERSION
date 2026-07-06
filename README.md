@@ -30,23 +30,25 @@ Para probar algo ya mismo en `c:\laragon\www\`, sin crear repositorio todavía:
 
 ```bash
 # Desde c:\laragon\www\ (NO desde dentro de full-version)
-cp -r full-version mi-proyecto-nuevo
-cd mi-proyecto-nuevo
+cp -r full-version clinica-dental
+cd clinica-dental
 rm -rf .git                 # importante: si no, seguirá vinculado al historial del boilerplate
 ```
 
-Luego sigue la sección **Instalación** de abajo. Con Laragon, la carpeta `mi-proyecto-nuevo` queda accesible automáticamente en `http://mi-proyecto-nuevo.test` (auto-vhost) — usa esa URL como `APP_URL` en el `.env`.
+Luego sigue la sección **Instalación** de abajo. Con Laragon, la carpeta `clinica-dental` queda accesible automáticamente en `http://clinica-dental.test` (auto-vhost) — usa esa URL como `APP_URL` en el `.env`.
 
-**No copies** `vendor/`, `node_modules/`, `.env`, ni `storage/framework/*` (son de esta instancia y pesan mucho) — bórralos después de copiar o excluye la copia con `rsync -a --exclude=vendor --exclude=node_modules --exclude=.env full-version/ mi-proyecto-nuevo/` (Git Bash) si prefieres hacerlo en un solo paso. `composer install` y `yarn install` los regeneran limpios en la instalación.
+**No copies** `vendor/`, `node_modules/`, `.env`, ni `storage/framework/*` (son de esta instancia y pesan mucho) — bórralos después de copiar o excluye la copia con `rsync -a --exclude=vendor --exclude=node_modules --exclude=.env full-version/ clinica-dental/` (Git Bash) si prefieres hacerlo en un solo paso. `composer install` y `yarn install` los regeneran limpios en la instalación.
 
 ### Opción B — Repositorio nuevo en GitHub (template)
 
-Este repo está marcado como **GitHub Template**. Para crear un repositorio nuevo e independiente en tu cuenta (útil si vas a desplegar, dar acceso a otros, o simplemente prefieres empezar con git limpio desde ya):
+Este repo está marcado como **GitHub Template**. Para crear un repositorio nuevo e independiente en tu cuenta (útil si vas a desplegar, dar acceso a otros, o simplemente prefieres empezar con git limpio desde ya), reemplaza `clinica-dental` por el nombre real que quieras darle a tu proyecto (debe aparecer igual en ambas líneas):
 
 ```bash
-gh repo create <nombre-proyecto-nuevo> --template cybertcode/FULL-VERSION --private --clone
-cd <nombre-proyecto-nuevo>
+gh repo create clinica-dental --template cybertcode/FULL-VERSION --private --clone
+cd clinica-dental
 ```
+
+Qué hace cada parte: `gh repo create clinica-dental` crea el repositorio en tu cuenta de GitHub; `--template cybertcode/FULL-VERSION` copia el código de este boilerplate (sin su historial de commits); `--private` lo crea privado; `--clone` además lo descarga a una carpeta `clinica-dental` en tu máquina, donde sea que ejecutes el comando. El `cd clinica-dental` solo entra a esa carpeta para seguir con la sección **Instalación**.
 
 O desde la web de GitHub: botón **"Use this template"** → *"Create a new repository"*.
 
