@@ -5,8 +5,7 @@
  * Reemplazar por el logo real del proyecto cuando esté disponible:
  * ver public/assets/img/pwa/README.md
  */
-
-function makeIcon(int $size, string $letter, string $bgHex, bool $maskable = false): \GdImage
+function makeIcon(int $size, string $letter, string $bgHex, bool $maskable = false): GdImage
 {
     $img = imagecreatetruecolor($size, $size);
 

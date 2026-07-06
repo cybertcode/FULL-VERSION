@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PageStatus;
 use App\Traits\HasAudit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
@@ -116,6 +117,9 @@ class Page extends BaseModel
         return $slug;
     }
 
+    /**
+     * @return HasMany<MenuItem, $this>
+     */
     public function menuItems(): HasMany
     {
         return $this->hasMany(MenuItem::class);
@@ -130,11 +134,12 @@ class Page extends BaseModel
     public function breadcrumbTrail(): array
     {
         return $this->ancestors()
-            ->defaultOrder()
+            ->getQuery()
+            ->orderBy($this->getLftName())
             ->get(['title', 'slug'])
-            ->map(fn (Page $ancestor) => [
-                'label' => $ancestor->title,
-                'url' => url($ancestor->slug),
+            ->map(fn (Model $ancestor) => [
+                'label' => (string) $ancestor->getAttribute('title'),
+                'url' => url((string) $ancestor->getAttribute('slug')),
             ])
             ->all();
     }

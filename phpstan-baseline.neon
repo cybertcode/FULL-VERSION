@@ -265,12 +265,6 @@ parameters:
 			path: app/Http/Controllers/Api/V1/AuthController.php
 
 		-
-			message: '#^Cannot call method view\(\) on string\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Frontend/PageController.php
-
-		-
 			message: '#^Method App\\Http\\Requests\\Admin\\Menu\\SaveMenuStructureRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -289,22 +283,10 @@ parameters:
 			path: app/Http/Requests/Admin/Notification/BroadcastNotificationRequest.php
 
 		-
-			message: '#^Method App\\Http\\Requests\\Admin\\Page\\StorePageRequest\:\:dataForPage\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Requests/Admin/Page/StorePageRequest.php
-
-		-
 			message: '#^Method App\\Http\\Requests\\Admin\\Page\\StorePageRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Requests/Admin/Page/StorePageRequest.php
-
-		-
-			message: '#^Method App\\Http\\Requests\\Admin\\Page\\UpdatePageRequest\:\:dataForPage\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Requests/Admin/Page/UpdatePageRequest.php
 
 		-
 			message: '#^Method App\\Http\\Requests\\Admin\\Page\\UpdatePageRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
@@ -465,12 +447,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$slug\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Models/MenuItem.php
-
-		-
-			message: '#^Method App\\Models\\MenuItem\:\:menu\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/MenuItem.php
 

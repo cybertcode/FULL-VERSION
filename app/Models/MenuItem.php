@@ -23,6 +23,9 @@ class MenuItem extends BaseModel
         ];
     }
 
+    /**
+     * @return BelongsTo<Menu, $this>
+     */
     public function menu(): BelongsTo
     {
         return $this->belongsTo(Menu::class);

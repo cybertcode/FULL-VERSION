@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Enums\PageStatus;
 use App\Exceptions\BusinessException;
+use App\Models\MenuItem;
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -133,7 +134,7 @@ class PageService
         }
 
         $description = $usages
-            ->map(fn ($item) => "\"{$item->menu->name}\" → ítem \"{$item->label}\"")
+            ->map(fn (MenuItem $item) => "\"{$item->menu->name}\" → ítem \"{$item->label}\"")
             ->implode(', ');
 
         throw new BusinessException(
